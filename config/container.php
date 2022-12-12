@@ -46,6 +46,8 @@ return [
         // Register middleware
         (require __DIR__ . '/middleware.php')($app);
 
+        $app->add(\Slim\Views\TwigMiddleware::createFromContainer($app));
+
         return $app;
     },
 
@@ -105,6 +107,12 @@ return [
         );
 
         return EntityManager::create($settings['connection'], $config);
+    },
+
+    'view' => function (ContainerInterface $container) {
+        return \Slim\Views\Twig::create(__DIR__ . '/../resources/templates', [
+            'cache' => __DIR__ . '/../cache'
+        ]);
     },
 
     ErrorMiddleware::class => function (ContainerInterface $container) {
