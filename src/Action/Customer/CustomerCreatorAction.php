@@ -2,7 +2,7 @@
 
 namespace App\Action\Customer;
 
-use App\Domain\Customer\Service\CustomerCreator;
+use App\Domain\Customer\Service\EventCategoryCreator;
 use App\Renderer\JsonRenderer;
 use Fig\Http\Message\StatusCodeInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -12,9 +12,9 @@ final class CustomerCreatorAction
 {
     private JsonRenderer $renderer;
 
-    private CustomerCreator $customerCreator;
+    private EventCategoryCreator $customerCreator;
 
-    public function __construct(CustomerCreator $customerCreator, JsonRenderer $renderer)
+    public function __construct(EventCategoryCreator $customerCreator, JsonRenderer $renderer)
     {
         $this->customerCreator = $customerCreator;
         $this->renderer = $renderer;

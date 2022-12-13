@@ -10,5 +10,6 @@ return function (App $app) {
     $app->add(ValidationExceptionMiddleware::class);
     $app->addRoutingMiddleware();
     $app->add(BasePathMiddleware::class);
-    $app->add(ErrorMiddleware::class);
+//    $app->add(ErrorMiddleware::class);
+    $app->addErrorMiddleware(true, true, true);
 };

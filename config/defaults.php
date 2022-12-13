@@ -15,7 +15,7 @@ $settings = [];
 // Error handler
 $settings['error'] = [
     // Should be set to false for the production environment
-    'display_error_details' => false,
+    'display_error_details' => true,
     // Should be set to false for the test environment
     'log_errors' => true,
     // Display error details in error log

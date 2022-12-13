@@ -10,9 +10,17 @@ return function (App $app) {
     $app->get('/', \App\Action\Home\HomeAction::class)->setName('home');
 
     // API
-    $app->group(
-        '/api',
+    $app->group('/api',
         function (RouteCollectorProxy $app) {
+            $app->group('/events',
+                function (RouteCollectorProxy $app) {
+                    $app->get('/', \App\Action\Event\EventFinderAction::class);
+                    $app->get('/{event_id}', \App\Action\Event\EventReaderAction::class);
+
+                    $app->post('/', \App\Action\Event\EventCreatorAction::class);
+                }
+            );
+
             $app->get('/customers', \App\Action\Customer\CustomerFinderAction::class);
             $app->post('/customers', \App\Action\Customer\CustomerCreatorAction::class);
             $app->get('/customers/{customer_id}', \App\Action\Customer\CustomerReaderAction::class);
