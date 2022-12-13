@@ -31,7 +31,7 @@ class EventCategory implements \JsonSerializable
     public function setName(string $name): void { $this->name = $name; }
     public function setEvents(Collection $events): void { $this->events = $events; }
 
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         return array(
             'id' => $this->id,

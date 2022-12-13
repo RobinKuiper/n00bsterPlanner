@@ -5,3 +5,22 @@
     <li>{{ event.title }}</li>
 {% endfor %}
 </ul>
+
+<script>
+    (function(val) {
+        let identifier = localStorage.getItem('identifier')
+
+        if(!identifier){
+            identifier = Date.now().toString();
+            localStorage.setItem('identifier', identifier)
+        }
+
+        const Http = new XMLHttpRequest();
+        const url = 'http://localhost:8080/api/user';
+        Http.open("POST", url);
+        Http.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+        Http.send("identifier=" + identifier);
+
+        Http.onreadystatechange = e => console.log(Http.responseText);
+    })('test');
+</script>

@@ -39,7 +39,7 @@ final class EventCreator
         $this->repository = $repository;
         $this->validator = $validator;
         $this->logger = $loggerFactory
-            ->addFileHandler('event_category_creator.log')
+            ->addFileHandler('event_creator.log')
             ->createLogger();
     }
 

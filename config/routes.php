@@ -21,6 +21,14 @@ return function (App $app) {
                 }
             );
 
+            $app->post('/user', \App\Action\User\UserUpdaterAction::class);
+
+//            $app->group('/user',
+//                function (RouteCollectorProxy $app) {
+//
+//                }
+//            );
+
             $app->get('/customers', \App\Action\Customer\CustomerFinderAction::class);
             $app->post('/customers', \App\Action\Customer\CustomerCreatorAction::class);
             $app->get('/customers/{customer_id}', \App\Action\Customer\CustomerReaderAction::class);

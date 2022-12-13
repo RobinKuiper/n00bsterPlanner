@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Action\Event;
+namespace App\Action\User;
 
-use App\Domain\Event\Service\EventCreator;
+use App\Domain\User\Service\UserUpdater;
 use App\Renderer\JsonRenderer;
 use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\OptimisticLockException;
@@ -10,39 +10,46 @@ use Fig\Http\Message\StatusCodeInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
-final class EventCreatorAction
+final class UserUpdaterAction
 {
+    /**
+     * @var JsonRenderer
+     */
     private JsonRenderer $renderer;
 
-    private EventCreator $eventCreator;
+    /**
+     * @var UserUpdater
+     */
+    private UserUpdater $userUpdater;
 
-    public function __construct(EventCreator $eventCreator, JsonRenderer $renderer)
+    /**
+     * @param UserUpdater $userUpdater
+     * @param JsonRenderer $renderer
+     */
+    public function __construct(UserUpdater $userUpdater, JsonRenderer $renderer)
     {
-        $this->eventCreator = $eventCreator;
+        $this->userUpdater = $userUpdater;
         $this->renderer = $renderer;
     }
 
     /**
-     * @throws OptimisticLockException
+     * @param ServerRequestInterface $request
+     * @param ResponseInterface $response
+     * @return ResponseInterface
      * @throws ORMException
+     * @throws OptimisticLockException
      */
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
     {
         // Extract the form data from the request body
         $data = (array)$request->getParsedBody();
 
-//        $data = [
-//            'title' => 'Test Title',
-//            'description' => 'Test Description',
-//            'category' => 'test'
-//        ];
-
         // Invoke the Domain with inputs and retain the result
-        $event = $this->eventCreator->createEvent($data);
+        $user = $this->userUpdater->update($data);
 
         // Build the HTTP response
         return $this->renderer
-            ->json($response, ['event_id' => $event->getId()])
+            ->json($response, ['user_id' => $user->getId()])
             ->withStatus(StatusCodeInterface::STATUS_CREATED);
     }
 }
