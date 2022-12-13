@@ -111,7 +111,7 @@ return [
 
     'view' => function (ContainerInterface $container) {
         return \Slim\Views\Twig::create(__DIR__ . '/../resources/templates', [
-            'cache' => __DIR__ . '/../cache'
+//            'cache' => __DIR__ . '/../cache'
         ]);
     },
 
