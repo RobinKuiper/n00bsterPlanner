@@ -2,35 +2,30 @@
 
 namespace App\Domain\User\Repository;
 
+use App\Base\BaseRepository;
 use App\Domain\User\Models\User;
 use DateTimeImmutable;
 use Doctrine\ORM\EntityManager;
-use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\OptimisticLockException;
-use Doctrine\Persistence\ObjectRepository;
 use DomainException;
 
-final class UserRepository
+final class UserRepository extends BaseRepository
 {
-    /**
-     * @var EntityManager
-     */
-    private EntityManager $entityManager;
-
-    /**
-     * @var EntityRepository|ObjectRepository
-     */
-    private EntityRepository|ObjectRepository $repository;
-
     /**
      * @param EntityManager $entityManager
      */
     public function __construct(EntityManager $entityManager)
     {
-        $this->entityManager = $entityManager;
+        parent::__construct($entityManager);
+    }
 
-        $this->repository = $this->entityManager->getRepository(User::class);
+    /**
+     * @return string
+     */
+    protected function getModelName(): string
+    {
+        return User::class;
     }
 
     /**
@@ -39,28 +34,12 @@ final class UserRepository
      * @throws ORMException
      * @throws OptimisticLockException
      */
-    public function insert(array $data): User
+    public function create(array $data): User
     {
         $user = new User();
         $user->setVisitorId($data['visitorId']);
 
-        $this->entityManager->persist($user);
-        $this->entityManager->flush();
-
-        return $user;
-    }
-
-    /**
-     * @param int $id
-     * @return User
-     */
-    public function getById(int $id): User
-    {
-        $user = $this->repository->find($id);
-
-        if (!$user) {
-            throw new DomainException(sprintf('User not found: %s', $id));
-        }
+        $this->save($user);
 
         return $user;
     }
@@ -71,21 +50,13 @@ final class UserRepository
      */
     public function getByVisitorID(string $visitorId): User
     {
-        $user = $this->repository->findOneBy([ 'visitorId' => $visitorId ]);
+        $user = $this->entityManager->getRepository($this->getModelName())->findOneBy([ 'visitorId' => $visitorId ]);
 
         if (!$user) {
             throw new DomainException(sprintf('User not found: %s', $visitorId));
         }
 
         return $user;
-    }
-
-    /**
-     * @return array
-     */
-    public function find(): array
-    {
-        return $this->repository->findAll();
     }
 
     /**
@@ -99,19 +70,9 @@ final class UserRepository
     {
         $user->setLastVisit(new DateTimeImmutable('now'));
 
-        $this->entityManager->persist($user);
-        $this->entityManager->flush();
+        $this->save($user);
 
         return $user;
-    }
-
-    /**
-     * @param int $id
-     * @return bool
-     */
-    public function exists(int $id): bool
-    {
-        return (bool)$this->repository->count([ 'id' => $id ]) > 0;
     }
 
     /**
@@ -120,21 +81,6 @@ final class UserRepository
      */
     public function existsByVisitorId(string $visitorId): bool
     {
-        return (bool)count($this->repository->findBy([ 'visitorId' => $visitorId ])) > 0;
-    }
-
-    /**
-     * @param int $id
-     * @return void
-     * @throws ORMException
-     */
-    public function deleteById(int $id): void
-    {
-        $user = $this->repository->find($id);
-        try{
-            $this->entityManager->remove($user);
-        } catch(ORMException $e) {
-            throw new ORMException($e);
-        }
+        return (bool)count($this->entityManager->getRepository($this->getModelName())->findBy([ 'visitorId' => $visitorId ])) > 0;
     }
 }

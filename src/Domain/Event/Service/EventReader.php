@@ -33,7 +33,7 @@ final class EventReader
         // ...
 
         // Fetch data from the database
-        $event = $this->repository->getEventById($eventId);
+        $event = $this->repository->getById($eventId);
 
         // Optional: Add or invoke your complex business logic here
         // ...

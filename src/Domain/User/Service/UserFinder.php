@@ -27,6 +27,6 @@ final class UserFinder
         // Input validation
         // ...
 
-        return $this->repository->find();
+        return $this->repository->getAll();
     }
 }

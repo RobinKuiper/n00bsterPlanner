@@ -27,7 +27,7 @@ final class EventFinder
         // Input validation
         // ...
 
-        $events = $this->repository->findEvents();
+        $events = $this->repository->getAll();
 
         return $events;
     }

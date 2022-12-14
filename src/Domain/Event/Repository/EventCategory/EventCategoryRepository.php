@@ -2,33 +2,29 @@
 
 namespace App\Domain\Event\Repository\EventCategory;
 
+use App\Base\BaseRepository;
 use App\Domain\Event\Models\EventCategory\EventCategory;
 use Doctrine\ORM\EntityManager;
-use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\OptimisticLockException;
-use Doctrine\Persistence\ObjectRepository;
 use DomainException;
 
-final class EventCategoryRepository
+final class EventCategoryRepository extends BaseRepository
 {
-    /**
-     * @var EntityManager
-     */
-    private EntityManager $entityManager;
-
-    /**
-     * @var EntityRepository|ObjectRepository
-     */
-    private EntityRepository|ObjectRepository $repository;
-
     /**
      * @param EntityManager $entityManager
      */
     public function __construct(EntityManager $entityManager)
     {
-        $this->entityManager = $entityManager;
-        $this->repository = $this->entityManager->getRepository(EventCategory::class);
+        parent::__construct($entityManager);
+    }
+
+    /**
+     * @return string
+     */
+    protected function getModelName(): string
+    {
+        return EventCategory::class;
     }
 
     /**
@@ -37,67 +33,28 @@ final class EventCategoryRepository
      * @throws ORMException
      * @throws OptimisticLockException
      */
-    public function insertEventCategory(array $data): EventCategory
+    public function create(array $data): EventCategory
     {
         $eventCategory = new EventCategory();
         $eventCategory->setName($data['name']);
 
-        $this->entityManager->persist($eventCategory);
-        $this->entityManager->flush();
+        $this->save($eventCategory);
 
         return $eventCategory;
     }
 
     /**
      * @param string $eventCategoryName
-     * @return array|object
-     * @throws DomainException
+     * @return EventCategory
      */
-    public function getEventCategoryByName(string $eventCategoryName): EventCategory
+    public function getByName(string $eventCategoryName): EventCategory
     {
-        $category = $this->repository->findOneBy([ 'name' => $eventCategoryName]);
+        $category = $this->entityManager->getRepository($this->getModelName())->findOneBy([ 'name' => $eventCategoryName]);
 
         if (!$category) {
             throw new DomainException(sprintf('Category not found: %s', $eventCategoryName));
         }
 
         return $category;
-    }
-
-    /**
-     * @return array
-     */
-    public function findEventCategories(): array
-    {
-        return $this->repository->findAll();
-    }
-
-    public function updateEventCategory(int $eventCategoryId, array $eventCategory): void
-    {
-        // TODO: Create update functionality
-    }
-
-    /**
-     * @param int $eventCategoryId
-     * @return bool
-     */
-    public function existsEventCategoryId(int $eventCategoryId): bool
-    {
-        return (bool)$this->repository->count([ 'id' => $eventCategoryId ]) > 0;
-    }
-
-    /**
-     * @param int $eventCategoryId
-     * @return void
-     * @throws ORMException
-     */
-    public function deleteEventCategoryById(int $eventCategoryId): void
-    {
-        $eventCategory = $this->repository->find($eventCategoryId);
-        try{
-            $this->entityManager->remove($eventCategory);
-        }catch(ORMException $e){
-            throw new ORMException($e);
-        }
     }
 }

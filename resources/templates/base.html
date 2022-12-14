@@ -14,8 +14,13 @@
             {% endblock %}
         </div>
 
+        <script src="https://code.jquery.com/jquery-3.6.2.min.js" />
+        <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
+
+        {% block scripts %}{% endblock %}
+
         <script>
-            const fpPromise = import('http://localhost:8080/js/fpjs.js')
+            const fpPromise = import('http://localhost:8080/js/fpjs.js') // TODO: Base Url
                 .then(FingerprintJS => FingerprintJS.load());
 
             (function(val) {

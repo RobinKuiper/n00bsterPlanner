@@ -56,7 +56,7 @@ final class UserUpdater
 
         $visitorId = $data['visitorId'];
         if(!$this->repository->existsByVisitorId($visitorId)) {
-            $user = $this->repository->insert($data);
+            $user = $this->repository->create($data);
         } else {
             $user = $this->repository->getByVisitorID($visitorId);
             $user = $this->repository->update($user, $data);

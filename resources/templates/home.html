@@ -3,11 +3,33 @@
 {% block title %}Homepage{% endblock %}
 
 {% block content %}
-<h1>Welcome!</h1>
+    <h1>Welcome!</h1>
 
-<ul>
-{% for event in events %}
-    <li>{{ event.title }}</li>
-{% endfor %}
-</ul>
+    <ul>
+    {% for event in events %}
+        <li>{{ event.title }}</li>
+    {% endfor %}
+    </ul>
+
+    <button id="create">Create</button>
+
+    {% block scripts %}
+    <script>
+        jQuery( function() {
+            jQuery("#create").on('click', function(e) {
+               console.log("Create");
+
+                jQuery("#create").innerHTML = 'Loading';
+
+                const Http = new XMLHttpRequest();
+                const url = 'http://localhost:8080/api/events/';
+                Http.open("POST", url);
+                Http.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+                Http.send("title=New Event&description=Description&category=Test&user=1");
+
+                Http.onreadystatechange = e => console.log(Http.responseText);
+            });
+        })
+    </script>
+    {% endblock %}
 {% endblock %}
