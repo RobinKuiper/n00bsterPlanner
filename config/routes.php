@@ -28,12 +28,6 @@ return function (App $app) {
 //
 //                }
 //            );
-
-            $app->get('/customers', \App\Action\Customer\CustomerFinderAction::class);
-            $app->post('/customers', \App\Action\Customer\CustomerCreatorAction::class);
-            $app->get('/customers/{customer_id}', \App\Action\Customer\CustomerReaderAction::class);
-            $app->put('/customers/{customer_id}', \App\Action\Customer\CustomerUpdaterAction::class);
-            $app->delete('/customers/{customer_id}', \App\Action\Customer\CustomerDeleterAction::class);
         }
     );
 };
