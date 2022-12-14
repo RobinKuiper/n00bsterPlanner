@@ -54,11 +54,11 @@ final class UserUpdater
         // Input validation
         $this->validator->validate($data);
 
-        $identifier = $data['identifier'];
-        if(!$this->repository->existsByIdentifier($identifier)) {
+        $visitorId = $data['visitorId'];
+        if(!$this->repository->existsByVisitorId($visitorId)) {
             $user = $this->repository->insert($data);
         } else {
-            $user = $this->repository->getByIdentifier($identifier);
+            $user = $this->repository->getByVisitorID($visitorId);
             $user = $this->repository->update($user, $data);
         }
 

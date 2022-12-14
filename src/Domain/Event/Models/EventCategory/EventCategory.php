@@ -35,7 +35,8 @@ class EventCategory implements \JsonSerializable
     {
         return array(
             'id' => $this->id,
-            'name' => $this->name
+            'name' => $this->name,
+            'events' => $this->events
         );
     }
 }

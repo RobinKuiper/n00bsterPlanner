@@ -56,7 +56,7 @@ final class UserValidator
 
         return $constraint->collection(
             [
-                'identifier' => $constraint->required(
+                'visitorId' => $constraint->required(
                     [
                         $constraint->notBlank(),
                         $constraint->length(null, 255),

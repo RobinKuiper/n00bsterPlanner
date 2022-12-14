@@ -42,7 +42,7 @@ final class UserRepository
     public function insert(array $data): User
     {
         $user = new User();
-        $user->setIdentifier($data['identifier']);
+        $user->setVisitorId($data['visitorId']);
 
         $this->entityManager->persist($user);
         $this->entityManager->flush();
@@ -66,15 +66,15 @@ final class UserRepository
     }
 
     /**
-     * @param string $identifier
+     * @param string $visitorId
      * @return User
      */
-    public function getByIdentifier(string $identifier): User
+    public function getByVisitorID(string $visitorId): User
     {
-        $user = $this->repository->findOneBy([ 'identifier' => $identifier ]);
+        $user = $this->repository->findOneBy([ 'visitorId' => $visitorId ]);
 
         if (!$user) {
-            throw new DomainException(sprintf('User not found: %s', $identifier));
+            throw new DomainException(sprintf('User not found: %s', $visitorId));
         }
 
         return $user;
@@ -115,12 +115,12 @@ final class UserRepository
     }
 
     /**
-     * @param string $identifier
+     * @param string $visitorId
      * @return bool
      */
-    public function existsByIdentifier(string $identifier): bool
+    public function existsByVisitorId(string $visitorId): bool
     {
-        return (bool)count($this->repository->findBy([ 'identifier' => $identifier ])) > 0;
+        return (bool)count($this->repository->findBy([ 'visitorId' => $visitorId ])) > 0;
     }
 
     /**

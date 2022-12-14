@@ -74,6 +74,12 @@ final class EventValidator
                         $constraint->length(null, 255),
                     ]
                 ),
+                'user' => $constraint->required(
+                    [
+                        $constraint->notBlank(),
+                        $constraint->length(null, 255),
+                    ]
+                ),
             ]
         );
     }
