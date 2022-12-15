@@ -72,7 +72,7 @@ final class EventCreator
         // Input validation
         $this->validator->validateEvent($data);
 
-        $data['category'] = $this->eventCategoryRepository->getByName($data['category']);
+        $data['category'] = $this->eventCategoryRepository->findOneBy([ 'name' => $data['category'] ]);
         $data['user'] = $this->userRepository->getById($data['user']);
 
         // Insert customer and get new customer ID

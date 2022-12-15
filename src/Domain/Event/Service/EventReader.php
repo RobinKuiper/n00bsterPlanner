@@ -40,4 +40,20 @@ final class EventReader
 
         return $event;
     }
+
+    /**
+     * @param string $identifier
+     * @return Event
+     */
+    public function getByIdentifier(string $identifier): Event|null {
+        // TODO: Validation
+
+        $event = $this->repository->findOneBy([ 'identifier' => $identifier ]);
+
+        if(!$event){
+            return null;
+        }
+
+        return $event;
+    }
 }

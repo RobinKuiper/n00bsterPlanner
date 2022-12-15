@@ -8,7 +8,6 @@ use DateTimeImmutable;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\OptimisticLockException;
-use DomainException;
 
 final class UserRepository extends BaseRepository
 {
@@ -45,21 +44,6 @@ final class UserRepository extends BaseRepository
     }
 
     /**
-     * @param string $visitorId
-     * @return User
-     */
-    public function getByVisitorID(string $visitorId): User
-    {
-        $user = $this->entityManager->getRepository($this->getModelName())->findOneBy([ 'visitorId' => $visitorId ]);
-
-        if (!$user) {
-            throw new DomainException(sprintf('User not found: %s', $visitorId));
-        }
-
-        return $user;
-    }
-
-    /**
      * @param User $user
      * @param array $data
      * @return User
@@ -73,14 +57,5 @@ final class UserRepository extends BaseRepository
         $this->save($user);
 
         return $user;
-    }
-
-    /**
-     * @param string $visitorId
-     * @return bool
-     */
-    public function existsByVisitorId(string $visitorId): bool
-    {
-        return (bool)count($this->entityManager->getRepository($this->getModelName())->findBy([ 'visitorId' => $visitorId ])) > 0;
     }
 }

@@ -7,7 +7,6 @@ use App\Domain\Event\Models\EventCategory\EventCategory;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\OptimisticLockException;
-use DomainException;
 
 final class EventCategoryRepository extends BaseRepository
 {
@@ -41,20 +40,5 @@ final class EventCategoryRepository extends BaseRepository
         $this->save($eventCategory);
 
         return $eventCategory;
-    }
-
-    /**
-     * @param string $eventCategoryName
-     * @return EventCategory
-     */
-    public function getByName(string $eventCategoryName): EventCategory
-    {
-        $category = $this->entityManager->getRepository($this->getModelName())->findOneBy([ 'name' => $eventCategoryName]);
-
-        if (!$category) {
-            throw new DomainException(sprintf('Category not found: %s', $eventCategoryName));
-        }
-
-        return $category;
     }
 }

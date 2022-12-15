@@ -55,10 +55,11 @@ final class UserUpdater
         $this->validator->validate($data);
 
         $visitorId = $data['visitorId'];
-        if(!$this->repository->existsByVisitorId($visitorId)) {
+        $user = $this->repository->findOneBy([ 'visitorId' => $visitorId ]);
+
+        if(!$user) {
             $user = $this->repository->create($data);
         } else {
-            $user = $this->repository->getByVisitorID($visitorId);
             $user = $this->repository->update($user, $data);
         }
 

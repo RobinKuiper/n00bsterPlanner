@@ -2,13 +2,14 @@
 
 namespace App\Base;
 
+use App\Interface\RepositoryInterface;
 use DI\NotFoundException;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\TransactionRequiredException;
 
-abstract class BaseRepository
+abstract class BaseRepository implements RepositoryInterface
 {
     /**
      * @var EntityManager
@@ -18,7 +19,7 @@ abstract class BaseRepository
     /**
      * @return mixed
      */
-    abstract protected function getModelName();
+    abstract protected function getModelName(): string;
 
     /**
      * @param EntityManager $entityManager
@@ -53,6 +54,24 @@ abstract class BaseRepository
     public function getAll(): array
     {
         return $this->entityManager->getRepository($this->getModelName())->findAll();
+    }
+
+    /**
+     * @param mixed $criteria
+     * @return array
+     */
+    public function findBy(mixed $criteria): array
+    {
+        return $this->entityManager->getRepository($this->getModelName())->findBy($criteria);
+    }
+
+    /**
+     * @param mixed $criteria
+     * @return mixed|object|null
+     */
+    public function findOneBy(mixed $criteria)
+    {
+        return $this->entityManager->getRepository($this->getModelName())->findOneBy($criteria);
     }
 
     /**

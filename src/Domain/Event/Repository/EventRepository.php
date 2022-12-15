@@ -38,7 +38,7 @@ final class EventRepository extends BaseRepository
         $event->setTitle($data['title']);
         $event->setDescription($data['description']);
         $event->setCategory($data['category']);
-        $event->setUser($data['user']);
+        $event->setOwner($data['user']);
 
         $this->save($event);
 

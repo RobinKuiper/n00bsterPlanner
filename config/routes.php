@@ -9,6 +9,10 @@ return function (App $app) {
     // Redirect to Swagger documentation
     $app->get('/', \App\Action\Home\HomeAction::class)->setName('home');
 
+    $app->group('/events', function (RouteCollectorProxy $app) {
+        $app->get('/{identifier}', \App\Action\Event\EventAction::class)->setName('event');
+    });
+
     // API
     $app->group('/api',
         function (RouteCollectorProxy $app) {
