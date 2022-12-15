@@ -4,6 +4,7 @@ namespace App\Domain\Event\Models;
 
 use App\Domain\Event\Models\EventCategory\EventCategory;
 use App\Domain\User\Models\User;
+use DateTimeImmutable;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\Entity;
@@ -30,6 +31,12 @@ class Event implements \JsonSerializable
     #[Column(type: 'string')]
     private string $description;
 
+    #[Column(name: 'start_date', type: 'datetimetz_immutable', nullable: false)]
+    private DateTimeImmutable $startDate;
+
+    #[Column(name: 'end_date', type: 'datetimetz_immutable', nullable: false)]
+    private DateTimeImmutable $endDate;
+
     #[ManyToOne(targetEntity: EventCategory::class)]
     private EventCategory $category;
 
@@ -55,6 +62,12 @@ class Event implements \JsonSerializable
     public function getDescription(): string { return $this->description; }
     public function setDescription(string $description): void { $this->description = $description; }
 
+    public function getStartDate(): DateTimeImmutable { return $this->startDate; }
+    public function setStartDate(DateTimeImmutable $date): void { $this->startDate = $date; }
+
+    public function getEndDate(): DateTimeImmutable { return $this->endDate; }
+    public function setEndDate(DateTimeImmutable $date): void { $this->endDate = $date; }
+
     public function getCategory(): EventCategory { return $this->category; }
     public function setCategory(EventCategory $category): void { $this->category = $category; }
 
@@ -70,6 +83,8 @@ class Event implements \JsonSerializable
             'id' => $this->id,
             'identifier' => $this->identifier,
             'title'=> $this->description,
+            'startDate' => $this->startDate,
+            'endDate' => $this->endDate,
             'category' => $this->category,
             'owner' => $this->owner,
             'users' => $this->users

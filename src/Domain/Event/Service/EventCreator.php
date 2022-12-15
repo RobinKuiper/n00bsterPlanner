@@ -70,7 +70,7 @@ final class EventCreator
     public function createEvent(array $data): Event
     {
         // Input validation
-        $this->validator->validateEvent($data);
+        $this->validator->validate($data);
 
         $data['category'] = $this->eventCategoryRepository->findOneBy([ 'name' => $data['category'] ]);
         $data['user'] = $this->userRepository->getById($data['user']);
