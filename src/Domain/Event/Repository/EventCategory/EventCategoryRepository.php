@@ -2,7 +2,7 @@
 
 namespace App\Domain\Event\Repository\EventCategory;
 
-use App\Base\BaseRepository;
+use App\Application\Base\BaseRepository;
 use App\Domain\Event\Models\EventCategory\EventCategory;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Exception\ORMException;

@@ -3,8 +3,6 @@
 namespace App\Domain\Event\Models;
 
 use App\Domain\Event\Models\EventCategory\EventCategory;
-use App\Domain\Invitee\Models\Invitee;
-use App\Domain\Necessity\Models\Necessity;
 use DateTimeImmutable;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping\Column;

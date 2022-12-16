@@ -2,10 +2,10 @@
 
 namespace App\Domain\Event\Service;
 
+use App\Application\Factory\LoggerFactory;
 use App\Domain\Event\Models\Event;
 use App\Domain\Event\Repository\EventCategory\EventCategoryRepository;
 use App\Domain\Event\Repository\EventRepository;
-use App\Factory\LoggerFactory;
 use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\OptimisticLockException;
 use Psr\Log\LoggerInterface;

@@ -1,48 +1,43 @@
 <?php
 
-namespace App\Domain\Event\Service\EventCategory;
+namespace App\Domain\User\Service;
 
 use App\Application\Factory\ConstraintFactory;
-use App\Domain\Event\Repository\EventCategory\EventCategoryRepository;
+use App\Domain\User\Repository\UserRepository;
 use DomainException;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Exception\ValidationFailedException;
 use Symfony\Component\Validator\Validation;
 
-final class EventCategoryValidator
+final class UserValidator
 {
     /**
-     * @var EventCategoryRepository
+     * @var UserRepository
      */
-    private EventCategoryRepository $repository;
+    private UserRepository $repository;
 
     /**
-     * @param EventCategoryRepository $repository
+     * @param UserRepository $repository
      */
-    public function __construct(EventCategoryRepository $repository)
+    public function __construct(UserRepository $repository)
     {
         $this->repository = $repository;
     }
 
-//    /**
-//     * @param int $customerId
-//     * @param array $data
-//     * @return void
-//     */
-//    public function validateCustomerUpdate(int $customerId, array $data): void
-//    {
-//        if (!$this->repository->existsCustomerId($customerId)) {
-//            throw new DomainException(sprintf('Customer not found: %s', $customerId));
-//        }
-//
-//        $this->validateEventCategory($data);
-//    }
+    public function validateCustomerUpdate(int $customerId, array $data): void
+    {
+        if (!$this->repository->existsCustomerId($customerId)) {
+            throw new DomainException(sprintf('Customer not found: %s', $customerId));
+        }
+
+        $this->validate($data);
+    }
 
     /**
      * @param array $data
      * @return void
      */
-    public function validateEventCategory(array $data): void
+    public function validate(array $data): void
     {
         $validator = Validation::createValidator();
         $violations = $validator->validate($data, $this->createConstraints());
@@ -61,12 +56,12 @@ final class EventCategoryValidator
 
         return $constraint->collection(
             [
-                'name' => $constraint->required(
+                'visitorId' => $constraint->required(
                     [
                         $constraint->notBlank(),
                         $constraint->length(null, 255),
                     ]
-                ),
+                )
             ]
         );
     }

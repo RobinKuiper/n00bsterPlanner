@@ -2,9 +2,9 @@
 
 namespace App\Domain\Event\Service\EventCategory;
 
+use App\Application\Factory\LoggerFactory;
 use App\Domain\Event\Models\EventCategory\EventCategory;
 use App\Domain\Event\Repository\EventCategory\EventCategoryRepository;
-use App\Factory\LoggerFactory;
 use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\OptimisticLockException;
 use Psr\Log\LoggerInterface;
@@ -55,7 +55,7 @@ final class EventCategoryCreator
         $this->validator->validateEventCategory($data);
 
         // Insert customer and get new customer ID
-        $eventCategory = $this->repository->insertEventCategory($data);
+        $eventCategory = $this->repository->create($data);
 
         // Logging
         $this->logger->info(sprintf('Event Category created successfully: %s', $eventCategory->getId()));

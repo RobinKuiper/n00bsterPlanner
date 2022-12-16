@@ -2,8 +2,8 @@
 
 namespace App\Domain\Event\Service;
 
+use App\Application\Factory\ConstraintFactory;
 use App\Domain\Event\Repository\EventRepository;
-use App\Factory\ConstraintFactory;
 use DomainException;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Exception\ValidationFailedException;

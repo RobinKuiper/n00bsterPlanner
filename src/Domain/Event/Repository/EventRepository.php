@@ -2,9 +2,9 @@
 
 namespace App\Domain\Event\Repository;
 
-use App\Base\BaseRepository;
+use App\Application\Base\BaseRepository;
 use App\Domain\Event\Models\Event;
-use App\Domain\Invitee\Models\Invitee;
+use App\Domain\Event\Models\Invitee;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\OptimisticLockException;
