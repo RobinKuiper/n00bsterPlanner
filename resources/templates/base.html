@@ -20,30 +20,30 @@
         {% block scripts %}{% endblock %}
 
         <script>
-            const fpPromise = import('http://localhost:8080/js/fpjs.js') // TODO: Base Url
-                .then(FingerprintJS => FingerprintJS.load());
-
-            (function(val) {
-                fpPromise
-                    .then(fp => fp.get())
-                    .then(result => {
-                        let visitorId = result.visitorId;
-
-                        console.log("Visitor ID: ", visitorId);
-
-                        let savedVisitorId = localStorage.getItem('identifier');
-
-                        if(!savedVisitorId || savedVisitorId !== visitorId) localStorage.setItem('identifier', visitorId);
-
-                        const Http = new XMLHttpRequest();
-                        const url = 'http://localhost:8080/api/user';
-                        Http.open("POST", url);
-                        Http.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-                        Http.send("visitorId=" + visitorId);
-
-                        Http.onreadystatechange = e => console.log(Http.responseText);
-                    });
-            })('test');
+            // const fpPromise = import('http://localhost:8080/js/fpjs.js') // TODO: Base Url
+            //     .then(FingerprintJS => FingerprintJS.load());
+            //
+            // (function(val) {
+            //     fpPromise
+            //         .then(fp => fp.get())
+            //         .then(result => {
+            //             let visitorId = result.visitorId;
+            //
+            //             console.log("Visitor ID: ", visitorId);
+            //
+            //             let savedVisitorId = localStorage.getItem('identifier');
+            //
+            //             if(!savedVisitorId || savedVisitorId !== visitorId) localStorage.setItem('identifier', visitorId);
+            //
+            //             const Http = new XMLHttpRequest();
+            //             const url = 'http://localhost:8080/api/user';
+            //             Http.open("POST", url);
+            //             Http.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+            //             Http.send("visitorId=" + visitorId);
+            //
+            //             Http.onreadystatechange = e => console.log(Http.responseText);
+            //         });
+            // })('test');
         </script>
     </body>
 </html>

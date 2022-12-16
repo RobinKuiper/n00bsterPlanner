@@ -2,7 +2,7 @@
 
 namespace App\Action\User;
 
-use App\Domain\User\Service\UserUpdater;
+use App\Domain\Necessity\Service\UserUpdater;
 use App\Renderer\JsonRenderer;
 use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\OptimisticLockException;

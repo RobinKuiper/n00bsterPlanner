@@ -3,15 +3,16 @@
 namespace App\Domain\Event\Models;
 
 use App\Domain\Event\Models\EventCategory\EventCategory;
-use App\Domain\User\Models\User;
+use App\Domain\Invitee\Models\Invitee;
+use App\Domain\Necessity\Models\Necessity;
 use DateTimeImmutable;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\Entity;
 use Doctrine\ORM\Mapping\GeneratedValue;
 use Doctrine\ORM\Mapping\Id;
-use Doctrine\ORM\Mapping\ManyToMany;
 use Doctrine\ORM\Mapping\ManyToOne;
+use Doctrine\ORM\Mapping\OneToMany;
 use Doctrine\ORM\Mapping\Table;
 use Symfony\Component\Validator\Constraints\NotNull;
 use Symfony\Component\Validator\Constraints\Unique;
@@ -40,12 +41,13 @@ class Event implements \JsonSerializable
     #[ManyToOne(targetEntity: EventCategory::class)]
     private EventCategory $category;
 
-    #[ManyToOne(targetEntity: User::class)]
-    private User $owner;
+    /** @var Collection<int, Invitee> */
+    #[OneToMany(mappedBy: 'event', targetEntity: Invitee::class)]
+    private Collection $invitees;
 
-    /** @var Collection<int, User> */
-    #[ManyToMany(targetEntity: User::class, mappedBy: 'events')]
-    private Collection $users;
+    /** @var Collection<int, Necessity> */
+    #[OneToMany(mappedBy: 'event', targetEntity: Necessity::class)]
+    private Collection $necessities;
 
     public function __construct(){
         $this->identifier = uuid_create();
@@ -71,23 +73,54 @@ class Event implements \JsonSerializable
     public function getCategory(): EventCategory { return $this->category; }
     public function setCategory(EventCategory $category): void { $this->category = $category; }
 
-    public function getOwner(): User { return $this->owner; }
-    public function setOwner(User $owner): void { $this->owner = $owner; }
+    public function getInvitees(): Collection { return $this->invitees; }
+    public function setInvitees(Collection $invitees): void { $this->invitees = $invitees; }
 
-    public function getUsers(): Collection { return $this->users; }
-    public function setUsers(Collection $users): void { $this->users = $users; }
+    public function getNecessities(): Collection { return $this->necessities; }
+    public function setNecessities(Collection $necessities): void { $this->necessities = $necessities; }
+
+    public function addInvitee(Invitee $invitee): void
+    {
+        if(!$this->invitees->contains($invitee)){
+            $this->invitees[] = $invitee;
+            $invitee->setEvent($this);
+        }
+    }
+
+    public function removeInvitee(Invitee $invitee): void
+    {
+        if($this->invitees->contains($invitee)){
+            $this->invitees->removeElement($invitee);
+        }
+    }
+
+    public function addNecessity(Necessity $necessity): void
+    {
+        if(!$this->necessities->contains($necessity)){
+            $this->necessities[] = $necessity;
+            $necessity->setEvent($this);
+        }
+    }
+
+    public function removeNecessity(Necessity $necessity): void
+    {
+        if($this->necessities->contains($necessity)){
+            $this->necessities->removeElement($necessity);
+        }
+    }
 
     public function jsonSerialize(): array
     {
         return array(
             'id' => $this->id,
             'identifier' => $this->identifier,
-            'title'=> $this->description,
+            'title'=> $this->title,
+            'description'=> $this->description,
             'startDate' => $this->startDate,
             'endDate' => $this->endDate,
             'category' => $this->category,
-            'owner' => $this->owner,
-            'users' => $this->users
+            'invitees' => $this->invitees,
+            'necessities' => $this->necessities
         );
     }
 }

@@ -4,7 +4,7 @@ namespace App\Interface;
 
 interface RepositoryInterface
 {
-    public function getById(string $id);
+    public function getById(int $id);
     public function getAll(): array;
     public function findBy(mixed $criteria): array;
     public function findOneBy(mixed $criteria);

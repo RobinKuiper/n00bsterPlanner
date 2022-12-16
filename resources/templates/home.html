@@ -11,21 +11,21 @@
     {% endfor %}
     </ul>
 
-    <button id="create">Create</button>
+    <button id="create-event">Create Event</button>
 
     {% block scripts %}
     <script>
         jQuery( function() {
-            jQuery("#create").on('click', function(e) {
+            jQuery("#create-event").on('click', function(e) {
                console.log("Create");
 
-                jQuery("#create").innerHTML = 'Loading';
+                jQuery("#create-event").innerHTML = 'Loading';
 
                 const Http = new XMLHttpRequest();
                 const url = 'http://localhost:8080/api/events/';
                 Http.open("POST", url);
                 Http.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-                Http.send("title=New Event&description=Description&category=Test&user=1");
+                Http.send("title=New Event&description=Description&category=Test&name=Robin&startDate=20-12-2022&endDate=27-12-2022");
 
                 Http.onreadystatechange = e => console.log(Http.responseText);
             });

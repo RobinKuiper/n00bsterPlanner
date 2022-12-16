@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Domain\Customer\Service;
+namespace Customer\Service;
 
 use App\Domain\Customer\Repository\CustomerRepository;
+use App\Domain\Customer\Service\CustomerValidator;
 use App\Factory\LoggerFactory;
 use Psr\Log\LoggerInterface;
 

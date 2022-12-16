@@ -1,15 +1,14 @@
 <?php
 
-namespace App\Domain\User\Repository;
+namespace App\Domain\Invitee\Repository;
 
 use App\Base\BaseRepository;
-use App\Domain\User\Models\User;
-use DateTimeImmutable;
+use App\Domain\Invitee\Models\Invitee;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\OptimisticLockException;
 
-final class UserRepository extends BaseRepository
+final class InviteeRepository extends BaseRepository
 {
     /**
      * @param EntityManager $entityManager
@@ -24,38 +23,39 @@ final class UserRepository extends BaseRepository
      */
     protected function getModelName(): string
     {
-        return User::class;
+        return Invitee::class;
     }
 
     /**
      * @param array $data
-     * @return User
+     * @return Invitee
      * @throws ORMException
      * @throws OptimisticLockException
      */
-    public function create(array $data): User
+    public function create(array $data): Invitee
     {
-        $user = new User();
-        $user->setVisitorId($data['visitorId']);
+        $object = new Invitee;
+        $object->setVisitorId($data['visitorId']);
+        $object->setEvent([$data['event']]);
 
-        $this->save($user);
+        $this->save($object);
 
-        return $user;
+        return $object;
     }
 
     /**
-     * @param User $user
+     * @param Invitee $invitee
      * @param array $data
-     * @return User
+     * @return Invitee
      * @throws ORMException
      * @throws OptimisticLockException
      */
-    public function update(User $user, array $data): User
+    public function update(Invitee $invitee, array $data): Invitee
     {
-        $user->setLastVisit(new DateTimeImmutable('now'));
+        $invitee->setEvent($data['events']);
 
-        $this->save($user);
+        $this->save($invitee);
 
-        return $user;
+        return $invitee;
     }
 }

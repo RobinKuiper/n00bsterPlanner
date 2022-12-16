@@ -41,7 +41,7 @@ $settings['doctrine'] = [
         'port' => '3306',
         'user' => 'root',
         'password' => 'root',
-        'dbname'=> 'mydb',
+        'dbname'=> 'noobster',
         'charset' => 'utf8',
     ]
 ];

@@ -2,6 +2,7 @@
 
 namespace App\Domain\User\Service;
 
+use App\Domain\Necessity\Service\UserValidator;
 use App\Domain\User\Models\User;
 use App\Domain\User\Repository\UserRepository;
 use App\Factory\LoggerFactory;
@@ -17,7 +18,7 @@ final class UserUpdater
     private UserRepository $repository;
 
     /**
-     * @var UserValidator
+     * @var \App\Domain_old\User\Service\UserValidator
      */
     private UserValidator $validator;
 
@@ -28,7 +29,7 @@ final class UserUpdater
 
     /**
      * @param UserRepository $repository
-     * @param UserValidator $validator
+     * @param \App\Domain_old\User\Service\UserValidator $validator
      * @param LoggerFactory $loggerFactory
      */
     public function __construct(

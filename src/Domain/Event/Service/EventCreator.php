@@ -5,7 +5,6 @@ namespace App\Domain\Event\Service;
 use App\Domain\Event\Models\Event;
 use App\Domain\Event\Repository\EventCategory\EventCategoryRepository;
 use App\Domain\Event\Repository\EventRepository;
-use App\Domain\User\Repository\UserRepository;
 use App\Factory\LoggerFactory;
 use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\OptimisticLockException;
@@ -24,11 +23,6 @@ final class EventCreator
     private EventCategoryRepository $eventCategoryRepository;
 
     /**
-     * @var UserRepository
-     */
-    private UserRepository $userRepository;
-
-    /**
      * @var EventValidator
      */
     private EventValidator $validator;
@@ -43,14 +37,12 @@ final class EventCreator
      * @param EventValidator $validator
      * @param LoggerFactory $loggerFactory
      * @param EventCategoryRepository $eventCategoryRepository
-     * @param UserRepository $userRepository
      */
     public function __construct(
         EventRepository $repository,
         EventValidator $validator,
         LoggerFactory $loggerFactory,
         EventCategoryRepository $eventCategoryRepository,
-        UserRepository $userRepository
     ) {
         $this->repository = $repository;
         $this->validator = $validator;
@@ -58,11 +50,11 @@ final class EventCreator
             ->addFileHandler('event_creator.log')
             ->createLogger();
         $this->eventCategoryRepository = $eventCategoryRepository;
-        $this->userRepository = $userRepository;
     }
 
+
     /**
-     * @param array $data
+     * @param array $data ['title', 'description', 'startDate', 'endDate', 'category', 'name']
      * @return Event
      * @throws ORMException
      * @throws OptimisticLockException
@@ -73,7 +65,6 @@ final class EventCreator
         $this->validator->validate($data);
 
         $data['category'] = $this->eventCategoryRepository->findOneBy([ 'name' => $data['category'] ]);
-        $data['user'] = $this->userRepository->getById($data['user']);
 
         // Insert customer and get new customer ID
         $event = $this->repository->create($data);
