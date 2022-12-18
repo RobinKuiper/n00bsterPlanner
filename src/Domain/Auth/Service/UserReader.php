@@ -1,9 +1,13 @@
 <?php
 
-namespace App\Domain\User\Service;
+namespace App\Domain\Auth\Service;
 
-use App\Domain\User\Models\User;
-use App\Domain\User\Repository\UserRepository;
+use App\Domain\Auth\Models\User;
+use App\Domain\Auth\Repository\UserRepository;
+use DI\NotFoundException;
+use Doctrine\ORM\Exception\ORMException;
+use Doctrine\ORM\OptimisticLockException;
+use Doctrine\ORM\TransactionRequiredException;
 
 /**
  * Service.
@@ -26,6 +30,10 @@ final class UserReader
     /**
      * @param int $id
      * @return User
+     * @throws NotFoundException
+     * @throws ORMException
+     * @throws OptimisticLockException
+     * @throws TransactionRequiredException
      */
     public function get(int $id): User
     {
@@ -33,11 +41,10 @@ final class UserReader
         // ...
 
         // Fetch data from the database
-        $user = $this->repository->getById($id);
+        return $this->repository->getById($id);
 
         // Optional: Add or invoke your complex business logic here
         // ...
 
-        return $user;
     }
 }

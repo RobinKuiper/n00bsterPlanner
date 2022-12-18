@@ -1,11 +1,10 @@
 <?php
 
-namespace App\Domain\User\Service;
+namespace App\Domain\Auth\Service;
 
 use App\Application\Factory\LoggerFactory;
-use App\Domain\Necessity\Service\UserValidator;
-use App\Domain\User\Models\User;
-use App\Domain\User\Repository\UserRepository;
+use App\Domain\Auth\Models\User;
+use App\Domain\Auth\Repository\UserRepository;
 use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\OptimisticLockException;
 use Psr\Log\LoggerInterface;
@@ -17,9 +16,6 @@ final class UserUpdater
      */
     private UserRepository $repository;
 
-    /**
-     * @var \App\Domain_old\User\Service\\App\Domain\User\Service\UserValidator
-     */
     private UserValidator $validator;
 
     /**
@@ -27,11 +23,6 @@ final class UserUpdater
      */
     private LoggerInterface $logger;
 
-    /**
-     * @param UserRepository $repository
-     * @param \App\Domain_old\User\Service\\App\Domain\User\Service\UserValidator $validator
-     * @param LoggerFactory $loggerFactory
-     */
     public function __construct(
         UserRepository $repository,
         UserValidator $validator,

@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Domain\User\Service;
+namespace App\Domain\Auth\Service;
 
-use App\Domain\User\Repository\UserRepository;
+use App\Domain\Auth\Repository\UserRepository;
 
 final class UserFinder
 {
