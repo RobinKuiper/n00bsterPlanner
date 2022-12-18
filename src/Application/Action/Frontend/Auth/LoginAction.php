@@ -80,8 +80,7 @@ final class LoginAction
 
         // Redirect to homepage if successful login
         if($login['success']){
-            redirect('/');
-            exit;
+            return redirect('/');
         }
 
         $this->container->get(Twig::class)->render($response, 'login.html', [
