@@ -12,7 +12,8 @@
     </ul>
 
     {% if user %}
-        <button id="create-event">Create Event</button>
+<!--        <button id="create-event">Create Event</button>-->
+        <a id="create-event" href="/events/create">Create Event</a>
         <a id="logout" href="/auth/logout">Logout</a>
     {% else %}
         <a id="login" href="/auth/login">Login</a>

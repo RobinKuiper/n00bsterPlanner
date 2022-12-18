@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}Homepage{% endblock %}
+
+{% block content %}
+<h1>Create Event</h1>
+
+<form method="POST" action="{{ EVENTS_ROUTE_GROUP }}/create">
+  <label>
+    <input type="text" name="title" placeholder="Title" />
+  </label>
+  <label>
+    <input type="text" name="description" placeholder="Description" />
+  </label>
+  <label>
+    <input type="hidden" name="startDate" value="01-10-2023" />
+  </label>
+  <label>
+    <input type="hidden" name="endDate" value="01-10-2024" />
+  </label>
+  <label>
+    <input type="hidden" name="category" value="Test" />
+  </label>
+  <button type="submit">Create</button>
+</form>
+{% endblock %}

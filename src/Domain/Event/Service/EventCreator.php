@@ -3,11 +3,14 @@
 namespace App\Domain\Event\Service;
 
 use App\Application\Factory\LoggerFactory;
+use App\Application\Support\Auth;
 use App\Domain\Event\Models\Event;
 use App\Domain\Event\Repository\EventCategory\EventCategoryRepository;
 use App\Domain\Event\Repository\EventRepository;
 use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\OptimisticLockException;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 use Psr\Log\LoggerInterface;
 
 final class EventCreator
@@ -56,22 +59,32 @@ final class EventCreator
     /**
      * @param array $data ['title', 'description', 'startDate', 'endDate', 'category', 'name']
      * @return Event
-     * @throws ORMException
-     * @throws OptimisticLockException
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
      */
-    public function createEvent(array $data): Event
+    public function createEvent(array $data): array
     {
         // Input validation
         $this->validator->validate($data);
 
         $data['category'] = $this->eventCategoryRepository->findOneBy([ 'name' => $data['category'] ]);
+        $data['user'] = Auth::user();
 
         // Insert customer and get new customer ID
-        $event = $this->repository->create($data);
+        try {
+            $event = $this->repository->create($data);
 
-        // Logging
-        $this->logger->info(sprintf('Event created successfully: %s', $event->getId()));
+            $this->logger->info(sprintf('Event created successfully: %s', $event->getId()));
 
-        return $event;
+            return [
+                'success' => true,
+                'event' => $event
+            ];
+        } catch (OptimisticLockException|ORMException $e) {
+            return [
+                'success' => false,
+                'errors' => $e
+            ];
+        }
     }
 }

@@ -40,6 +40,9 @@ class Event implements \JsonSerializable
     #[ManyToOne(targetEntity: EventCategory::class)]
     private EventCategory $category;
 
+    #[ManyToOne(targetEntity: User::class)]
+    private User $owned_by;
+
     /** @var Collection<int, User> */
     #[OneToMany(mappedBy: 'event', targetEntity: User::class)]
     private Collection $invitees;
@@ -71,6 +74,9 @@ class Event implements \JsonSerializable
 
     public function getCategory(): EventCategory { return $this->category; }
     public function setCategory(EventCategory $category): void { $this->category = $category; }
+
+    public function getOwnedBy(): User { return $this->owned_by; }
+    public function setOwnedBy(User $user): void { $this->owned_by = $user; }
 
     public function getInvitees(): Collection { return $this->invitees; }
     public function setInvitees(Collection $invitees): void { $this->invitees = $invitees; }
@@ -118,6 +124,7 @@ class Event implements \JsonSerializable
             'startDate' => $this->startDate,
             'endDate' => $this->endDate,
             'category' => $this->category,
+            'owned_by' => $this->owned_by,
             'invitees' => $this->invitees,
             'necessities' => $this->necessities
         );

@@ -22,12 +22,17 @@ return function (App $app) {
     $app->group(AUTH_ROUTE_GROUP, function (RouteCollectorProxy $app) {
         $app->get('/register', RegisterAction::class)->setName('register')->add(RedirectIfAuthenticated::class);
         $app->post('/register', RegisterAction::class)->setName('register')->add(RedirectIfAuthenticated::class);
+
         $app->get('/login', LoginAction::class)->setName('login')->add(RedirectIfAuthenticated::class);
         $app->post('/login', LoginAction::class)->setName('login')->add(RedirectIfAuthenticated::class);
+
         $app->get('/logout', \App\Application\Action\Frontend\Auth\LogoutAction::class)->setName('logout')->add(RedirectIfGuest::class);
     });
 
     $app->group('/events', function (RouteCollectorProxy $app) {
+        $app->get('/create', \App\Application\Action\Frontend\Event\CreateAction::class)->setName('create_event')->add(RedirectIfGuest::class);
+        $app->post('/create', \App\Application\Action\Frontend\Event\CreateAction::class)->setName('create_event')->add(RedirectIfGuest::class);
+
         $app->get('/{identifier}', EventAction::class)->setName('event');
     });
 

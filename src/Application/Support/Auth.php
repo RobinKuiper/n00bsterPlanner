@@ -4,6 +4,7 @@ namespace App\Application\Support;
 
 use App\Application\Factory\ContainerFactory;
 use App\Domain\Auth\Models\User;
+use Doctrine\ORM\EntityManager;
 use Exception;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;

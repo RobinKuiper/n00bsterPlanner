@@ -35,7 +35,7 @@ class User implements \JsonSerializable
     private DateTimeImmutable $lastVisit;
 
     /** @var Collection<int, Event> */
-    #[OneToMany(mappedBy: 'owner', targetEntity: Event::class)]
+    #[OneToMany(mappedBy: 'owned_by', targetEntity: Event::class)]
     private Collection $ownedEvents;
 
     /** @var Collection<int, Event> */

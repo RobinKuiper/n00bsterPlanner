@@ -32,6 +32,15 @@ abstract class BaseRepository implements RepositoryInterface
 
     /**
      * @param int $id
+     * @throws ORMException
+     */
+    public function getReference(int $id)
+    {
+        return $this->entityManager->getReference($this->getModelName(), $id);
+    }
+
+    /**
+     * @param int $id
      * @return \#M#C\App\Base\BaseRepository.getModelName|mixed|object
      * @throws NotFoundException
      * @throws ORMException
