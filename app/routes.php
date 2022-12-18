@@ -9,6 +9,13 @@ return function (App $app) {
     // Redirect to Swagger documentation
     $app->get('/', \App\Application\Action\Frontend\Home\HomeAction::class)->setName('home');
 
+    $app->group(AUTH_ROUTE_GROUP, function (RouteCollectorProxy $app) {
+        $app->get('/register', \App\Application\Action\Frontend\Auth\RegisterAction::class)->setName('register')->add(\App\Application\Middleware\RedirectifAuthenticatedMiddleware::class);
+        $app->post('/register', \App\Application\Action\Frontend\Auth\RegisterAction::class)->setName('register')->add(\App\Application\Middleware\RedirectifAuthenticatedMiddleware::class);
+        $app->get('/login', \App\Application\Action\Frontend\Auth\LoginAction::class)->setName('login')->add(\App\Application\Middleware\RedirectifAuthenticatedMiddleware::class);
+        $app->post('/login', \App\Application\Action\Frontend\Auth\LoginAction::class)->setName('login')->add(\App\Application\Middleware\RedirectifAuthenticatedMiddleware::class);
+    });
+
     $app->group('/events', function (RouteCollectorProxy $app) {
         $app->get('/{identifier}', \App\Application\Action\API\Event\EventAction::class)->setName('event');
     });
@@ -26,6 +33,11 @@ return function (App $app) {
             );
 
             $app->post('/user', \App\Application\Action\User\UserUpdaterAction::class);
+
+            $app->group('/user', function (RouteCollectorProxy $app) {
+                $app->get('/register', \App\Application\Action\API\Event\EventAction::class);
+                $app->get('/login', \App\Application\Action\API\Event\EventAction::class);
+            });
 
 //            $app->group('/user',
 //                function (RouteCollectorProxy $app) {

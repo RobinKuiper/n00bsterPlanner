@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Domain\User\Service;
+namespace App\Domain\Auth\Service;
 
 use App\Application\Factory\ConstraintFactory;
-use App\Domain\User\Repository\UserRepository;
+use App\Domain\Auth\Repository\UserRepository;
 use DomainException;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Exception\ValidationFailedException;
@@ -26,7 +26,7 @@ final class UserValidator
 
     public function validateCustomerUpdate(int $customerId, array $data): void
     {
-        if (!$this->repository->existsCustomerId($customerId)) {
+        if (!$this->repository->exists($customerId)) {
             throw new DomainException(sprintf('Customer not found: %s', $customerId));
         }
 
@@ -56,12 +56,20 @@ final class UserValidator
 
         return $constraint->collection(
             [
-                'visitorId' => $constraint->required(
+                'name' => $constraint->required(
                     [
                         $constraint->notBlank(),
-                        $constraint->length(null, 255),
+                        $constraint->length(3, 25),
                     ]
-                )
+                ),
+                'password' => $constraint->required(
+                    [
+                        $constraint->notBlank(),
+                        $constraint->length(8, 30),
+                        $constraint->notCompromisedPassword()
+                        // TODO: Require Symbol
+                    ]
+                ),
             ]
         );
     }

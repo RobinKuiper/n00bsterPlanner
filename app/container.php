@@ -2,17 +2,17 @@
 
 use App\Application\Factory\LoggerFactory;
 use App\Application\Handler\DefaultErrorHandler;
-use App\Filesystem\Storage;
-use App\Http\Client\DictionaryApiClient;
-use App\Http\Client\DictionaryApiClientFactory;
-use Cake\Database\Connection;
+use App\Application\Support\Redirect;
+//use App\Filesystem\Storage;
+//use App\Http\Client\DictionaryApiClient;
+//use App\Http\Client\DictionaryApiClientFactory;
 use Doctrine\Common\Cache\Psr6\DoctrineProvider;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Tools\Setup;
-use League\Flysystem\Filesystem;
-use League\Flysystem\Local\LocalFilesystemAdapter;
-use League\Flysystem\UnixVisibility\PortableVisibilityConverter;
-use League\Flysystem\Visibility;
+//use League\Flysystem\Filesystem;
+//use League\Flysystem\Local\LocalFilesystemAdapter;
+//use League\Flysystem\UnixVisibility\PortableVisibilityConverter;
+//use League\Flysystem\Visibility;
 use Monolog\Level;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use Psr\Container\ContainerInterface;
@@ -26,6 +26,8 @@ use Slim\App;
 use Slim\Factory\AppFactory;
 use Slim\Interfaces\RouteParserInterface;
 use Slim\Middleware\ErrorMiddleware;
+use Slim\Views\Twig;
+use SlimSession\Helper;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\Console\Application;
@@ -40,15 +42,17 @@ return [
     App::class => function (ContainerInterface $container) {
         $app = AppFactory::createFromContainer($container);
 
-        // Register routes
+        // RegisterService routes
         (require __DIR__ . '/routes.php')($app);
 
-        // Register middleware
+        // RegisterService middleware
         (require __DIR__ . '/middleware.php')($app);
 
-        $app->add(\Slim\Views\TwigMiddleware::createFromContainer($app));
-
         return $app;
+    },
+
+    Helper::class => function () {
+        return new Helper();
     },
 
     // HTTP factories
@@ -92,6 +96,12 @@ return [
         return new BasePathMiddleware($container->get(App::class));
     },
 
+    Redirect::class => function (ContainerInterface $container) {
+        $app = $container->get(App::class);
+
+        return new Redirect($app->getResponseFactory());
+    },
+
     EntityManager::class => function (ContainerInterface $container) {
         $settings = $container->get('settings')['doctrine'];
 
@@ -109,9 +119,11 @@ return [
         return EntityManager::create($settings['connection'], $config);
     },
 
-    'view' => function (ContainerInterface $container) {
-        return \Slim\Views\Twig::create(__DIR__ . '/../resources/templates', [
-//            'cache' => __DIR__ . '/../cache'
+    Twig::class => function (ContainerInterface $container) {
+        $settings = $container->get('settings')['twig'];
+
+        return Twig::create($settings['template_path'], [
+//            'cache' => $settings['cache_path']
         ]);
     },
 
@@ -151,41 +163,41 @@ return [
         return $application;
     },
 
-    DictionaryApiClientFactory::class => function (ContainerInterface $container) {
-        $settings = $container->get('settings')['foo_api_client'];
-
-        return new DictionaryApiClientFactory($settings);
-    },
-
-    DictionaryApiClient::class => function (ContainerInterface $container) {
-        $client = $container->get(DictionaryApiClientFactory::class)->createClient();
-
-        return new DictionaryApiClient($client);
-    },
-
-    LocalFilesystemAdapter::class => function () {
-        return function (array $config) {
-            return new LocalFilesystemAdapter(
-                $config['root'] ?? '',
-                PortableVisibilityConverter::fromArray(
-                    $config['permissions'] ?? [],
-                    $config['visibility'] ?? Visibility::PUBLIC
-                ),
-                $config['lock'] ?? LOCK_EX,
-                $config['link'] ?? LocalFilesystemAdapter::DISALLOW_LINKS
-            );
-        };
-    },
-
-    Storage::class => function (ContainerInterface $container) {
-        // Read storage adapter settings
-        $settings = $container->get('settings')['storage'];
-        $adapter = $settings['adapter'];
-        $config = $settings['config'];
-
-        // Create filesystem with
-        $filesystem = new Filesystem($container->get($adapter)($config));
-
-        return new Storage($filesystem);
-    },
+//    DictionaryApiClientFactory::class => function (ContainerInterface $container) {
+//        $settings = $container->get('settings')['foo_api_client'];
+//
+//        return new DictionaryApiClientFactory($settings);
+//    },
+//
+//    DictionaryApiClient::class => function (ContainerInterface $container) {
+//        $client = $container->get(DictionaryApiClientFactory::class)->createClient();
+//
+//        return new DictionaryApiClient($client);
+//    },
+//
+//    LocalFilesystemAdapter::class => function () {
+//        return function (array $config) {
+//            return new LocalFilesystemAdapter(
+//                $config['root'] ?? '',
+//                PortableVisibilityConverter::fromArray(
+//                    $config['permissions'] ?? [],
+//                    $config['visibility'] ?? Visibility::PUBLIC
+//                ),
+//                $config['lock'] ?? LOCK_EX,
+//                $config['link'] ?? LocalFilesystemAdapter::DISALLOW_LINKS
+//            );
+//        };
+//    },
+//
+//    Storage::class => function (ContainerInterface $container) {
+//        // Read storage adapter settings
+//        $settings = $container->get('settings')['storage'];
+//        $adapter = $settings['adapter'];
+//        $config = $settings['config'];
+//
+//        // Create filesystem with
+//        $filesystem = new Filesystem($container->get($adapter)($config));
+//
+//        return new Storage($filesystem);
+//    },
 ];

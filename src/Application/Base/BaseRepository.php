@@ -8,6 +8,7 @@ use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\TransactionRequiredException;
+use Psr\Container\ContainerInterface;
 
 abstract class BaseRepository implements RepositoryInterface
 {

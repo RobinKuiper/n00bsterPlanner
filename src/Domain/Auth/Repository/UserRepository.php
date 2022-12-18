@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Domain\User\Repository;
+namespace App\Domain\Auth\Repository;
 
 use App\Application\Base\BaseRepository;
-use App\Domain\User\Models\User;
+use App\Domain\Auth\Models\User;
 use DateTimeImmutable;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Exception\ORMException;
@@ -36,7 +36,8 @@ final class UserRepository extends BaseRepository
     public function create(array $data): User
     {
         $user = new User();
-        $user->setVisitorId($data['visitorId']);
+        $user->setName($data['name']);
+        $user->setPassword($data['password']);
 
         $this->save($user);
 
@@ -50,7 +51,7 @@ final class UserRepository extends BaseRepository
      * @throws ORMException
      * @throws OptimisticLockException
      */
-    public function update(User $user, array $data): User
+    public function update(User $user, array $data = []): User
     {
         $user->setLastVisit(new DateTimeImmutable('now'));
 

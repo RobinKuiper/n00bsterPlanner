@@ -1,34 +1,26 @@
 <?php
 
-namespace App\Application\Action\User;
+namespace App\Application\Action\API\User;
 
 use App\Application\Renderer\JsonRenderer;
-use App\Domain\Auth\Service\UserUpdater;
+use App\Domain\Auth\Service\RegisterService;
 use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\OptimisticLockException;
 use Fig\Http\Message\StatusCodeInterface;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
-final class UserUpdaterAction
+final class RegisterAction
 {
-    /**
-     * @var JsonRenderer
-     */
     private JsonRenderer $renderer;
 
-    /**
-     * @var UserUpdater
-     */
-    private UserUpdater $userUpdater;
+    private RegisterService $registerService;
 
-    /**
-     * @param UserUpdater $userUpdater
-     * @param JsonRenderer $renderer
-     */
-    public function __construct(UserUpdater $userUpdater, JsonRenderer $renderer)
+    public function __construct(RegisterService $registerService, JsonRenderer $renderer)
     {
-        $this->userUpdater = $userUpdater;
+        $this->registerService = $registerService;
         $this->renderer = $renderer;
     }
 
@@ -38,6 +30,8 @@ final class UserUpdaterAction
      * @return ResponseInterface
      * @throws ORMException
      * @throws OptimisticLockException
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
      */
     public function __invoke(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
     {
@@ -45,11 +39,11 @@ final class UserUpdaterAction
         $data = (array)$request->getParsedBody();
 
         // Invoke the Domain with inputs and retain the result
-        $user = $this->userUpdater->update($data);
+        $object = $this->registerService->register($data);
 
         // Build the HTTP response
         return $this->renderer
-            ->json($response, ['user_id' => $user->getId()])
+            ->json($response, ['user_id' => $object->getId()])
             ->withStatus(StatusCodeInterface::STATUS_CREATED);
     }
 }

@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}Homepage{% endblock %}
+
+{% block content %}
+    <h1>Register!</h1>
+
+    <ul>
+        {% for error in errors %}
+        <li>{{ error }}</li>
+        {% endfor %}
+    </ul>
+
+    <form id="form" action="/user/register" method="POST">
+        <label>
+            <input type="text" name="name" placeholder="Name" />
+        </label>
+        <label>
+            <input type="password" name="password" placeholder="Password" />
+        </label>
+        <button type="submit">Register</button>
+    </form>
+
+    {% block scripts %}
+    <script>
+        jQuery( function() {
+            jQuery("#form").on('submit', function(e) {
+               //  e.preventDefault()
+               //
+               // console.log("Register");
+
+                // jQuery("#create-event").innerHTML = 'Loading';
+                //
+                // const Http = new XMLHttpRequest();
+                // const url = 'http://localhost:8080/api/events/';
+                // Http.open("POST", url);
+                // Http.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+                // Http.send("title=New Event&description=Description&category=Test&name=Robin&startDate=20-12-2022&endDate=27-12-2022");
+                //
+                // Http.onreadystatechange = e => console.log(Http.responseText);
+            });
+        })
+    </script>
+    {% endblock %}
+{% endblock %}

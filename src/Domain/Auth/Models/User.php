@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Domain\User\Models;
+namespace App\Domain\Auth\Models;
 
 use App\Domain\Event\Models\Event;
 use DateTimeImmutable;
@@ -19,8 +19,14 @@ class User implements \JsonSerializable
     #[Id, Column(type: 'integer'), GeneratedValue(strategy: 'AUTO')]
     protected int $id;
 
+//    #[Column(type: 'string', unique: true, nullable: false)]
+//    private string $visitorId;
+
     #[Column(type: 'string', unique: true, nullable: false)]
-    private string $visitorId;
+    private string $name;
+
+    #[Column(type: 'string', unique: false, nullable: false)]
+    private string $password;
 
     #[Column(name: 'first_visit', type: 'datetimetz_immutable', nullable: false)]
     private DateTimeImmutable $firstVisit;
@@ -43,23 +49,30 @@ class User implements \JsonSerializable
     }
 
     public function getId(): int { return $this->id; }
-    public function getVisitorId(): string { return $this->visitorId; }
-    public function getFirstVisit(): DateTimeImmutable { return $this->firstVisit; }
-    public function getLastVisit(): DateTimeImmutable { return $this->lastVisit; }
-    public function getOwnedEvents(): Collection { return $this->ownedEvents; }
-    public function getEvents(): Collection { return $this->events; }
 
-    public function setVisitorId(string $visitorId): void { $this->visitorId = $visitorId; }
+    public function getName(): string { return $this->name; }
+    public function setName(string $name): void { $this->name = $name; }
+
+    public function getPassword(): string { return $this->password; }
+    public function setPassword(string $password): void { $this->password = $password; }
+
+    public function getFirstVisit(): DateTimeImmutable { return $this->firstVisit; }
     public function setFirstVisit(DateTimeImmutable $date): void { $this->firstVisit = $date; }
+
+    public function getLastVisit(): DateTimeImmutable { return $this->lastVisit; }
     public function setLastVisit(DateTimeImmutable $date): void { $this->lastVisit = $date; }
+
+    public function getOwnedEvents(): Collection { return $this->ownedEvents; }
     public function setOwnedEvents(Collection $ownedEvents): void { $this->ownedEvents = $ownedEvents; }
+
+    public function getEvents(): Collection { return $this->events; }
     public function setEvents(Collection $events): void { $this->events = $events; }
 
     public function jsonSerialize(): array
     {
         return array(
             'id' => $this->id,
-            'visitorId' => $this->visitorId,
+            'name' => $this->name,
             'firstVisit' => $this->firstVisit,
             'lastVisit' => $this->lastVisit,
             'ownedEvents' => $this->ownedEvents,

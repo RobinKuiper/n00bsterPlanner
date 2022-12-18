@@ -12,6 +12,25 @@ date_default_timezone_set('Europe/Amsterdam');
 
 $settings = [];
 
+// Authentication
+$settings['authentication'] = [
+    'salt' => 'SaltedString1234'
+];
+
+// Session
+$settings['session'] = [
+    'name' => 'n00bster',
+    'lifetime' => '24 hour',
+    'autorefresh' => true
+//    'path' => null,
+//    'domain' => null,
+//    'secure' => false,
+//    'httponly' => true,
+//    'samesite' => 'Lax',
+//    'handler',
+//    'ini_settings' (https://www.php.net/manual/en/session.configuration.php)
+];
+
 // Error handler
 $settings['error'] = [
     // Should be set to false for the production environment
@@ -44,6 +63,11 @@ $settings['doctrine'] = [
         'dbname'=> 'noobster',
         'charset' => 'utf8',
     ]
+];
+
+$settings['twig'] = [
+    'template_path' => BASE_PATH . '/src/Application/Views/templates',
+    'cache_path' => BASE_PATH . '/cache'
 ];
 
 // Console commands

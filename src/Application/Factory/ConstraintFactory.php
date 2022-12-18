@@ -40,4 +40,9 @@ final class ConstraintFactory
     {
         return new Assert\Email();
     }
+
+    public function notCompromisedPassword(): Assert\NotCompromisedPassword
+    {
+        return new Assert\NotCompromisedPassword();
+    }
 }

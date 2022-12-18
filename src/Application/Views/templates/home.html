@@ -3,7 +3,7 @@
 {% block title %}Homepage{% endblock %}
 
 {% block content %}
-    <h1>Welcome!</h1>
+    <h1>Welcome {{ user.getName() }}!</h1>
 
     <ul>
     {% for event in events %}
@@ -16,7 +16,7 @@
     {% block scripts %}
     <script>
         jQuery( function() {
-            jQuery("#create-event").on('click', function(e) {
+            jQuery("#create-event").on('click', function() {
                console.log("Create");
 
                 jQuery("#create-event").innerHTML = 'Loading';
@@ -27,7 +27,7 @@
                 Http.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
                 Http.send("title=New Event&description=Description&category=Test&name=Robin&startDate=20-12-2022&endDate=27-12-2022");
 
-                Http.onreadystatechange = e => console.log(Http.responseText);
+                Http.onreadystatechange = () => console.log(Http.responseText);
             });
         })
     </script>

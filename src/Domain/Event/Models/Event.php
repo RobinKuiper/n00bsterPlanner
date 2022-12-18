@@ -3,6 +3,7 @@
 namespace App\Domain\Event\Models;
 
 use App\Domain\Event\Models\EventCategory\EventCategory;
+use App\Domain\Auth\Models\User;
 use DateTimeImmutable;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping\Column;
@@ -39,8 +40,8 @@ class Event implements \JsonSerializable
     #[ManyToOne(targetEntity: EventCategory::class)]
     private EventCategory $category;
 
-    /** @var Collection<int, Invitee> */
-    #[OneToMany(mappedBy: 'event', targetEntity: Invitee::class)]
+    /** @var Collection<int, User> */
+    #[OneToMany(mappedBy: 'event', targetEntity: User::class)]
     private Collection $invitees;
 
     /** @var Collection<int, Necessity> */
