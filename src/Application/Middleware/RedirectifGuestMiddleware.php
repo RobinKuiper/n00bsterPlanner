@@ -17,7 +17,7 @@ class RedirectifGuestMiddleware
     public function __invoke(ServerRequestInterface $request, RequestHandlerInterface $handler)
     {
         if(Auth::guest()){
-            return \redirect('/');
+            return \redirect(AUTH_ROUTE_GROUP . '/login');
         }
 
         return $handler->handle($request);

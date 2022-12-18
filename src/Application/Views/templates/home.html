@@ -11,7 +11,13 @@
     {% endfor %}
     </ul>
 
-    <button id="create-event">Create Event</button>
+    {% if user %}
+        <button id="create-event">Create Event</button>
+        <a id="logout" href="/auth/logout">Logout</a>
+    {% else %}
+        <a id="login" href="/auth/login">Login</a>
+        <a id="register" href="/auth/register">Register</a>
+    {% endif %}
 
     {% block scripts %}
     <script>

@@ -2,22 +2,33 @@
 
 // Define app routes
 
+use App\Application\Action\API\Event\EventAction;
+use App\Application\Action\API\Event\EventCreatorAction;
+use App\Application\Action\API\Event\EventFinderAction;
+use App\Application\Action\API\Event\EventReaderAction;
+use App\Application\Action\Frontend\Auth\LoginAction;
+use App\Application\Action\Frontend\Auth\RegisterAction;
+use App\Application\Action\Frontend\Home\HomeAction;
+use App\Application\Action\User\UserUpdaterAction;
+use App\Application\Middleware\RedirectifAuthenticatedMiddleware as RedirectIfAuthenticated;
+use App\Application\Middleware\RedirectifGuestMiddleware as RedirectIfGuest;
 use Slim\App;
 use Slim\Routing\RouteCollectorProxy;
 
 return function (App $app) {
     // Redirect to Swagger documentation
-    $app->get('/', \App\Application\Action\Frontend\Home\HomeAction::class)->setName('home');
+    $app->get('/', HomeAction::class)->setName('home');
 
     $app->group(AUTH_ROUTE_GROUP, function (RouteCollectorProxy $app) {
-        $app->get('/register', \App\Application\Action\Frontend\Auth\RegisterAction::class)->setName('register')->add(\App\Application\Middleware\RedirectifAuthenticatedMiddleware::class);
-        $app->post('/register', \App\Application\Action\Frontend\Auth\RegisterAction::class)->setName('register')->add(\App\Application\Middleware\RedirectifAuthenticatedMiddleware::class);
-        $app->get('/login', \App\Application\Action\Frontend\Auth\LoginAction::class)->setName('login')->add(\App\Application\Middleware\RedirectifAuthenticatedMiddleware::class);
-        $app->post('/login', \App\Application\Action\Frontend\Auth\LoginAction::class)->setName('login')->add(\App\Application\Middleware\RedirectifAuthenticatedMiddleware::class);
+        $app->get('/register', RegisterAction::class)->setName('register')->add(RedirectIfAuthenticated::class);
+        $app->post('/register', RegisterAction::class)->setName('register')->add(RedirectIfAuthenticated::class);
+        $app->get('/login', LoginAction::class)->setName('login')->add(RedirectIfAuthenticated::class);
+        $app->post('/login', LoginAction::class)->setName('login')->add(RedirectIfAuthenticated::class);
+        $app->get('/logout', \App\Application\Action\Frontend\Auth\LogoutAction::class)->setName('logout')->add(RedirectIfGuest::class);
     });
 
     $app->group('/events', function (RouteCollectorProxy $app) {
-        $app->get('/{identifier}', \App\Application\Action\API\Event\EventAction::class)->setName('event');
+        $app->get('/{identifier}', EventAction::class)->setName('event');
     });
 
     // API
@@ -25,18 +36,18 @@ return function (App $app) {
         function (RouteCollectorProxy $app) {
             $app->group('/events',
                 function (RouteCollectorProxy $app) {
-                    $app->get('/', \App\Application\Action\API\Event\EventFinderAction::class);
-                    $app->get('/{event_id}', \App\Application\Action\API\Event\EventReaderAction::class);
+                    $app->get('/', EventFinderAction::class);
+                    $app->get('/{event_id}', EventReaderAction::class);
 
-                    $app->post('/', \App\Application\Action\API\Event\EventCreatorAction::class);
+                    $app->post('/', EventCreatorAction::class);
                 }
             );
 
-            $app->post('/user', \App\Application\Action\User\UserUpdaterAction::class);
+            $app->post('/user', UserUpdaterAction::class);
 
             $app->group('/user', function (RouteCollectorProxy $app) {
-                $app->get('/register', \App\Application\Action\API\Event\EventAction::class);
-                $app->get('/login', \App\Application\Action\API\Event\EventAction::class);
+                $app->get('/register', EventAction::class);
+                $app->get('/login', EventAction::class);
             });
 
 //            $app->group('/user',
