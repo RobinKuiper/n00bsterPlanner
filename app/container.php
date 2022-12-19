@@ -8,7 +8,7 @@ use App\Application\Support\Redirect;
 //use App\Http\Client\DictionaryApiClientFactory;
 use Doctrine\Common\Cache\Psr6\DoctrineProvider;
 use Doctrine\ORM\EntityManager;
-use Doctrine\ORM\Tools\Setup;
+use Doctrine\ORM\ORMSetup;
 //use League\Flysystem\Filesystem;
 //use League\Flysystem\Local\LocalFilesystemAdapter;
 //use League\Flysystem\UnixVisibility\PortableVisibilityConverter;
@@ -105,15 +105,15 @@ return [
     EntityManager::class => function (ContainerInterface $container) {
         $settings = $container->get('settings')['doctrine'];
 
-        $cache = $settings['dev_mode'] ?
-            DoctrineProvider::wrap(new ArrayAdapter()) :
-            DoctrineProvider::wrap(new FilesystemAdapter(directory: $settings['cache_dir']));
+//        $cache = $settings['dev_mode'] ?
+//            DoctrineProvider::wrap(new ArrayAdapter()) :
+//            DoctrineProvider::wrap(new FilesystemAdapter(directory: $settings['cache_dir']));
 
-        $config = Setup::createAttributeMetadataConfiguration(
+        $config = ORMSetup::createAttributeMetadataConfiguration(
             $settings['metadata_dirs'],
             $settings['dev_mode'],
-            null,
-            $cache
+            // TODO?: null,
+            // TODO: $cache
         );
 
         return EntityManager::create($settings['connection'], $config);
