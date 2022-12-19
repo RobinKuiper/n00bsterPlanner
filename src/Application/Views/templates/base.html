@@ -5,6 +5,8 @@
 <!--        <link rel="stylesheet" href="style.css"/>-->
         <title>{% block title %}{% endblock %} - n00bster</title>
         {% endblock %}
+
+        {% block extra_head %}{% endblock %}
     </head>
     <body>
         <div id="content">{% block content %}{% endblock %}</div>

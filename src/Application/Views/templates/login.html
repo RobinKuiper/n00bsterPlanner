@@ -1,25 +1,72 @@
 {% extends "base.html" %}
 
-{% block title %}Homepage{% endblock %}
+{% block title %}Login{% endblock %}
+
+{% block extra_head %}
+<style>
+    body {
+        font-family: Arial, sans-serif;
+    }
+    h1 {
+        text-align: center;
+    }
+    form {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 30%;
+        margin: 0 auto;
+    }
+    label {
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+    input[type="text"], input[type="password"] {
+        width: 100%;
+        padding: 12px 20px;
+        margin: 8px 0;
+        box-sizing: border-box;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+    input[type="submit"] {
+        width: 100%;
+        background-color: #4CAF50;
+        color: white;
+        padding: 14px 20px;
+        margin: 8px 0;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+    input[type="submit"]:hover {
+        background-color: #45a049;
+    }
+    p.error {
+        color: red;
+        text-align: center;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-    <h1>Login!</h1>
+    <h1>Login</h1>
 
     <ul>
         {% for error in errors %}
-        <li>{{ error }}</li>
+        <li><p class="error">{{ error }}</p></li>
         {% endfor %}
     </ul>
 
     <form id="form" action="{{ AUTH_ROUTE_GROUP }}/login" method="POST">
-        <label>
-            <input type="text" name="name" placeholder="Name" />
-        </label>
-        <label>
-            <input type="password" name="password" placeholder="Password" />
-        </label>
-        <button type="submit">Login</button>
+        <label for="username">Username:</label><br>
+        <input type="text" id="username" name="name"><br>
+        <label for="password">Password:</label><br>
+        <input type="password" id="password" name="password"><br><br>
+        <input type="submit" value="Login">
     </form>
+
+<p>Don't have an account? <a href="/auth/register">Create one here</a></p>
 
     {% block scripts %}
     <script>
