@@ -2,6 +2,7 @@
 
 namespace App\Domain\Event\Service;
 
+use App\Application\Support\Auth;
 use App\Domain\Event\Models\Event;
 use App\Domain\Event\Repository\EventRepository;
 
@@ -48,12 +49,12 @@ final class EventReader
     public function getByIdentifier(string $identifier): Event|null {
         // TODO: Validation
 
-        $event = $this->repository->findOneBy([ 'identifier' => $identifier ]);
+        $events = Auth::user()->getAllEvents()->toArray();
 
-        if(!$event){
-            return null;
-        }
+        $filtered = array_filter($events, function($e) use ($identifier){
+            return $e->getIdentifier() === $identifier;
+        });
 
-        return $event;
+        return count($filtered)? $filtered[0] : null;
     }
 }

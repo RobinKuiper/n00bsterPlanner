@@ -1,12 +1,13 @@
 <?php
 
-namespace App\Application\Action\API\Event;
+namespace App\Application\Action\Frontend\Event;
 
 use App\Application\Factory\ContainerFactory;
 use App\Domain\Event\Service\EventReader;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Slim\Views\Twig;
 
 final class EventAction
 {
@@ -25,7 +26,7 @@ final class EventAction
 
         // TODO: No Event -> Not found.
 
-        $this->container->get('view')->render($response, 'event.html', ['event' => $event]);
+        $this->container->get(Twig::class)->render($response, 'event.html', ['event' => $event]);
 
         return $response;
     }

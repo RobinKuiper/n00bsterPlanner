@@ -4,6 +4,7 @@ namespace App\Application\Support;
 
 use App\Application\Factory\ContainerFactory;
 use App\Domain\Auth\Models\User;
+use App\Domain\Auth\Repository\UserRepository;
 use Doctrine\ORM\EntityManager;
 use Exception;
 use Psr\Container\ContainerExceptionInterface;
@@ -18,16 +19,16 @@ class Auth
      * @throws NotFoundExceptionInterface
      * @throws Exception
      */
-    public static function user(): User|false
+    public static function user(): User|null
     {
         $container = ContainerFactory::createInstance();
         $session = $container->get(Helper::class);
 
         $user = $session->get('user');
 
-        if(!$user) return false;
+        if(!$user) return null;
 
-        return $user;
+        return $container->get(EntityManager::class)->find(User::class, $user->getId());
     }
 
     /**
@@ -37,7 +38,7 @@ class Auth
      */
     public static function check(): bool
     {
-        return self::user() !== false;
+        return self::user() !== null;
     }
 
     /**

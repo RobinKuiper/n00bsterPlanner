@@ -78,7 +78,7 @@ final class RegisterAction
         $register = $this->registerService->register($data);
 
         if($data['success']){
-            return redirect('/');
+            return redirect('/auth/login');
         }
 
         $this->container->get(Twig::class)->render($response, 'register.html', [

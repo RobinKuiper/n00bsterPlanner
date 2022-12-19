@@ -4,11 +4,13 @@ namespace App\Domain\Auth\Models;
 
 use App\Domain\Event\Models\Event;
 use DateTimeImmutable;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\Entity;
 use Doctrine\ORM\Mapping\GeneratedValue;
 use Doctrine\ORM\Mapping\Id;
+use Doctrine\ORM\Mapping\JoinTable;
 use Doctrine\ORM\Mapping\ManyToMany;
 use Doctrine\ORM\Mapping\OneToMany;
 use Doctrine\ORM\Mapping\Table;
@@ -35,17 +37,21 @@ class User implements \JsonSerializable
     private DateTimeImmutable $lastVisit;
 
     /** @var Collection<int, Event> */
-    #[OneToMany(mappedBy: 'owned_by', targetEntity: Event::class)]
+    #[OneToMany(mappedBy: 'ownedBy', targetEntity: Event::class)]
     private Collection $ownedEvents;
 
     /** @var Collection<int, Event> */
-    #[ManyToMany(targetEntity: Event::class, mappedBy: 'users')]
+    #[ManyToMany(targetEntity: Event::class)]
+//    #[JoinTable(name: 'users_events')]
     private Collection $events;
 
     public function __construct()
     {
         $this->firstVisit = new DateTimeImmutable('now');
         $this->lastVisit = new DateTimeImmutable('now');
+
+        $this->events = new ArrayCollection();
+        $this->ownedEvents = new ArrayCollection();
     }
 
     public function getId(): int { return $this->id; }
@@ -53,7 +59,6 @@ class User implements \JsonSerializable
     public function getName(): string { return $this->name; }
     public function setName(string $name): void { $this->name = $name; }
 
-    public function getPassword(): string { return $this->password; }
     public function setPassword(string $password): void { $this->password = $password; }
 
     public function getFirstVisit(): DateTimeImmutable { return $this->firstVisit; }
@@ -67,6 +72,48 @@ class User implements \JsonSerializable
 
     public function getEvents(): Collection { return $this->events; }
     public function setEvents(Collection $events): void { $this->events = $events; }
+
+    public function getAllEvents(): Collection
+    {
+        $events = $this->events->toArray();
+        $ownedEvents = $this->ownedEvents->toArray();
+
+        return new ArrayCollection(
+            array_merge($events, $ownedEvents)
+        );
+    }
+
+    public function addEvent(Event $event)
+    {
+        if(!$this->events->contains($event)) {
+            $this->events[] = $event;
+            $event->addMember($this);
+        }
+    }
+
+    public function removeEvent(Event $event)
+    {
+        if($this->events->contains($event)) {
+            $this->events->removeElement($event);
+            $event->removeMember($this);
+        }
+    }
+
+    public function addOwnedEvent(Event $event)
+    {
+        if(!$this->ownedEvents->contains($event)) {
+            $this->ownedEvents[] = $event;
+            $event->setOwnedBy($this);
+        }
+    }
+
+    public function removeOwnedEvent(Event $event)
+    {
+        if($this->ownedEvents->contains($event)) {
+            $this->ownedEvents->removeElement($event);
+            // Todo: Remove event?
+        }
+    }
 
     public function jsonSerialize(): array
     {

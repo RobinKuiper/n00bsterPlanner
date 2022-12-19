@@ -2,12 +2,12 @@
 
 // Define app routes
 
-use App\Application\Action\API\Event\EventAction;
 use App\Application\Action\API\Event\EventCreatorAction;
 use App\Application\Action\API\Event\EventFinderAction;
 use App\Application\Action\API\Event\EventReaderAction;
 use App\Application\Action\Frontend\Auth\LoginAction;
 use App\Application\Action\Frontend\Auth\RegisterAction;
+use App\Application\Action\Frontend\Event\EventAction;
 use App\Application\Action\Frontend\Home\HomeAction;
 use App\Application\Action\User\UserUpdaterAction;
 use App\Application\Middleware\RedirectifAuthenticatedMiddleware as RedirectIfAuthenticated;
