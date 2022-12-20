@@ -2,9 +2,11 @@
 
 namespace App\Domain\Event\Models;
 
+use App\Application\Support\Auth;
 use App\Domain\Event\Models\EventCategory\EventCategory;
 use App\Domain\Auth\Models\User;
 use DateTimeImmutable;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\Entity;
@@ -13,6 +15,8 @@ use Doctrine\ORM\Mapping\Id;
 use Doctrine\ORM\Mapping\ManyToOne;
 use Doctrine\ORM\Mapping\OneToMany;
 use Doctrine\ORM\Mapping\Table;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 use Symfony\Component\Validator\Constraints\NotNull;
 use Symfony\Component\Validator\Constraints\Unique;
 
@@ -48,11 +52,13 @@ class Event implements \JsonSerializable
     private Collection $members;
 
     /** @var Collection<int, Necessity> */
-    #[OneToMany(mappedBy: 'event', targetEntity: Necessity::class)]
+    #[OneToMany(mappedBy: 'event', targetEntity: Necessity::class, cascade: ['persist', 'remove'])]
     private Collection $necessities;
 
     public function __construct(){
         $this->identifier = uuid_create();
+        $this->members = new ArrayCollection();
+        $this->necessities = new ArrayCollection();
     }
 
     public function getId(): string { return $this->id; }
@@ -87,7 +93,7 @@ class Event implements \JsonSerializable
     public function addMember(User $user): void
     {
         if(!$this->members->contains($user)){
-            $this->members[] = $user;
+            $this->members->add($user);
             $user->addEvent($this);
         }
     }
@@ -103,7 +109,7 @@ class Event implements \JsonSerializable
     public function addNecessity(Necessity $necessity): void
     {
         if(!$this->necessities->contains($necessity)){
-            $this->necessities[] = $necessity;
+            $this->necessities->add($necessity);
             $necessity->setEvent($this);
         }
     }
@@ -113,6 +119,21 @@ class Event implements \JsonSerializable
         if($this->necessities->contains($necessity)){
             $this->necessities->removeElement($necessity);
         }
+    }
+
+    /**
+     * @param User|null $user
+     * @return bool
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
+    public function isOwner(User $user = null): bool
+    {
+        if($user === null) {
+            return $this->ownedBy === Auth::user();
+        }
+
+        return $this->ownedBy === $user;
     }
 
     public function jsonSerialize(): array

@@ -3,6 +3,8 @@
 namespace App\Domain\Event\Models;
 
 use App\Application\Base\BaseModel;
+use App\Domain\Auth\Models\User;
+use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\Entity;
 use Doctrine\ORM\Mapping\GeneratedValue;
@@ -19,11 +21,11 @@ class Necessity extends BaseModel implements \JsonSerializable
     #[Column(type: 'string', unique: false, nullable: false)]
     private string $name;
 
-    #[ManyToOne(targetEntity: Event::class)]
+    #[ManyToOne(cascade: ["persist"], inversedBy: 'necessities')]
     private Event $event;
 
-    #[ManyToOne(targetEntity: Invitee::class)]
-    private Invitee $invitee;
+    #[ManyToOne(cascade: ["persist"], inversedBy: "events")]
+    private User|null $member;
 
     public function getId(): int { return $this->id; }
 
@@ -33,8 +35,8 @@ class Necessity extends BaseModel implements \JsonSerializable
     public function getEvent(): Event { return $this->event; }
     public function setEvent(Event $event): void { $this->event = $event; }
 
-    public function getInvitee(): Invitee { return $this->invitee; }
-    public function setInvitee(Invitee $invitee): void { $this->invitee = $invitee; }
+    public function getMember(): User { return $this->member; }
+    public function setMember(User|null $member): void { $this->member = $member; }
 
     public function jsonSerialize(): array
     {
@@ -42,7 +44,7 @@ class Necessity extends BaseModel implements \JsonSerializable
             'id' => $this->id,
             'visitorId' => $this->name,
             'event' => $this->event,
-            'invitee' => $this->invitee
+            'member' => $this->member
         );
     }
 }

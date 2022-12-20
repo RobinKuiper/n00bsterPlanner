@@ -3,6 +3,7 @@
 namespace App\Domain\Auth\Models;
 
 use App\Domain\Event\Models\Event;
+use App\Domain\Event\Models\Necessity;
 use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -14,9 +15,10 @@ use Doctrine\ORM\Mapping\JoinTable;
 use Doctrine\ORM\Mapping\ManyToMany;
 use Doctrine\ORM\Mapping\OneToMany;
 use Doctrine\ORM\Mapping\Table;
+use JsonSerializable;
 
 #[Entity, Table(name: 'users')]
-class User implements \JsonSerializable
+class User implements JsonSerializable
 {
     #[Id, Column(type: 'integer'), GeneratedValue(strategy: 'AUTO')]
     protected int $id;
@@ -45,6 +47,10 @@ class User implements \JsonSerializable
 //    #[JoinTable(name: 'users_events')]
     private Collection $events;
 
+    /** @var Collection<int, Necessity> */
+    #[OneToMany(mappedBy: 'member', targetEntity: Necessity::class)]
+    private Collection $necessities;
+
     public function __construct()
     {
         $this->firstVisit = new DateTimeImmutable('now');
@@ -52,6 +58,7 @@ class User implements \JsonSerializable
 
         $this->events = new ArrayCollection();
         $this->ownedEvents = new ArrayCollection();
+        $this->necessities = new ArrayCollection();
     }
 
     public function getId(): int { return $this->id; }
@@ -73,6 +80,9 @@ class User implements \JsonSerializable
     public function getEvents(): Collection { return $this->events; }
     public function setEvents(Collection $events): void { $this->events = $events; }
 
+    public function getNecessities(): Collection { return $this->necessities; }
+    public function setNecessities(Collection $necessities): void { $this->necessities = $necessities; }
+
     public function getAllEvents(): Collection
     {
         $events = $this->events->toArray();
@@ -86,7 +96,7 @@ class User implements \JsonSerializable
     public function addEvent(Event $event)
     {
         if(!$this->events->contains($event)) {
-            $this->events[] = $event;
+            $this->events->add($event);
             $event->addMember($this);
         }
     }
@@ -102,7 +112,7 @@ class User implements \JsonSerializable
     public function addOwnedEvent(Event $event)
     {
         if(!$this->ownedEvents->contains($event)) {
-            $this->ownedEvents[] = $event;
+            $this->ownedEvents->add($event);
             $event->setOwnedBy($this);
         }
     }
@@ -115,6 +125,22 @@ class User implements \JsonSerializable
         }
     }
 
+    public function addNecessity(Necessity $necessity)
+    {
+        if(!$this->necessities->contains($necessity)) {
+            $this->necessities->add($necessity);
+            $necessity->setMember($this);
+        }
+    }
+
+    public function removeNecessity(Necessity $necessity)
+    {
+        if($this->necessities->contains($necessity)) {
+            $this->necessities->removeElement($necessity);
+            $necessity->setMember(null);
+        }
+    }
+
     public function jsonSerialize(): array
     {
         return array(
@@ -123,7 +149,8 @@ class User implements \JsonSerializable
             'firstVisit' => $this->firstVisit,
             'lastVisit' => $this->lastVisit,
             'ownedEvents' => $this->ownedEvents,
-            'events' => $this->events
+            'events' => $this->events,
+            'necessities' => $this->necessities,
         );
     }
 }

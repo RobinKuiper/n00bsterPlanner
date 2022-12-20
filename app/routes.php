@@ -36,6 +36,8 @@ return function (App $app) {
         $app->get('/{identifier}', EventAction::class)->setName('event');
     });
 
+    $app->post('/necessity/add', \App\Application\Action\Frontend\Necessity\AddAction::class)->setName('necessity_add')->add(RedirectIfGuest::class);
+
     // API
     $app->group('/api',
         function (RouteCollectorProxy $app) {

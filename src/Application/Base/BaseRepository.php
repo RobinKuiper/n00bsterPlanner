@@ -106,7 +106,17 @@ abstract class BaseRepository implements RepositoryInterface
     }
 
     /**
-     * @param $object
+     * @param object $object
+     * @return void
+     * @throws ORMException
+     */
+    public function persist(object $object): void
+    {
+        $this->entityManager->persist($object);
+    }
+
+    /**
+     * @param object $object
      * @return void
      * @throws ORMException
      * @throws OptimisticLockException
