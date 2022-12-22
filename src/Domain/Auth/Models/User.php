@@ -27,7 +27,7 @@ class User implements JsonSerializable
 //    private string $visitorId;
 
     #[Column(type: 'string', unique: true, nullable: false)]
-    private string $name;
+    private string $username;
 
     #[Column(type: 'string', unique: false, nullable: false)]
     private string $password;
@@ -35,8 +35,9 @@ class User implements JsonSerializable
     #[Column(name: 'first_visit', type: 'datetimetz_immutable', nullable: false)]
     private DateTimeImmutable $firstVisit;
 
-    #[Column(name: 'last_visit', type: 'datetimetz_immutable', nullable: false)]
-    private DateTimeImmutable $lastVisit;
+    /** @var Collection<int, UserSession> */
+    #[OneToMany(mappedBy: 'user', targetEntity: UserSession::class, cascade: ['persist'])]
+    private Collection $sessions;
 
     /** @var Collection<int, Event> */
     #[OneToMany(mappedBy: 'ownedBy', targetEntity: Event::class)]
@@ -54,8 +55,8 @@ class User implements JsonSerializable
     public function __construct()
     {
         $this->firstVisit = new DateTimeImmutable('now');
-        $this->lastVisit = new DateTimeImmutable('now');
 
+        $this->sessions = new ArrayCollection();
         $this->events = new ArrayCollection();
         $this->ownedEvents = new ArrayCollection();
         $this->necessities = new ArrayCollection();
@@ -63,16 +64,14 @@ class User implements JsonSerializable
 
     public function getId(): int { return $this->id; }
 
-    public function getName(): string { return $this->name; }
-    public function setName(string $name): void { $this->name = $name; }
+    public function getUsername(): string { return $this->username; }
+    public function setUsername(string $username): void { $this->username = $username; }
 
     public function setPassword(string $password): void { $this->password = $password; }
+    public function getPassword(): string { return $this->password; }
 
     public function getFirstVisit(): DateTimeImmutable { return $this->firstVisit; }
     public function setFirstVisit(DateTimeImmutable $date): void { $this->firstVisit = $date; }
-
-    public function getLastVisit(): DateTimeImmutable { return $this->lastVisit; }
-    public function setLastVisit(DateTimeImmutable $date): void { $this->lastVisit = $date; }
 
     public function getOwnedEvents(): Collection { return $this->ownedEvents; }
     public function setOwnedEvents(Collection $ownedEvents): void { $this->ownedEvents = $ownedEvents; }
@@ -82,6 +81,14 @@ class User implements JsonSerializable
 
     public function getNecessities(): Collection { return $this->necessities; }
     public function setNecessities(Collection $necessities): void { $this->necessities = $necessities; }
+
+    public function addSession(UserSession $session)
+    {
+        if(!$this->sessions->contains($session)) {
+            $this->sessions->add($session);
+            $session->setUser($this);
+        }
+    }
 
     public function getAllEvents(): Collection
     {
@@ -145,9 +152,8 @@ class User implements JsonSerializable
     {
         return array(
             'id' => $this->id,
-            'name' => $this->name,
+            'name' => $this->username,
             'firstVisit' => $this->firstVisit,
-            'lastVisit' => $this->lastVisit,
             'ownedEvents' => $this->ownedEvents,
             'events' => $this->events,
             'necessities' => $this->necessities,

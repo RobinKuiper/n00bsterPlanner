@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Application\Action\User;
+namespace App\Application\Action\API\User;
 
 use App\Application\Renderer\JsonRenderer;
 use App\Domain\Auth\Service\UserUpdater;

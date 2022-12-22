@@ -12,23 +12,13 @@ date_default_timezone_set('Europe/Amsterdam');
 
 $settings = [];
 
-// Authentication
-$settings['authentication'] = [
-    'salt' => 'SaltedString1234'
+$settings['general'] = [
+    'dev_mode' => true
 ];
 
-// Session
-$settings['session'] = [
-    'name' => 'n00bster',
-    'lifetime' => '24 hour',
-    'autorefresh' => true
-//    'path' => null,
-//    'domain' => null,
-//    'secure' => false,
-//    'httponly' => true,
-//    'samesite' => 'Lax',
-//    'handler',
-//    'ini_settings' (https://www.php.net/manual/en/session.configuration.php)
+// Authentication
+$settings['authentication'] = [
+    'secret' => 'SaltedString1234'
 ];
 
 // Error handler
@@ -51,7 +41,7 @@ $settings['logger'] = [
 
 // Database settings
 $settings['doctrine'] = [
-    'dev_mode' => true,
+    'dev_mode' => $settings['general']['dev_mode'],
     'cache_dir' => __DIR__. '/../cache',
     'metadata_dirs' => [__DIR__ . '/../src/Domain'],
     'connection' => [
@@ -63,11 +53,6 @@ $settings['doctrine'] = [
         'dbname'=> 'noobster',
         'charset' => 'utf8',
     ]
-];
-
-$settings['twig'] = [
-    'template_path' => BASE_PATH . '/src/Application/Views/templates',
-    'cache_path' => BASE_PATH . '/cache'
 ];
 
 // Console commands

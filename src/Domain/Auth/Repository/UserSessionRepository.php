@@ -3,13 +3,13 @@
 namespace App\Domain\Auth\Repository;
 
 use App\Application\Base\BaseRepository;
-use App\Domain\Auth\Models\User;
+use App\Domain\Auth\Models\UserSession;
 use DateTimeImmutable;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\OptimisticLockException;
 
-final class UserRepository extends BaseRepository
+final class UserSessionRepository extends BaseRepository
 {
     /**
      * @param EntityManager $entityManager
@@ -24,39 +24,37 @@ final class UserRepository extends BaseRepository
      */
     protected function getModelName(): string
     {
-        return User::class;
+        return UserSession::class;
     }
 
     /**
      * @param array $data
-     * @return User
+     * @return UserSession
      * @throws ORMException
      * @throws OptimisticLockException
      */
-    public function create(array $data): User
+    public function create(array $data): UserSession
     {
-        $user = new User();
-        $user->setUsername($data['username']);
-        $user->setPassword($data['password']);
+        $userSession = new UserSession($data['user'], $data['token']);
 
-        $this->save($user);
+        $this->save($userSession);
 
-        return $user;
+        return $userSession;
     }
 
     /**
-     * @param User $user
+     * @param UserSession $userSession
      * @param array $data
-     * @return User
+     * @return UserSession
      * @throws ORMException
      * @throws OptimisticLockException
      */
-    public function update(User $user, array $data = []): User
+    public function update(UserSession $userSession, array $data = []): UserSession
     {
-        $user->setLastVisit(new DateTimeImmutable('now'));
+        $userSession->setLastVisit(new DateTimeImmutable('now'));
 
-        $this->save($user);
+        $this->save($userSession);
 
-        return $user;
+        return $userSession;
     }
 }

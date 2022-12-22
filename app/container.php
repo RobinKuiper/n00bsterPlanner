@@ -26,10 +26,6 @@ use Slim\App;
 use Slim\Factory\AppFactory;
 use Slim\Interfaces\RouteParserInterface;
 use Slim\Middleware\ErrorMiddleware;
-use Slim\Views\Twig;
-use SlimSession\Helper;
-use Symfony\Component\Cache\Adapter\ArrayAdapter;
-use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Input\InputOption;
 
@@ -49,10 +45,6 @@ return [
         (require __DIR__ . '/middleware.php')($app);
 
         return $app;
-    },
-
-    Helper::class => function () {
-        return new Helper();
     },
 
     // HTTP factories
@@ -117,14 +109,6 @@ return [
         );
 
         return EntityManager::create($settings['connection'], $config);
-    },
-
-    Twig::class => function (ContainerInterface $container) {
-        $settings = $container->get('settings')['twig'];
-
-        return Twig::create($settings['template_path'], [
-//            'cache' => $settings['cache_path']
-        ]);
     },
 
     ErrorMiddleware::class => function (ContainerInterface $container) {
