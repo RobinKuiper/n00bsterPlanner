@@ -2,6 +2,7 @@
 
 // Define app routes
 
+use App\Application\Action\API\Auth\AuthAction;
 use App\Application\Action\API\Auth\LoginAction;
 use App\Application\Action\API\Auth\RegisterAction;
 use App\Application\Action\API\Event\EventCreatorAction;
@@ -14,6 +15,8 @@ return function (App $app) {
     // API
     $app->group('/api',
         function (RouteCollectorProxy $app) {
+
+            $app->get('/test', LoginAction::class)->add(\App\Application\Middleware\IsAuthenticated::class);
 
             /** AUTHENTICATION */
             $app->group('/authentication', function (RouteCollectorProxy $app) {
