@@ -28,17 +28,13 @@ return function (App $app) {
                 $app->post('/register', RegisterAction::class);
             });
 
-            $app->post('/events', EventCreateAction::class)->add(IsAuthenticatedMiddleware::class);
-
             /** EVENTS */
-            $app->group('/events',
-                function (RouteCollectorProxy $app) {
-                    $app->get('/', EventFinderAction::class);
-                    $app->get('/{event_id}', EventReaderAction::class);
+            $app->group('/events', function (RouteCollectorProxy $app) {
+                $app->get('/all', EventFinderAction::class);
+                $app->get('/{event_id}', EventReaderAction::class);
 
-                    $app->post('/', EventCreateAction::class)->add(IsAuthenticatedMiddleware::class);
-                }
-            );
+                $app->post('/create', EventCreateAction::class)->add(IsAuthenticatedMiddleware::class); // TODO: Check root route path
+            });
         }
     );
 };
