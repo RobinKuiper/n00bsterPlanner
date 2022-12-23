@@ -24,15 +24,6 @@ final class EventValidator
         $this->repository = $repository;
     }
 
-    public function validateCustomerUpdate(int $customerId, array $data): void
-    {
-        if (!$this->repository->exists($customerId)) {
-            throw new DomainException(sprintf('Customer not found: %s', $customerId));
-        }
-
-        $this->validate($data);
-    }
-
     /**
      * @param array $data
      * @return void
@@ -83,7 +74,12 @@ final class EventValidator
                         $constraint->notBlank(),
                         $constraint->length(null, 255),
                     ]
-                )
+                ),
+                'user' => $constraint->required(
+                    [
+                        $constraint->notBlank()
+                    ]
+                ),
             ]
         );
     }

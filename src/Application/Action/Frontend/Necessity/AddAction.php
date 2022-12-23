@@ -3,7 +3,7 @@
 namespace App\Application\Action\Frontend\Necessity;
 
 use App\Application\Factory\ContainerFactory;
-use App\Domain\Event\Service\EventCreator;
+use App\Domain\Event\Service\EventService;
 use App\Domain\Event\Service\NecessityAdder;
 use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\OptimisticLockException;
@@ -57,7 +57,6 @@ final class AddAction
             'success' => $add['success'],
             'errors' => $add['errors'],
             'event' => $add['event'],
-            'EVENTS_ROUTE_GROUP' => EVENTS_ROUTE_GROUP
         ]);
 
         return $response;

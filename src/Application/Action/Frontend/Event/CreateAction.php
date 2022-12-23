@@ -3,7 +3,7 @@
 namespace App\Application\Action\Frontend\Event;
 
 use App\Application\Factory\ContainerFactory;
-use App\Domain\Event\Service\EventCreator;
+use App\Domain\Event\Service\EventService;
 use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\OptimisticLockException;
 use Exception;
@@ -17,16 +17,16 @@ use Slim\Views\Twig;
 final class CreateAction
 {
     /**
-     * @var EventCreator
+     * @var EventService
      */
-    private EventCreator $eventCreator;
+    private EventService $eventCreator;
 
     /**
      * @var ContainerInterface
      */
     private ContainerInterface $container;
 
-    public function __construct(EventCreator $eventCreator)
+    public function __construct(EventService $eventCreator)
     {
         $this->eventCreator = $eventCreator;
         $this->container = ContainerFactory::createInstance();

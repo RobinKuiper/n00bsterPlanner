@@ -4,10 +4,12 @@
 
 use App\Application\Action\API\Auth\AuthAction;
 use App\Application\Action\API\Auth\LoginAction;
+use App\Application\Action\API\Auth\LogoutAction;
 use App\Application\Action\API\Auth\RegisterAction;
-use App\Application\Action\API\Event\EventCreatorAction;
+use App\Application\Action\API\Event\EventCreateAction;
 use App\Application\Action\API\Event\EventFinderAction;
 use App\Application\Action\API\Event\EventReaderAction;
+use App\Application\Middleware\IsAuthenticatedMiddleware;
 use Slim\App;
 use Slim\Routing\RouteCollectorProxy;
 
@@ -16,15 +18,17 @@ return function (App $app) {
     $app->group('/api',
         function (RouteCollectorProxy $app) {
 
-            $app->get('/test', LoginAction::class)->add(\App\Application\Middleware\IsAuthenticated::class);
+            $app->get('/test', LoginAction::class)->add(IsAuthenticatedMiddleware::class);
 
             /** AUTHENTICATION */
             $app->group('/authentication', function (RouteCollectorProxy $app) {
-                $app->get('/logout', \App\Application\Action\API\Auth\LogoutAction::class);
+                $app->get('/logout', LogoutAction::class);
 
                 $app->post('/login', LoginAction::class);
                 $app->post('/register', RegisterAction::class);
             });
+
+            $app->post('/events', EventCreateAction::class)->add(IsAuthenticatedMiddleware::class);
 
             /** EVENTS */
             $app->group('/events',
@@ -32,7 +36,7 @@ return function (App $app) {
                     $app->get('/', EventFinderAction::class);
                     $app->get('/{event_id}', EventReaderAction::class);
 
-                    $app->post('/', EventCreatorAction::class);
+                    $app->post('/', EventCreateAction::class)->add(IsAuthenticatedMiddleware::class);
                 }
             );
         }

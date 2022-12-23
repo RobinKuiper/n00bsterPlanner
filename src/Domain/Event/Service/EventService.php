@@ -9,68 +9,40 @@ use App\Domain\Event\Repository\EventCategory\EventCategoryRepository;
 use App\Domain\Event\Repository\EventRepository;
 use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\OptimisticLockException;
+use Exception;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Psr\Log\LoggerInterface;
 
-final class EventCreator
+final class EventService
 {
-    /**
-     * @var EventRepository
-     */
     private EventRepository $repository;
-
-    /**
-     * @var EventCategoryRepository
-     */
-    private EventCategoryRepository $eventCategoryRepository;
-
-    /**
-     * @var EventValidator
-     */
     private EventValidator $validator;
-
-    /**
-     * @var LoggerInterface
-     */
     private LoggerInterface $logger;
 
-    /**
-     * @param EventRepository $repository
-     * @param EventValidator $validator
-     * @param LoggerFactory $loggerFactory
-     * @param EventCategoryRepository $eventCategoryRepository
-     */
     public function __construct(
         EventRepository $repository,
         EventValidator $validator,
         LoggerFactory $loggerFactory,
-        EventCategoryRepository $eventCategoryRepository,
     ) {
         $this->repository = $repository;
         $this->validator = $validator;
         $this->logger = $loggerFactory
-            ->addFileHandler('event_creator.log')
+            ->addFileHandler('events.log')
             ->createLogger();
-        $this->eventCategoryRepository = $eventCategoryRepository;
     }
 
-
     /**
-     * @param array $data ['title', 'description', 'startDate', 'endDate', 'category', 'name']
-     * @return Event
-     * @throws ContainerExceptionInterface
-     * @throws NotFoundExceptionInterface
+     * @param array $data
+     * @return array
+     * @throws Exception
      */
     public function createEvent(array $data): array
     {
         // Input validation
         $this->validator->validate($data);
 
-        $data['category'] = $this->eventCategoryRepository->findOneBy([ 'name' => $data['category'] ]);
-        $data['user'] = Auth::user();
-
-        // Insert customer and get new customer ID
+        // Insert event
         try {
             $event = $this->repository->create($data);
 
@@ -83,7 +55,7 @@ final class EventCreator
         } catch (OptimisticLockException|ORMException $e) {
             return [
                 'success' => false,
-                'errors' => $e
+                'errors' => [$e->getMessage()]
             ];
         }
     }

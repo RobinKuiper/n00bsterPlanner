@@ -3,7 +3,6 @@
 namespace App\Domain\Event\Models;
 
 use App\Application\Support\Auth;
-use App\Domain\Event\Models\EventCategory\EventCategory;
 use App\Domain\Auth\Models\User;
 use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -41,8 +40,8 @@ class Event implements \JsonSerializable
     #[Column(name: 'end_date', type: 'datetimetz_immutable', nullable: false)]
     private DateTimeImmutable $endDate;
 
-    #[ManyToOne(targetEntity: EventCategory::class, inversedBy: 'events')]
-    private EventCategory $category;
+//    #[ManyToOne(targetEntity: EventCategory::class, inversedBy: 'events')]
+//    private EventCategory $category;
 
     #[ManyToOne(targetEntity: User::class, inversedBy: 'ownedEvents')]
     private User $ownedBy;
@@ -78,11 +77,14 @@ class Event implements \JsonSerializable
     public function getEndDate(): DateTimeImmutable { return $this->endDate; }
     public function setEndDate(DateTimeImmutable $date): void { $this->endDate = $date; }
 
-    public function getCategory(): EventCategory { return $this->category; }
-    public function setCategory(EventCategory $category): void { $this->category = $category; }
+//    public function getCategory(): EventCategory { return $this->category; }
+//    public function setCategory(EventCategory $category): void { $this->category = $category; }
 
     public function getOwnedBy(): User { return $this->ownedBy; }
-    public function setOwnedBy(User $user): void { $this->ownedBy = $user; }
+    public function setOwnedBy(User $user): void {
+        $this->ownedBy = $user;
+        $user->addOwnedEvent($this);
+    }
 
     public function getMembers(): Collection { return $this->members; }
     public function setMembers(Collection $members): void { $this->members = $members; }
@@ -145,7 +147,7 @@ class Event implements \JsonSerializable
             'description'=> $this->description,
             'startDate' => $this->startDate,
             'endDate' => $this->endDate,
-            'category' => $this->category,
+//            'category' => $this->category,
             'ownedBy' => $this->ownedBy,
             'members' => $this->members,
             'necessities' => $this->necessities

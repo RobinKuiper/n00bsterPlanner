@@ -51,6 +51,10 @@ abstract class Action
         return $this->request->getParsedBody();
     }
 
+    protected function getAttribute(string $name) {
+        return $this->request->getAttribute($name);
+    }
+
     /**
      * @param string $name
      * @return mixed

@@ -10,9 +10,9 @@ abstract class AuthAction extends Action
 {
     protected AuthenticationService $authService;
 
-    public function __construct(AuthenticationService $authService, LoggerFactory $loggerFactory)
+    public function __construct(AuthenticationService $eventService, LoggerFactory $loggerFactory)
     {
         parent::__construct($loggerFactory);
-        $this->authService = $authService;
+        $this->authService = $eventService;
     }
 }

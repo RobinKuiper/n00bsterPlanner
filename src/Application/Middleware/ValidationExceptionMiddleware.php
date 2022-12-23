@@ -2,23 +2,14 @@
 
 namespace App\Application\Middleware;
 
-use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\Exception\ValidationFailedException;
 
-final class ValidationExceptionMiddleware implements MiddlewareInterface
+final class ValidationExceptionMiddleware extends MiddleWare
 {
-    private ResponseFactoryInterface $responseFactory;
-
-    public function __construct(ResponseFactoryInterface $responseFactory)
-    {
-        $this->responseFactory = $responseFactory;
-    }
-
     public function process(
         ServerRequestInterface $request,
         RequestHandlerInterface $handler
