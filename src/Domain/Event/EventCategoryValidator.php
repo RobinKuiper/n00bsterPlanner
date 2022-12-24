@@ -1,10 +1,9 @@
 <?php
 
-namespace App\Domain\Event\Service\EventCategory;
+namespace App\Domain\Event;
 
 use App\Application\Factory\ConstraintFactory;
 use App\Domain\Event\Repository\EventCategory\EventCategoryRepository;
-use DomainException;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Exception\ValidationFailedException;
 use Symfony\Component\Validator\Validation;

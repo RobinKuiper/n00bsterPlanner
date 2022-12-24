@@ -1,8 +1,7 @@
 <?php
 
-namespace App\Domain\Event\Models\EventCategory;
+namespace App\Domain\Event\Models;
 
-use App\Domain\Event\Models\Event;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\Entity;

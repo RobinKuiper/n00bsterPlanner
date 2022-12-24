@@ -5,7 +5,6 @@ namespace App\Domain\Event;
 use App\Application\Factory\LoggerFactory;
 use App\Domain\Auth\Models\User;
 use App\Domain\Event\Models\Event;
-use App\Domain\Event\Service\EventValidator;
 use DateTimeImmutable;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Exception\ORMException;

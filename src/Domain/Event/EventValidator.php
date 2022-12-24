@@ -1,13 +1,14 @@
 <?php
 
-namespace App\Domain\Event\Service;
+namespace App\Domain\Event;
 
 use App\Application\Factory\ConstraintFactory;
-//use Doctrine\ORM\EntityManager;
-//use DomainException;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Exception\ValidationFailedException;
 use Symfony\Component\Validator\Validation;
+
+//use Doctrine\ORM\EntityManager;
+//use DomainException;
 
 final class EventValidator
 {
