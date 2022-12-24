@@ -43,13 +43,16 @@ class Event implements \JsonSerializable
 //    #[ManyToOne(targetEntity: EventCategory::class, inversedBy: 'events')]
 //    private EventCategory $category;
 
-    #[ManyToOne(targetEntity: User::class, inversedBy: 'ownedEvents')]
+    // Many Meetings have one owner
+    #[ManyToOne(targetEntity: User::class, cascade: ['persist'], inversedBy: 'ownedEvents')]
     private User $ownedBy;
 
+    // One Meeting has multiple members
     /** @var Collection<int, User> */
     #[OneToMany(mappedBy: 'events', targetEntity: User::class)]
     private Collection $members;
 
+    // One Meeting has multiple necessities
     /** @var Collection<int, Necessity> */
     #[OneToMany(mappedBy: 'event', targetEntity: Necessity::class, cascade: ['persist', 'remove'])]
     private Collection $necessities;

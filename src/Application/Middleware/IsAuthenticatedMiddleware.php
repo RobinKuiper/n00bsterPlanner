@@ -2,8 +2,7 @@
 
 namespace App\Application\Middleware;
 
-use App\Application\Factory\ContainerFactory;
-use App\Domain\Auth\Models\UserSession;
+use App\Domain\Auth\Models\User;
 use Doctrine\ORM\EntityManager;
 use Exception;
 use Fig\Http\Message\StatusCodeInterface;
@@ -52,8 +51,8 @@ class IsAuthenticatedMiddleware extends Middleware
             // Valid
 
             $entityManager = $this->container->get(EntityManager::class);
-            $session = $entityManager->getRepository(UserSession::class)->findOneBy([ 'token' => $jwt ]);
-            $request = $request->withAttribute('user', $session->getUser());
+            $user = $entityManager->getReference(User::class, $decoded->userId);
+            $request = $request->withAttribute('user', $user);
 
             return $handler->handle($request);
         } catch (Exception $e) {

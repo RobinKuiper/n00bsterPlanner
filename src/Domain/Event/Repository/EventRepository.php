@@ -45,6 +45,8 @@ final class EventRepository extends BaseRepository
         $event->setEndDate(new DateTimeImmutable($data['endDate']));
         $reference = $this->entityManager->getReference(User::class, $data['user']->getId());
         $event->setOwnedBy($reference);
+//        $reference->addOwnedEvent($event);
+
 //        $event->setCategory($data['category']);
 
 //        $invitee = new Invitee();

@@ -11,7 +11,6 @@ use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\Entity;
 use Doctrine\ORM\Mapping\GeneratedValue;
 use Doctrine\ORM\Mapping\Id;
-use Doctrine\ORM\Mapping\JoinTable;
 use Doctrine\ORM\Mapping\ManyToMany;
 use Doctrine\ORM\Mapping\OneToMany;
 use Doctrine\ORM\Mapping\Table;
@@ -35,19 +34,23 @@ class User implements JsonSerializable
     #[Column(name: 'first_visit', type: 'datetimetz_immutable', nullable: false)]
     private DateTimeImmutable $firstVisit;
 
+    // One User has multiple UserSessions
     /** @var Collection<int, UserSession> */
     #[OneToMany(mappedBy: 'user', targetEntity: UserSession::class, cascade: ['persist'])]
     private Collection $sessions;
 
+    // One User has multiple OwnedEvents
     /** @var Collection<int, Event> */
-    #[OneToMany(mappedBy: 'ownedBy', targetEntity: Event::class)]
+    #[OneToMany(mappedBy: 'ownedBy', targetEntity: Event::class, cascade: ['persist'])]
     private Collection $ownedEvents;
 
+    // Many Users have multiple Events
     /** @var Collection<int, Event> */
     #[ManyToMany(targetEntity: Event::class)]
 //    #[JoinTable(name: 'users_events')]
     private Collection $events;
 
+    // One User has multiple necessities
     /** @var Collection<int, Necessity> */
     #[OneToMany(mappedBy: 'member', targetEntity: Necessity::class)]
     private Collection $necessities;
@@ -56,10 +59,10 @@ class User implements JsonSerializable
     {
         $this->firstVisit = new DateTimeImmutable('now');
 
-        $this->sessions = new ArrayCollection();
-        $this->events = new ArrayCollection();
-        $this->ownedEvents = new ArrayCollection();
-        $this->necessities = new ArrayCollection();
+//        $this->sessions = new ArrayCollection();
+//        $this->events = new ArrayCollection();
+//        $this->ownedEvents = new PersistentCollection();
+//        $this->necessities = new ArrayCollection();
     }
 
     public function getId(): int { return $this->id; }
@@ -81,6 +84,8 @@ class User implements JsonSerializable
 
     public function getNecessities(): Collection { return $this->necessities; }
     public function setNecessities(Collection $necessities): void { $this->necessities = $necessities; }
+
+    public function getSessions(): Collection { return $this->sessions; }
 
     public function addSession(UserSession $session)
     {
@@ -154,9 +159,9 @@ class User implements JsonSerializable
             'id' => $this->id,
             'name' => $this->username,
             'firstVisit' => $this->firstVisit,
-            'ownedEvents' => $this->ownedEvents,
-            'events' => $this->events,
-            'necessities' => $this->necessities,
+//            'ownedEvents' => $this->getOwnedEvents()->toArray(),
+//            'events' => $this->getEvents()->toArray(),
+//            'necessities' => $this->getNecessities()->toArray(),
         );
     }
 }

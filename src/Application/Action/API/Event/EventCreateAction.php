@@ -2,11 +2,16 @@
 
 namespace App\Application\Action\API\Event;
 
+use Exception;
 use Fig\Http\Message\StatusCodeInterface;
 use Psr\Http\Message\ResponseInterface;
 
 final class EventCreateAction extends EventAction
 {
+    /**
+     * @return ResponseInterface
+     * @throws Exception
+     */
     public function action(): ResponseInterface
     {
         // Extract the form data from the request body

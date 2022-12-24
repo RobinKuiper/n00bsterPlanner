@@ -3,15 +3,10 @@
 namespace App\Domain\Event\Service;
 
 use App\Application\Factory\LoggerFactory;
-use App\Application\Support\Auth;
-use App\Domain\Event\Models\Event;
-use App\Domain\Event\Repository\EventCategory\EventCategoryRepository;
 use App\Domain\Event\Repository\EventRepository;
 use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\OptimisticLockException;
 use Exception;
-use Psr\Container\ContainerExceptionInterface;
-use Psr\Container\NotFoundExceptionInterface;
 use Psr\Log\LoggerInterface;
 
 final class EventService
