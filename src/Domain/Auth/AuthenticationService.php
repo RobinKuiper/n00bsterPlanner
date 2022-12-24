@@ -6,6 +6,7 @@ use App\Application\Factory\ContainerFactory;
 use App\Application\Factory\LoggerFactory;
 use App\Domain\Auth\Models\User;
 use App\Domain\Auth\Models\UserSession;
+use DateTimeImmutable;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\OptimisticLockException;
@@ -74,7 +75,7 @@ final class AuthenticationService
 
         $this->logger->info(sprintf('User logged in successfully: %s', $user->getUsername()));
 
-        $jwt = $this->createSession($user);
+        $jwt = $this->createOrUpdateSession($user);
 
         return [
             'success' => true,
@@ -99,7 +100,7 @@ final class AuthenticationService
 
         $this->logger->info(sprintf('User created successfully: %s', $user->getUsername()));
 
-        $jwt = $this->createSession($user);
+        $jwt = $this->createOrUpdateSession($user);
 
         return [
             'success' => true,
@@ -120,7 +121,7 @@ final class AuthenticationService
      * @throws ORMException
      * @throws OptimisticLockException
      */
-    private function createSession(User $user): string
+    private function createOrUpdateSession(User $user): string
     {
         $payload = [
             'userId' => $user->getId(),
@@ -128,16 +129,19 @@ final class AuthenticationService
         ];
         $jwt = JWT::encode($payload, $this->settings['secret'], 'HS256');
 
-        $session = new UserSession();
-        $session->setToken($jwt);
-        $user->addSession($session);
-        $this->entityManager->persist($user);
-        $this->entityManager->flush();
+        $session = $user->getSessions()->findFirst(function (int $key, UserSession $session) use ($jwt): bool {
+            return $session->getToken() == $jwt;
+        });
 
-//        $this->userSessionRepository->create([
-//            'user' => $user,
-//            'jwt' => $jwt
-//        ]);
+        if ($session) {
+            $session->setLastVisit(new DateTimeImmutable("now"));
+        } else {
+            $session = new UserSession();
+            $session->setToken($jwt);
+            $user->addSession($session);
+            $this->entityManager->persist($user);
+            $this->entityManager->flush();
+        }
 
         return $jwt;
     }

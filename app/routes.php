@@ -8,7 +8,9 @@ use App\Application\Action\API\Auth\RegisterAction;
 use App\Application\Action\API\Event\EventCreateAction;
 use App\Application\Action\API\Event\EventGetAllAction;
 use App\Application\Action\API\Event\EventReaderAction;
+use App\Application\Action\API\Sandbox\SandboxAction;
 use App\Application\Middleware\IsAuthenticatedMiddleware;
+use App\Application\Middleware\IsGuestMiddleware;
 use Slim\App;
 use Slim\Routing\RouteCollectorProxy;
 
@@ -21,10 +23,10 @@ return function (App $app) {
 
             /** AUTHENTICATION */
             $app->group('/authentication', function (RouteCollectorProxy $app) {
-                $app->get('/logout', LogoutAction::class);
+                $app->get('/logout', LogoutAction::class)->add(IsAuthenticatedMiddleware::class);
 
-                $app->post('/login', LoginAction::class);
-                $app->post('/register', RegisterAction::class);
+                $app->post('/login', LoginAction::class)->add(IsGuestMiddleware::class);
+                $app->post('/register', RegisterAction::class)->add(IsGuestMiddleware::class);
             });
 
             /** EVENTS */
@@ -37,7 +39,7 @@ return function (App $app) {
 
             /** SANDBOX */
             $app->group('/sandbox', function (RouteCollectorProxy $app) {
-               $app->post('/1', \App\Application\Action\API\Sandbox\SandboxAction::class)->add(IsAuthenticatedMiddleware::class);
+               $app->post('/1', SandboxAction::class)->add(IsAuthenticatedMiddleware::class);
             });
         }
     );

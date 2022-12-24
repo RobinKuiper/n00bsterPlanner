@@ -4,7 +4,6 @@ namespace App\Application\Action\API\Sandbox;
 
 use App\Application\Action\API\Action;
 use App\Application\Factory\LoggerFactory;
-use App\Domain\Auth\Repository\UserRepository;
 use App\Domain\Event\EventService;
 use Doctrine\ORM\EntityManager;
 use Psr\Http\Message\ResponseInterface;
@@ -44,8 +43,8 @@ class SandboxAction extends Action
         // Send the HTTP response
         return $this->respond([
 //            'event' => $event,
-            'user' => $user,
-            'events' => $events,
+//            'user' => $user,
+//            'events' => $events,
             'sessions' => $sessions,
         ]);
     }
