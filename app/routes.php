@@ -5,9 +5,12 @@
 use App\Application\Action\API\Auth\LoginAction;
 use App\Application\Action\API\Auth\LogoutAction;
 use App\Application\Action\API\Auth\RegisterAction;
-use App\Application\Action\API\Event\EventCreateAction;
-use App\Application\Action\API\Event\EventGetAllAction;
-use App\Application\Action\API\Event\EventReaderAction;
+use App\Application\Action\API\Event\CreateEventAction;
+use App\Application\Action\API\Event\GetAllEventsAction;
+use App\Application\Action\API\Event\GetEventAction;
+use App\Application\Action\API\Event\GetOwnedEventsAction;
+use App\Application\Action\API\Event\RemoveEventAction;
+use App\Application\Action\API\Event\UpdateEventAction;
 use App\Application\Action\API\Sandbox\SandboxAction;
 use App\Application\Middleware\IsAuthenticatedMiddleware;
 use App\Application\Middleware\IsGuestMiddleware;
@@ -31,10 +34,13 @@ return function (App $app) {
 
             /** EVENTS */
             $app->group('/events', function (RouteCollectorProxy $app) {
-                $app->get('/all', EventGetAllAction::class)->add(IsAuthenticatedMiddleware::class);
-                $app->get('/{event_id}', EventReaderAction::class);
+                $app->get('/all', GetAllEventsAction::class)->add(IsAuthenticatedMiddleware::class);
+                $app->get('/owned', GetOwnedEventsAction::class)->add(IsAuthenticatedMiddleware::class);
+                $app->get('/{event_id}', GetEventAction::class)->add(IsAuthenticatedMiddleware::class);
+                $app->get('/remove/{event_id}', RemoveEventAction::class)->add(IsAuthenticatedMiddleware::class);
 
-                $app->post('/create', EventCreateAction::class)->add(IsAuthenticatedMiddleware::class); // TODO: Check root route path
+                $app->post('/update', UpdateEventAction::class)->add(IsAuthenticatedMiddleware::class);
+                $app->post('/create', CreateEventAction::class)->add(IsAuthenticatedMiddleware::class); // TODO: Check root route path
             });
 
             /** SANDBOX */

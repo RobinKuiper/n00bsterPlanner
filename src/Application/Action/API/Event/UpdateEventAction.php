@@ -2,11 +2,12 @@
 
 namespace App\Application\Action\API\Event;
 
+use App\Domain\Event\Models\Event;
 use Exception;
 use Fig\Http\Message\StatusCodeInterface;
 use Psr\Http\Message\ResponseInterface;
 
-final class EventCreateAction extends EventAction
+final class UpdateEventAction extends EventAction
 {
     /**
      * @return ResponseInterface
@@ -18,14 +19,19 @@ final class EventCreateAction extends EventAction
         $data = (array)$this->getFormData();
         $data['user'] = $this->getAttribute('user');
 
+        $user = $this->getAttribute('user');
+        $event = $user->getOwnedEvents()->findFirst(function(int $key, Event $event) use ($data) {
+            return $event->getId() == $data['id'];
+        });
+
         // Invoke the Domain with inputs and retain the result
-        $event = $this->eventService->createEvent($data);
+        $update = $this->eventService->updateEvent($event, $data);
 
         // Get the appropriate status code
-        $statusCode = $event['success'] ? StatusCodeInterface::STATUS_OK : StatusCodeInterface::STATUS_UNAUTHORIZED;
+        $statusCode = $update['success'] ? StatusCodeInterface::STATUS_OK : StatusCodeInterface::STATUS_INTERNAL_SERVER_ERROR;
 
         // Build the HTTP response
         // Send the HTTP response
-        return $this->respond($event, $statusCode);
+        return $this->respond($update, $statusCode);
     }
 }

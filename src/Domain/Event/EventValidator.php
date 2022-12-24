@@ -48,6 +48,11 @@ final class EventValidator
 
         return $constraint->collection(
             [
+                'id' => $constraint->optional(
+                    [
+                        $constraint->number()
+                    ]
+                ),
                 'title' => $constraint->required(
                     [
                         $constraint->notBlank(),

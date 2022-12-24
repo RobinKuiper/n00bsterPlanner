@@ -63,7 +63,7 @@ class Event implements \JsonSerializable
         $this->necessities = new ArrayCollection();
     }
 
-    public function getId(): string { return $this->id; }
+    public function getId(): int { return $this->id; }
 
     public function getIdentifier(): string { return $this->identifier; }
     public function setIdentifier(string $identifier): void { $this->identifier = $identifier; }

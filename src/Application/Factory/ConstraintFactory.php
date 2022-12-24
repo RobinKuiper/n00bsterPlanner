@@ -45,4 +45,9 @@ final class ConstraintFactory
     {
         return new Assert\NotCompromisedPassword();
     }
+
+    public function number(int $min = 1): Assert\GreaterThanOrEqual
+    {
+        return new Assert\GreaterThanOrEqual($min);
+    }
 }

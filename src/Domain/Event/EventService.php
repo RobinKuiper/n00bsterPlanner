@@ -61,6 +61,58 @@ final class EventService
     }
 
     /**
+     * @param Event $event
+     * @param array $data
+     * @return array
+     */
+    public function updateEvent(Event $event, array $data): array
+    {
+        // Input validation
+        $this->validator->validate($data);
+
+        try{
+            $event = $this->entityManager->getReference(Event::class, $event->getId());
+
+            $event->setDescription($data['description'] ?? $event->getDescription());
+            $event->setTitle($data['title'] ?? $event->getTitle());
+            $event->setStartDate(new DateTimeImmutable($data['startDate']) ?? $event->getStartDate());
+            $event->setEndDate(new DateTimeImmutable($data['endDate']) ?? $event->getEndDate());
+
+            $this->entityManager->persist($event);
+            $this->entityManager->flush();
+
+            return [
+                'success' => true,
+                'event' => $event
+            ];
+        } catch (ORMException|Exception $e) {
+            return [
+                'success' => false,
+                'errors' => [$e->getMessage()]
+            ];
+        }
+    }
+
+    public function removeEvent(Event $event): array
+    {
+        try{
+            $event = $this->entityManager->getReference(Event::class, $event->getId());
+
+            $this->entityManager->remove($event);
+            $this->entityManager->flush();
+
+            return [
+                'success' => true
+            ];
+        } catch (OptimisticLockException|ORMException $e) {
+            return [
+                'success' => false,
+                'errors' => [$e->getMessage()]
+            ];
+        }
+    }
+
+    /**
      * @param array $data
      * @return Event
      * @throws ORMException
