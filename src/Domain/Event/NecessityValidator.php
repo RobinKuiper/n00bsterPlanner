@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Domain\Event\Service;
+namespace App\Domain\Event;
 
 use App\Application\Factory\ConstraintFactory;
 use Symfony\Component\Validator\Constraint;

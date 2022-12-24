@@ -4,7 +4,7 @@ namespace App\Application\Action\API\Event;
 
 use App\Application\Action\API\Action;
 use App\Application\Factory\LoggerFactory;
-use App\Domain\Event\Service\EventService;
+use App\Domain\Event\EventService;
 
 abstract class EventAction extends Action
 {

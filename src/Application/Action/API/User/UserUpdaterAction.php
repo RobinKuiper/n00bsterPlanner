@@ -3,7 +3,7 @@
 namespace App\Application\Action\API\User;
 
 use App\Application\Renderer\JsonRenderer;
-use App\Domain\Auth\Service\UserUpdater;
+use App\Domain\Auth\NeededMaybe\UserUpdater;
 use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\OptimisticLockException;
 use Fig\Http\Message\StatusCodeInterface;

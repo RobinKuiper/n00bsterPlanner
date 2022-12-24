@@ -1,10 +1,11 @@
 <?php
 
-namespace App\Domain\Auth\Service;
+namespace App\Domain\Auth\NeededMaybe;
 
 use App\Application\Factory\LoggerFactory;
 use App\Domain\Auth\Models\User;
 use App\Domain\Auth\Repository\UserRepository;
+use App\Domain\Auth\UserValidator;
 use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\OptimisticLockException;
 use Psr\Log\LoggerInterface;

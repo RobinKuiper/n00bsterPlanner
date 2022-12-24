@@ -4,7 +4,7 @@ namespace App\Application\Action\API\Auth;
 
 use App\Application\Action\API\Action;
 use App\Application\Factory\LoggerFactory;
-use App\Domain\Auth\Service\AuthenticationService;
+use App\Domain\Auth\AuthenticationService;
 
 abstract class AuthAction extends Action
 {

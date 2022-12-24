@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Domain\Auth\Service;
+namespace App\Domain\Auth;
 
 use App\Application\Factory\ConstraintFactory;
 use App\Domain\Auth\Models\User;

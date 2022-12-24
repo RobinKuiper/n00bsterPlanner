@@ -4,12 +4,9 @@ namespace App\Application\Action\API\Sandbox;
 
 use App\Application\Action\API\Action;
 use App\Application\Factory\LoggerFactory;
-use App\Domain\Auth\Models\User;
 use App\Domain\Auth\Repository\UserRepository;
-use App\Domain\Event\Models\Event;
-use App\Domain\Event\Service\EventService;
+use App\Domain\Event\EventService;
 use Doctrine\ORM\EntityManager;
-use Fig\Http\Message\StatusCodeInterface;
 use Psr\Http\Message\ResponseInterface;
 
 class SandboxAction extends Action
