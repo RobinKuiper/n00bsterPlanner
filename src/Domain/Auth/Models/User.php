@@ -22,13 +22,13 @@ class User implements JsonSerializable
     #[Id, Column(type: 'integer'), GeneratedValue(strategy: 'AUTO')]
     protected int $id;
 
-//    #[Column(type: 'string', unique: true, nullable: false)]
-//    private string $visitorId;
+    #[Column(type: 'string', unique: true, nullable: true)]
+    private string $visitorId;
 
-    #[Column(type: 'string', unique: true, nullable: false)]
+    #[Column(type: 'string', unique: true, nullable: true)]
     private string $username;
 
-    #[Column(type: 'string', unique: false, nullable: false)]
+    #[Column(type: 'string', unique: false, nullable: true)]
     private string $password;
 
     #[Column(name: 'first_visit', type: 'datetimetz_immutable', nullable: false)]
@@ -59,13 +59,16 @@ class User implements JsonSerializable
     {
         $this->firstVisit = new DateTimeImmutable('now');
 
-//        $this->sessions = new ArrayCollection();
-//        $this->events = new ArrayCollection();
-//        $this->ownedEvents = new PersistentCollection();
-//        $this->necessities = new ArrayCollection();
+        $this->sessions = new ArrayCollection();
+        $this->events = new ArrayCollection();
+        $this->ownedEvents = new ArrayCollection();
+        $this->necessities = new ArrayCollection();
     }
 
     public function getId(): int { return $this->id; }
+
+    public function getVisitorId(): string { return $this->visitorId; }
+    public function setVisitorId(string $visitorId): void { $this->visitorId = $visitorId; }
 
     public function getUsername(): string { return $this->username; }
     public function setUsername(string $username): void { $this->username = $username; }
@@ -85,7 +88,7 @@ class User implements JsonSerializable
     public function getNecessities(): Collection { return $this->necessities; }
     public function setNecessities(Collection $necessities): void { $this->necessities = $necessities; }
 
-    public function getSessions(): Collection { return $this->sessions; }
+    public function getSessions(): Collection { return  $this->sessions; }
 
     public function addSession(UserSession $session)
     {

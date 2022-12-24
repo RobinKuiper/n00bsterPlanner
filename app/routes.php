@@ -5,6 +5,7 @@
 use App\Application\Action\API\Auth\LoginAction;
 use App\Application\Action\API\Auth\LogoutAction;
 use App\Application\Action\API\Auth\RegisterAction;
+use App\Application\Action\API\Auth\RegisterGuestAction;
 use App\Application\Action\API\Event\CreateEventAction;
 use App\Application\Action\API\Event\GetAllEventsAction;
 use App\Application\Action\API\Event\GetEventAction;
@@ -30,6 +31,7 @@ return function (App $app) {
 
                 $app->post('/login', LoginAction::class)->add(IsGuestMiddleware::class);
                 $app->post('/register', RegisterAction::class)->add(IsGuestMiddleware::class);
+                $app->post('/register/guest', RegisterGuestAction::class)->add(IsGuestMiddleware::class);
             });
 
             /** EVENTS */

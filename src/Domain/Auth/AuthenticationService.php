@@ -108,6 +108,32 @@ final class AuthenticationService
         ];
     }
 
+    public function registerGuest(array $data): array
+    {
+        // Input validation
+//        $this->validator->validate($data); TODO: Validate data
+
+        try {
+            $user = $this->createNewGuestUser($data);
+
+            $this->logger->info(sprintf('Guest User created successfully: %s', $user->getId()));
+
+            $jwt = $this->createOrUpdateSession($user);
+
+            return [
+                'success' => true,
+                'jwt' => $jwt
+            ];
+        } catch (OptimisticLockException|ORMException $e) {
+            $this->logger->error(sprintf('Error creating guest user: %s', $e->getMessage()));
+
+            return [
+                'success' => false,
+                'errors' => [$e->getMessage()]
+            ];
+        }
+    }
+
     public function logout(): array
     {
         return [
@@ -124,8 +150,7 @@ final class AuthenticationService
     private function createOrUpdateSession(User $user): string
     {
         $payload = [
-            'userId' => $user->getId(),
-            'username' => $user->getUsername(),
+            'userId' => $user->getId()
         ];
         $jwt = JWT::encode($payload, $this->settings['secret'], 'HS256');
 
@@ -159,6 +184,23 @@ final class AuthenticationService
         $user = new User();
         $user->setUsername($data['username']);
         $user->setPassword(hash_password($data['password']));
+
+        $this->entityManager->persist($user);
+        $this->entityManager->flush();
+
+        return $user;
+    }
+
+    /**
+     * @param array $data
+     * @return User
+     * @throws ORMException
+     * @throws OptimisticLockException
+     */
+    private function createNewGuestUser(array $data): User
+    {
+        $user = new User();
+        $user->setVisitorId($data['visitorId']);
 
         $this->entityManager->persist($user);
         $this->entityManager->flush();

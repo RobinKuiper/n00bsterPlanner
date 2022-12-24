@@ -151,8 +151,8 @@ class Event implements \JsonSerializable
             'startDate' => $this->startDate,
             'endDate' => $this->endDate,
 //            'category' => $this->category,
-            'ownedBy' => $this->ownedBy,
-            'members' => $this->members,
+//            'ownedBy' => $this->ownedBy,
+//            'members' => $this->members,
             'necessities' => $this->necessities
         );
     }
