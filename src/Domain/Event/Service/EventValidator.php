@@ -3,26 +3,26 @@
 namespace App\Domain\Event\Service;
 
 use App\Application\Factory\ConstraintFactory;
-use App\Domain\Event\Repository\EventRepository;
-use DomainException;
+//use Doctrine\ORM\EntityManager;
+//use DomainException;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Exception\ValidationFailedException;
 use Symfony\Component\Validator\Validation;
 
 final class EventValidator
 {
-    /**
-     * @var EventRepository
-     */
-    private EventRepository $repository;
-
-    /**
-     * @param EventRepository $repository
-     */
-    public function __construct(EventRepository $repository)
-    {
-        $this->repository = $repository;
-    }
+//    /**
+//     * @var EntityManager
+//     */
+//    private EntityManager $entityManager;
+//
+//    /**
+//     * @param EntityManager $entityManager
+//     */
+//    public function __construct(EntityManager $entityManager)
+//    {
+//        $this->entityManager = $entityManager;
+//    }
 
     /**
      * @param array $data

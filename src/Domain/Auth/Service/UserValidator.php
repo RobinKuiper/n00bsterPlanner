@@ -3,36 +3,26 @@
 namespace App\Domain\Auth\Service;
 
 use App\Application\Factory\ConstraintFactory;
-use App\Domain\Auth\Repository\UserRepository;
-use DomainException;
+use App\Domain\Auth\Models\User;
+use Doctrine\ORM\EntityManager;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\Exception\ValidationFailedException;
 use Symfony\Component\Validator\Validation;
-use Symfony\Component\Validator\Violation\ConstraintViolationBuilder;
 
 final class UserValidator
 {
     /**
-     * @var UserRepository
+     * @var EntityManager
      */
-    private UserRepository $repository;
+    private EntityManager $entityManager;
 
     /**
-     * @param UserRepository $repository
+     * @param EntityManager $entityManager
      */
-    public function __construct(UserRepository $repository)
+    public function __construct(EntityManager $entityManager)
     {
-        $this->repository = $repository;
-    }
-
-    public function validateCustomerUpdate(int $customerId, array $data): void
-    {
-        if (!$this->repository->exists($customerId)) {
-            throw new DomainException(sprintf('Customer not found: %s', $customerId));
-        }
-
-        $this->validate($data);
+        $this->entityManager = $entityManager;
     }
 
     /**
@@ -44,7 +34,8 @@ final class UserValidator
         $validator = Validation::createValidator();
         $violations = $validator->validate($data, $this->createConstraints());
 
-        if ($this->repository->findOneBy([ 'username' => $data['username'] ])) {
+        $repository = $this->entityManager->getRepository(User::class);
+        if ($repository->findOneBy([ 'username' => $data['username'] ])) {
             $violation = new ConstraintViolation('Username already exists.', null, [], $data['username'], null, $data['username']);
             $violations->add($violation);
             // throw new DomainException(sprintf('Username exists: %s', $data['username']));

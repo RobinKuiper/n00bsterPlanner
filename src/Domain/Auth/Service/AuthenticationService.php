@@ -6,7 +6,7 @@ use App\Application\Factory\ContainerFactory;
 use App\Application\Factory\LoggerFactory;
 use App\Domain\Auth\Models\User;
 use App\Domain\Auth\Models\UserSession;
-use App\Domain\Auth\Repository\UserRepository;
+use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\OptimisticLockException;
 use Exception;
@@ -17,13 +17,13 @@ use Psr\Log\LoggerInterface;
 
 final class AuthenticationService
 {
-    private UserRepository $userRepository;
+    private EntityManager $entityManager;
     private UserValidator $validator;
     private LoggerInterface $logger;
     private array $settings;
 
     /**
-     * @param UserRepository $repository
+     * @param EntityManager $entityManager
      * @param UserValidator $validator
      * @param LoggerFactory $loggerFactory
      * @throws ContainerExceptionInterface
@@ -31,11 +31,11 @@ final class AuthenticationService
      * @throws Exception
      */
     public function __construct(
-        UserRepository $repository,
+        EntityManager $entityManager,
         UserValidator $validator,
         LoggerFactory $loggerFactory
     ) {
-        $this->userRepository = $repository;
+        $this->entityManager = $entityManager;
         $this->validator = $validator;
         $this->logger = $loggerFactory
             ->addFileHandler('authentication.log')
@@ -58,7 +58,8 @@ final class AuthenticationService
         $username = $data['username'];
         $password = $data['password'];
 
-        $user = $this->userRepository->findOneBy([ 'username' => $username ]);
+        $repository = $this->entityManager->getRepository(User::class);
+        $user = $repository->findOneBy([ 'username' => $username ]);
 
         if(!$user || !password_verify($password, $user->getPassword())) {
             $this->logger->error(sprintf('Sign in failed: %s', $username));
@@ -94,13 +95,7 @@ final class AuthenticationService
         // Input validation
         $this->validator->validate($data);
 
-        $username = $data['username'];
-        $password = $data['password'];
-
-        $user = $this->userRepository->create([
-            'username' => $username,
-            'password' => hash_password($password)
-        ]);
+        $user = $this->createNewUser($data);
 
         $this->logger->info(sprintf('User created successfully: %s', $user->getUsername()));
 
@@ -136,7 +131,8 @@ final class AuthenticationService
         $session = new UserSession();
         $session->setToken($jwt);
         $user->addSession($session);
-        $this->userRepository->save($user);
+        $this->entityManager->persist($user);
+        $this->entityManager->flush();
 
 //        $this->userSessionRepository->create([
 //            'user' => $user,
@@ -144,5 +140,25 @@ final class AuthenticationService
 //        ]);
 
         return $jwt;
+    }
+
+    /**
+     * @param array $data
+     * @return User
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     * @throws ORMException
+     * @throws OptimisticLockException
+     */
+    private function createNewUser(array $data): User
+    {
+        $user = new User();
+        $user->setUsername($data['username']);
+        $user->setPassword(hash_password($data['password']));
+
+        $this->entityManager->persist($user);
+        $this->entityManager->flush();
+
+        return $user;
     }
 }

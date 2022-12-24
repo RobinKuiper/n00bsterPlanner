@@ -3,7 +3,10 @@
 namespace App\Domain\Event\Service;
 
 use App\Application\Factory\LoggerFactory;
-use App\Domain\Event\Repository\EventRepository;
+use App\Domain\Auth\Models\User;
+use App\Domain\Event\Models\Event;
+use DateTimeImmutable;
+use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\OptimisticLockException;
 use Exception;
@@ -11,16 +14,18 @@ use Psr\Log\LoggerInterface;
 
 final class EventService
 {
-    private EventRepository $repository;
+    private EntityManager $entityManager;
+//    private ObjectRepository $repository;
     private EventValidator $validator;
     private LoggerInterface $logger;
 
     public function __construct(
-        EventRepository $repository,
+        EntityManager $entityManager,
         EventValidator $validator,
         LoggerFactory $loggerFactory,
     ) {
-        $this->repository = $repository;
+        $this->entityManager = $entityManager;
+//        $this->repository = $entityManager->getRepository(Event::class);
         $this->validator = $validator;
         $this->logger = $loggerFactory
             ->addFileHandler('events.log')
@@ -39,7 +44,7 @@ final class EventService
 
         // Insert event
         try {
-            $event = $this->repository->create($data);
+            $event = $this->makeModel($data);
 
             $this->logger->info(sprintf('Event created successfully: %s', $event->getId()));
 
@@ -53,5 +58,36 @@ final class EventService
                 'errors' => [$e->getMessage()]
             ];
         }
+    }
+
+    /**
+     * @param array $data
+     * @return Event
+     * @throws ORMException
+     * @throws OptimisticLockException
+     * @throws Exception
+     */
+    private function makeModel(array $data): Event
+    {
+        $event = new Event();
+        $event->setTitle($data['title']);
+        $event->setDescription($data['description']);
+        $event->setStartDate(new DateTimeImmutable($data['startDate']));
+        $event->setEndDate(new DateTimeImmutable($data['endDate']));
+        $reference = $this->entityManager->getReference(User::class, $data['user']->getId());
+        $event->setOwnedBy($reference);
+//        $reference->addOwnedEvent($event);
+
+//        $event->setCategory($data['category']);
+
+//        $invitee = new Invitee();
+//        $invitee->setName($data['name']);
+//
+//        $event->addInvitee($invitee);
+
+        $this->entityManager->persist($event);
+        $this->entityManager->flush();
+
+        return $event;
     }
 }
