@@ -112,6 +112,42 @@ final class EventService
         }
     }
 
+    public function joinEvent(string $identifier, User $user): array
+    {
+        $event = $user->getAllEvents()->findFirst(function(int $key, Event $event) use ($identifier) {
+            return $event->getIdentifier() === $identifier;
+        });
+
+        if($event){
+            return [
+                'success' => false,
+                'errors' => ["You are already a member of this event."]
+            ];
+        }
+
+        try{
+            $repository = $this->entityManager->getRepository(Event::class);
+            $event = $repository->findOneBy([ 'identifier' => $identifier ]);
+            $user = $this->entityManager->getReference(User::class, $user->getId());
+
+            $event->addMember($user);
+//            $user->addEvent($event);
+
+            $this->entityManager->persist($event);
+            $this->entityManager->flush();
+
+            return [
+                'success' => true,
+                'event' => $identifier
+            ];
+        } catch (ORMException $e) {
+            return [
+                'success' => false,
+                'errors' => [$e->getMessage()]
+            ];
+        }
+    }
+
     /**
      * @param array $data
      * @return Event

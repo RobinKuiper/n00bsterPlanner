@@ -83,29 +83,30 @@ final class AuthenticationService
         ];
     }
 
-    /**
-     * @param array $data
-     * @return array
-     * @throws ContainerExceptionInterface
-     * @throws NotFoundExceptionInterface
-     * @throws ORMException
-     * @throws OptimisticLockException
-     */
     public function register(array $data): array
     {
-        // Input validation
-        $this->validator->validate($data);
+        try{
+            // Input validation
+            $this->validator->validate($data);
 
-        $user = $this->createNewUser($data);
+            $user = $this->createNewUser($data);
 
-        $this->logger->info(sprintf('User created successfully: %s', $user->getUsername()));
+            $this->logger->info(sprintf('User created successfully: %s', $user->getUsername()));
 
-        $jwt = $this->createOrUpdateSession($user);
+            $jwt = $this->createOrUpdateSession($user);
 
-        return [
-            'success' => true,
-            'jwt' => $jwt
-        ];
+            return [
+                'success' => true,
+                'jwt' => $jwt
+            ];
+        } catch (OptimisticLockException|ORMException|NotFoundExceptionInterface|ContainerExceptionInterface $e) {
+            $this->logger->error(sprintf('Error creating user: %s', $e->getMessage()));
+
+            return [
+                'success' => false,
+                'errors' => [$e->getMessage()]
+            ];
+        }
     }
 
     public function registerGuest(array $data): array

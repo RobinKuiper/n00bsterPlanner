@@ -10,11 +10,11 @@ final class GetEventAction extends EventAction
     public function action(): ResponseInterface
     {
         // Fetch parameters from the request
-        $eventId = (int)$this->args['event_id'];
+        $identifier = (string)$this->args['identifier'];
 
         $user = $this->getAttribute('user');
-        $event = $user->getAllEvents()->findFirst(function(int $key, Event $event) use ($eventId) {
-            return $event->getId() === $eventId;
+        $event = $user->getAllEvents()->findFirst(function(int $key, Event $event) use ($identifier) {
+            return $event->getIdentifier() === $identifier;
         });
         return $this->respond($event);
     }

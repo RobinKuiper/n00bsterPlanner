@@ -10,6 +10,7 @@ use App\Application\Action\API\Event\CreateEventAction;
 use App\Application\Action\API\Event\GetAllEventsAction;
 use App\Application\Action\API\Event\GetEventAction;
 use App\Application\Action\API\Event\GetOwnedEventsAction;
+use App\Application\Action\API\Event\JoinEventAction;
 use App\Application\Action\API\Event\RemoveEventAction;
 use App\Application\Action\API\Event\UpdateEventAction;
 use App\Application\Action\API\Sandbox\SandboxAction;
@@ -38,7 +39,8 @@ return function (App $app) {
             $app->group('/events', function (RouteCollectorProxy $app) {
                 $app->get('/all', GetAllEventsAction::class)->add(IsAuthenticatedMiddleware::class);
                 $app->get('/owned', GetOwnedEventsAction::class)->add(IsAuthenticatedMiddleware::class);
-                $app->get('/{event_id}', GetEventAction::class)->add(IsAuthenticatedMiddleware::class);
+                $app->get('/{identifier}', GetEventAction::class)->add(IsAuthenticatedMiddleware::class);
+                $app->get('/{identifier}/join', JoinEventAction::class)->add(IsAuthenticatedMiddleware::class);
                 $app->get('/remove/{event_id}', RemoveEventAction::class)->add(IsAuthenticatedMiddleware::class);
 
                 $app->post('/update', UpdateEventAction::class)->add(IsAuthenticatedMiddleware::class);
