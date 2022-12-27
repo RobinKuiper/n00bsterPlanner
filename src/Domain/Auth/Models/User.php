@@ -11,6 +11,7 @@ use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\Entity;
 use Doctrine\ORM\Mapping\GeneratedValue;
 use Doctrine\ORM\Mapping\Id;
+use Doctrine\ORM\Mapping\JoinTable;
 use Doctrine\ORM\Mapping\ManyToMany;
 use Doctrine\ORM\Mapping\OneToMany;
 use Doctrine\ORM\Mapping\Table;
@@ -46,8 +47,8 @@ class User implements JsonSerializable
 
     // Many Users have multiple Events
     /** @var Collection<int, Event> */
-    #[ManyToMany(targetEntity: Event::class)]
-//    #[JoinTable(name: 'users_events')]
+    #[ManyToMany(targetEntity: Event::class, inversedBy: 'members')]
+    #[JoinTable(name: 'users_events')]
     private Collection $events;
 
     // One User has multiple necessities
@@ -108,8 +109,12 @@ class User implements JsonSerializable
         );
     }
 
-    public function addEvent(Event $event)
+    public function addEvent(Event $event): void
     {
+//        if(!$this->events instanceof ArrayCollection) {
+//            $this->events = new ArrayCollection();
+//        }
+
         if(!$this->events->contains($event)) {
             $this->events->add($event);
             $event->addMember($this);

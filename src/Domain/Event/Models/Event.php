@@ -11,6 +11,7 @@ use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\Entity;
 use Doctrine\ORM\Mapping\GeneratedValue;
 use Doctrine\ORM\Mapping\Id;
+use Doctrine\ORM\Mapping\ManyToMany;
 use Doctrine\ORM\Mapping\ManyToOne;
 use Doctrine\ORM\Mapping\OneToMany;
 use Doctrine\ORM\Mapping\Table;
@@ -49,7 +50,7 @@ class Event implements \JsonSerializable
 
     // One Meeting has multiple members
     /** @var Collection<int, User> */
-    #[OneToMany(mappedBy: 'events', targetEntity: User::class)]
+    #[ManyToMany(targetEntity: User::class, mappedBy: 'events')]
     private Collection $members;
 
     // One Meeting has multiple necessities
@@ -89,14 +90,34 @@ class Event implements \JsonSerializable
         $user->addOwnedEvent($this);
     }
 
+    /**
+     * @return Collection<int, User>
+     */
     public function getMembers(): Collection { return $this->members; }
+
+    /**
+     * @param Collection<int, User> $members
+     * @return void
+     */
     public function setMembers(Collection $members): void { $this->members = $members; }
 
+    /**
+     * @return Collection<int, Necessity>
+     */
     public function getNecessities(): Collection { return $this->necessities; }
+
+    /**
+     * @param Collection<int, Necessity> $necessities
+     * @return void
+     */
     public function setNecessities(Collection $necessities): void { $this->necessities = $necessities; }
 
     public function addMember(User $user): void
     {
+//        if(!$this->members instanceof ArrayCollection) {
+//            $this->members = new ArrayCollection();
+//        }
+
         if(!$this->members->contains($user)){
             $this->members->add($user);
             $user->addEvent($this);

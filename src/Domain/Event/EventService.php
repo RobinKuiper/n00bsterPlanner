@@ -130,6 +130,20 @@ final class EventService
             $event = $repository->findOneBy([ 'identifier' => $identifier ]);
             $user = $this->entityManager->getReference(User::class, $user->getId());
 
+            if(!$user) {
+                return [
+                    'success' => false,
+                    'errors' => ["User not found."]
+                ];
+            }
+
+            if(!$event){
+                return [
+                    'success' => false,
+                    'errors' => ["Event not found."]
+                ];
+            }
+
             $event->addMember($user);
 //            $user->addEvent($event);
 
