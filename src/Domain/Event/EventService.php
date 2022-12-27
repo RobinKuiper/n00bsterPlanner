@@ -68,7 +68,7 @@ final class EventService
     public function updateEvent(Event $event, array $data): array
     {
         // Input validation
-        $this->validator->validate($data);
+//        $this->validator->validate($data); TODO: Validate data
 
         try{
             $event = $this->entityManager->getReference(Event::class, $event->getId());

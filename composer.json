@@ -1,7 +1,7 @@
 {
     "require": {
         "slim/slim": "^4.11",
-        "monolog/monolog": "^3.2",
+        "monolog/monolog": "^3",
         "php-di/php-di": "^6 || ^7",
         "nyholm/psr7": "^1.4",
         "nyholm/psr7-server": "^1.0",
@@ -21,7 +21,11 @@
         "symfony/console": "6.0.*",
         "squizlabs/php_codesniffer": "^3.6",
         "friendsofphp/php-cs-fixer": "^3",
-        "phpstan/phpstan": "1.*"
+        "phpstan/phpstan": "1.*",
+        "selective/test-traits": "^2",
+        "mikey179/vfsstream": "^1.6",
+        "ext-pdo": "*",
+        "cakephp/database": "^4"
     },
     "autoload": {
         "psr-4": {
@@ -43,7 +47,13 @@
         "sniffer:fix": "phpcbf --standard=phpcs.xml",
         "stan": "phpstan analyse -c phpstan.neon --no-progress --ansi --xdebug",
         "start": "php -S localhost:8080 -t public/",
-        "test": "phpunit --configuration phpunit.xml",
-        "test:coverage": "phpunit --configuration phpunit.xml --coverage-clover build/logs/clover.xml --coverage-html build/coverage"
+        "test": "phpunit --configuration phpunit.xml --do-not-cache-result --colors=always",
+        "test:all": [
+            "@cs:check",
+            "@sniffer:check",
+            "@stan",
+            "@test"
+        ],
+        "test:coverage": "php -d xdebug.mode=coverage -r \"require 'vendor/bin/phpunit';\" -- --configuration phpunit.xml --do-not-cache-result --colors=always --coverage-clover build/logs/clover.xml --coverage-html build/coverage"
     }
 }

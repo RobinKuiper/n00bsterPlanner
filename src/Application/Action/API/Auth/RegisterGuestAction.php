@@ -16,7 +16,7 @@ final class RegisterGuestAction extends AuthAction
         $register = $this->authService->registerGuest($data);
 
         // Get the appropriate status code
-        $statusCode = $register['success'] ? StatusCodeInterface::STATUS_OK : StatusCodeInterface::STATUS_BAD_REQUEST;
+        $statusCode = $register['success'] ? StatusCodeInterface::STATUS_CREATED : StatusCodeInterface::STATUS_BAD_REQUEST;
 
         // Send the HTTP response
         return $this->respond($register, $statusCode);

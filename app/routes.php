@@ -40,7 +40,7 @@ return function (App $app) {
                 $app->get('/all', GetAllEventsAction::class)->add(IsAuthenticatedMiddleware::class);
                 $app->get('/owned', GetOwnedEventsAction::class)->add(IsAuthenticatedMiddleware::class);
                 $app->get('/{identifier}', GetEventAction::class)->add(IsAuthenticatedMiddleware::class);
-                $app->get('/{identifier}/join', JoinEventAction::class)->add(IsAuthenticatedMiddleware::class);
+                $app->get('/join/{identifier}', JoinEventAction::class)->add(IsAuthenticatedMiddleware::class);
                 $app->get('/remove/{event_id}', RemoveEventAction::class)->add(IsAuthenticatedMiddleware::class);
 
                 $app->post('/update', UpdateEventAction::class)->add(IsAuthenticatedMiddleware::class);

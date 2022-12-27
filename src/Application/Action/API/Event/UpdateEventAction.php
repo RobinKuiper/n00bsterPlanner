@@ -21,7 +21,7 @@ final class UpdateEventAction extends EventAction
 
         $user = $this->getAttribute('user');
         $event = $user->getOwnedEvents()->findFirst(function(int $key, Event $event) use ($data) {
-            return $event->getId() === $data['id'];
+            return $event->getId() == $data['id'];
         });
 
         // Invoke the Domain with inputs and retain the result
