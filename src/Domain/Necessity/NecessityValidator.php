@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Domain\Event;
+namespace App\Domain\Necessity;
 
 use App\Application\Factory\ConstraintFactory;
 use Symfony\Component\Validator\Constraint;
@@ -39,6 +39,11 @@ final class NecessityValidator
                     ]
                 ),
                 'eventId' => $constraint->required(
+                    [
+                        $constraint->notBlank()
+                    ]
+                ),
+                'amount' => $constraint->optional(
                     [
                         $constraint->notBlank()
                     ]

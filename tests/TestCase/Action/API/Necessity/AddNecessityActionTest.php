@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Test\TestCase\Action\API\Event;
+namespace App\Test\TestCase\Action\API\Necessity;
 
+use App\Test\Fixture\EventFixture;
 use App\Test\Fixture\UserFixture;
 use App\Test\Traits\AppTestTrait;
 use Fig\Http\Message\StatusCodeInterface;
@@ -12,20 +13,20 @@ use Selective\TestTrait\Traits\DatabaseTestTrait;
 /**
  * Test.
  *
- * @coversDefaultClass \App\Application\Action\Api\Event\CreateNecessityAction
+ * @coversDefaultClass \App\Application\Action\Api\Necessity\CreateNecessityAction
  */
-class CreateEventActionTest extends TestCase
+class AddNecessityActionTest extends TestCase
 {
     use AppTestTrait;
     use DatabaseTestTrait;
 
-    public function testCreateEvent(): void
+    public function testAddNecessity(): void
     {
 //        Chronos::setTestNow('2021-01-01 00:00:00'); TODO: Need?
 
         $secret = $this->container->get('settings')['authentication']['secret'];
 
-        $this->insertFixtures([UserFixture::class]);
+        $this->insertFixtures([UserFixture::class, EventFixture::class]);
 
         $payload = [
             'userId' => 1
@@ -34,13 +35,11 @@ class CreateEventActionTest extends TestCase
 
         $request = $this->createJsonRequestWithHeaders(
             'POST',
-            '/api/events/create',
+            '/api/necessity/add',
             [
-                'title' => 'Test Event',
-                'description' => 'Test Event',
-                'startDate' => '02-02-2022',
-                'endDate' => '02-02-2022',
-                'category' => 'test'
+                'name' => 'Necessity 1',
+                'amount' => 2,
+                'eventId' => 1
             ],
             'Bearer '.$jwt
         );
@@ -52,7 +51,7 @@ class CreateEventActionTest extends TestCase
 //        $this->assertTrue($this->getLogger()->hasInfoThatContains('User registered successfully'));
 
         // Check response
-        $this->assertSame(StatusCodeInterface::STATUS_OK, $response->getStatusCode());
+        $this->assertSame(StatusCodeInterface::STATUS_CREATED, $response->getStatusCode());
         $this->assertJsonContentType($response);
 //        $this->assertJsonData(['customer_id' => 1], $response);
         $this->assertJsonValue(true, 'success', $response);
@@ -61,14 +60,15 @@ class CreateEventActionTest extends TestCase
 //        $this->assertTrue($this->getLogger()->hasInfoThatContains('User registered successfully'));
 
         // Check database
-        $this->assertTableRowCount(1, 'events');
+        $this->assertTableRowCount(1, 'necessities');
 
         $expected = [
-            'title' => 'Test Event',
-            'description' => 'Test Event',
+            'name' => 'Necessity 1',
+            'amount' => 2,
+            'event_id' => 1
         ];
 
-        $this->assertTableRow($expected, 'events', 1);
+        $this->assertTableRow($expected, 'necessities', 1);
 
         // TODO: More checks?
     }

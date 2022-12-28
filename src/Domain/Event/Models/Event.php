@@ -4,6 +4,7 @@ namespace App\Domain\Event\Models;
 
 use App\Application\Support\Auth;
 use App\Domain\Auth\Models\User;
+use App\Domain\Necessity\Models\Necessity;
 use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -50,12 +51,12 @@ class Event implements \JsonSerializable
 
     // One Meeting has multiple members
     /** @var Collection<int, User> */
-    #[ManyToMany(targetEntity: User::class, mappedBy: 'events')]
+    #[ManyToMany(targetEntity: User::class, mappedBy: 'events', fetch: "EAGER")]
     private Collection $members;
 
     // One Meeting has multiple necessities
     /** @var Collection<int, Necessity> */
-    #[OneToMany(mappedBy: 'event', targetEntity: Necessity::class, cascade: ['persist', 'remove'])]
+    #[OneToMany(mappedBy: 'event', targetEntity: Necessity::class, cascade: ['persist'], fetch: "EAGER")]
     private Collection $necessities;
 
     public function __construct(){
@@ -147,18 +148,8 @@ class Event implements \JsonSerializable
         }
     }
 
-    /**
-     * @param User|null $user
-     * @return bool
-     * @throws ContainerExceptionInterface
-     * @throws NotFoundExceptionInterface
-     */
     public function isOwner(User $user = null): bool
     {
-        if($user === null) {
-            return $this->ownedBy === Auth::user();
-        }
-
         return $this->ownedBy === $user;
     }
 
@@ -173,8 +164,8 @@ class Event implements \JsonSerializable
             'endDate' => $this->endDate,
 //            'category' => $this->category,
 //            'ownedBy' => $this->ownedBy,
-//            'members' => $this->members,
-            'necessities' => $this->necessities
+            'members' => $this->members->toArray(),
+            'necessities' => $this->necessities->toArray()
         );
     }
 }

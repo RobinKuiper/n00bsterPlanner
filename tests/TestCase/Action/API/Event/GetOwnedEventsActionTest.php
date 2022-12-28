@@ -68,8 +68,7 @@ class GetOwnedEventsActionTest extends TestCase
                     'date' => '2022-12-27 00:00:00.000000',
                     'timezone_type' => 3,
                     'timezone' => 'Europe/Amsterdam'
-                ],
-                'necessities' => []
+                ]
             ]
         ], $response);
 

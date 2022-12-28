@@ -13,7 +13,7 @@ use App\Application\Action\API\Event\GetOwnedEventsAction;
 use App\Application\Action\API\Event\JoinEventAction;
 use App\Application\Action\API\Event\RemoveEventAction;
 use App\Application\Action\API\Event\UpdateEventAction;
-use App\Application\Action\API\Sandbox\SandboxAction;
+use App\Application\Action\API\Necessity\CreateNecessityAction;
 use App\Application\Middleware\IsAuthenticatedMiddleware;
 use App\Application\Middleware\IsGuestMiddleware;
 use Slim\App;
@@ -47,9 +47,9 @@ return function (App $app) {
                 $app->post('/create', CreateEventAction::class)->add(IsAuthenticatedMiddleware::class); // TODO: Check root route path
             });
 
-            /** SANDBOX */
-            $app->group('/sandbox', function (RouteCollectorProxy $app) {
-               $app->post('/1', SandboxAction::class)->add(IsAuthenticatedMiddleware::class);
+            $app->group('/necessity', function (RouteCollectorProxy $app) {
+                $app->post('/add', createNecessityAction::class)->add(IsAuthenticatedMiddleware::class);
+                $app->get('/remove/{id}', \App\Application\Action\API\Necessity\RemoveNecessityAction::class)->add(IsAuthenticatedMiddleware::class);
             });
         }
     );

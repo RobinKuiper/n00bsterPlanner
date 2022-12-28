@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Domain\Event\Models;
+namespace App\Domain\Necessity\Models;
 
 use App\Application\Base\BaseModel;
 use App\Domain\Auth\Models\User;
-use Doctrine\ORM\Mapping as ORM;
+use App\Domain\Event\Models\Event;
 use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\Entity;
 use Doctrine\ORM\Mapping\GeneratedValue;
@@ -21,16 +21,25 @@ class Necessity extends BaseModel implements \JsonSerializable
     #[Column(type: 'string', unique: false, nullable: false)]
     private string $name;
 
-    #[ManyToOne(cascade: ["persist"], inversedBy: 'necessities')]
+    #[Column(type: 'integer', unique: false, nullable: false)]
+    private int $amount = 1;
+
+    #[ManyToOne(targetEntity: Event::class, cascade: ["persist"], inversedBy: 'necessities')]
     private Event $event;
 
-    #[ManyToOne(cascade: ["persist"], inversedBy: "events")]
+    #[ManyToOne(cascade: ["persist"], inversedBy: "necessities")]
     private User|null $member;
+
+    #[ManyToOne(cascade: ["persist"], fetch: "EAGER", inversedBy: "createdNecessities")]
+    private User $creator;
 
     public function getId(): int { return $this->id; }
 
     public function getName(): string { return $this->name; }
     public function setName(string $name): void { $this->name = $name; }
+
+    public function getAmount(): int { return $this->amount; }
+    public function setAmount(int $amount): void { $this->amount = $amount; }
 
     public function getEvent(): Event { return $this->event; }
     public function setEvent(Event $event): void { $this->event = $event; }
@@ -38,13 +47,25 @@ class Necessity extends BaseModel implements \JsonSerializable
     public function getMember(): User { return $this->member; }
     public function setMember(User|null $member): void { $this->member = $member; }
 
+    public function getCreator(): User { return $this->creator; }
+    public function setCreator(User $creator): void { $this->creator = $creator; }
+
+    public function canEditorRemove(User $user): bool
+    {
+        $isCreator = $this->creator === $user;
+        $isEventOwner = $this->event->isOwner($user);
+        return $isCreator || $isEventOwner;
+    }
+
     public function jsonSerialize(): array
     {
         return array(
             'id' => $this->id,
-            'visitorId' => $this->name,
-            'event' => $this->event,
-            'member' => $this->member
+            'name' => $this->name,
+            'amount' => $this->amount,
+            'creator' => $this->creator,
+//            'event' => $this->getEvent(),
+//            'member' => $this->getMember()
         );
     }
 }

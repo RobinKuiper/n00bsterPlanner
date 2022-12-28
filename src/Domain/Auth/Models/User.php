@@ -3,7 +3,7 @@
 namespace App\Domain\Auth\Models;
 
 use App\Domain\Event\Models\Event;
-use App\Domain\Event\Models\Necessity;
+use App\Domain\Necessity\Models\Necessity;
 use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -56,6 +56,11 @@ class User implements JsonSerializable
     #[OneToMany(mappedBy: 'member', targetEntity: Necessity::class)]
     private Collection $necessities;
 
+    // One User created multiple necessities
+    /** @var Collection<int, Necessity> */
+    #[OneToMany(mappedBy: 'creator', targetEntity: Necessity::class)]
+    private Collection $createdNecessities;
+
     public function __construct()
     {
         $this->firstVisit = new DateTimeImmutable('now');
@@ -64,6 +69,7 @@ class User implements JsonSerializable
         $this->events = new ArrayCollection();
         $this->ownedEvents = new ArrayCollection();
         $this->necessities = new ArrayCollection();
+        $this->createdNecessities = new ArrayCollection();
     }
 
     public function getId(): int { return $this->id; }
@@ -88,6 +94,9 @@ class User implements JsonSerializable
 
     public function getNecessities(): Collection { return $this->necessities; }
     public function setNecessities(Collection $necessities): void { $this->necessities = $necessities; }
+
+    public function getCreatedNecessities(): Collection { return $this->createdNecessities; }
+    public function setCreatedNecessities(Collection $necessities): void { $this->createdNecessities = $necessities; }
 
     public function getSessions(): Collection { return  $this->sessions; }
 
@@ -161,12 +170,20 @@ class User implements JsonSerializable
         }
     }
 
+    public function addCreatedNecessity(Necessity $necessity)
+    {
+        if(!$this->createdNecessities->contains($necessity)) {
+            $this->createdNecessities->add($necessity);
+            $necessity->setCreator($this);
+        }
+    }
+
     public function jsonSerialize(): array
     {
         return array(
             'id' => $this->id,
-            'name' => $this->username,
-            'firstVisit' => $this->firstVisit,
+            'username' => $this->username,
+//            'firstVisit' => $this->firstVisit,
 //            'ownedEvents' => $this->getOwnedEvents()->toArray(),
 //            'events' => $this->getEvents()->toArray(),
 //            'necessities' => $this->getNecessities()->toArray(),

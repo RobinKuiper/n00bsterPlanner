@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Test\TestCase\Action\API\Event;
+namespace App\Test\TestCase\Action\API\Necessity;
 
 use App\Test\Fixture\EventFixture;
 use App\Test\Fixture\UserFixture;
@@ -13,19 +13,20 @@ use Selective\TestTrait\Traits\DatabaseTestTrait;
 /**
  * Test.
  *
- * @coversDefaultClass \App\Application\Action\Api\Event\GetEventAction
+ * @coversDefaultClass \App\Application\Action\Api\Necessity\RemoveNecessityAction
  */
-class GetEventActionTest extends TestCase
+class RemoveNecessityActionTest extends TestCase
 {
     use AppTestTrait;
     use DatabaseTestTrait;
 
-    public function testGetAllEvents(): void
+    public function testRemoveEvent(): void
     {
+        // TODO: Implement
 //        Chronos::setTestNow('2021-01-01 00:00:00'); TODO: Need?
 
-        $this->insertFixtures([UserFixture::class]);
-        $this->insertFixtures([EventFixture::class]);
+        $this->insertFixtures([UserFixture::class, EventFixture::class]);
+//        $this->insertFixtures([EventFixture::class]);
 
         // TODO: Own Method?
         $secret = $this->container->get('settings')['authentication']['secret'];
@@ -38,7 +39,7 @@ class GetEventActionTest extends TestCase
 
         $request = $this->createJsonRequestWithHeaders(
             'GET',
-            '/api/events/2def32d0-240f-4793-a397-074d2b82692c',
+            '/api/events/remove/1',
             null,
             'Bearer '.$jwt
         );
@@ -54,27 +55,14 @@ class GetEventActionTest extends TestCase
         $this->assertJsonContentType($response);
 //        $this->assertJsonData(['customer_id' => 1], $response);
         $this->assertJsonData([
-            'id' => 1,
-            'identifier' => '2def32d0-240f-4793-a397-074d2b82692c',
-            'title' => 'Test Event',
-            'description' => 'Test Event Description',
-            'startDate' => [
-                'date' => '2022-12-27 00:00:00.000000',
-                'timezone_type' => 3,
-                'timezone' => 'Europe/Amsterdam'
-            ],
-            'endDate' => [
-                'date' => '2022-12-27 00:00:00.000000',
-                'timezone_type' => 3,
-                'timezone' => 'Europe/Amsterdam'
-            ]
+            'success' => true,
         ], $response);
 
         // Check logger
 //        $this->assertTrue($this->getLogger()->hasInfoThatContains('User registered successfully'));
 
         // Check database
-//        $this->assertTableRowCount(1, 'users');
+        $this->assertTableRowCount(1, 'events');
 
 //        $expected = [
 //            'username' => 'Pieter2',
