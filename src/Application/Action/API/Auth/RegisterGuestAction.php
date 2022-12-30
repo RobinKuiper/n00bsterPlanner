@@ -9,11 +9,8 @@ final class RegisterGuestAction extends AuthAction
 {
     public function action(): ResponseInterface
     {
-        // Extract the form data from the request body
-        $data = (array)$this->getFormData();
-
         // Invoke the Domain with inputs and retain the result
-        $register = $this->authService->registerGuest($data);
+        $register = $this->authService->registerGuest();
 
         // Get the appropriate status code
         $statusCode = $register['success'] ? StatusCodeInterface::STATUS_CREATED : StatusCodeInterface::STATUS_BAD_REQUEST;

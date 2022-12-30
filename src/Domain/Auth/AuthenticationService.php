@@ -109,13 +109,13 @@ final class AuthenticationService
         }
     }
 
-    public function registerGuest(array $data): array
+    public function registerGuest(): array
     {
         // Input validation
 //        $this->validator->validate($data); TODO: Validate data
 
         try {
-            $user = $this->createNewGuestUser($data);
+            $user = $this->createNewGuestUser();
 
             $this->logger->info(sprintf('Guest User created successfully: %s', $user->getId()));
 
@@ -198,10 +198,10 @@ final class AuthenticationService
      * @throws ORMException
      * @throws OptimisticLockException
      */
-    private function createNewGuestUser(array $data): User
+    private function createNewGuestUser(): User
     {
         $user = new User();
-        $user->setVisitorId($data['visitorId']);
+        $user->setVisitorId(uuid_create());
 
         $this->entityManager->persist($user);
         $this->entityManager->flush();

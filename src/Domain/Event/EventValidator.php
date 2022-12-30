@@ -59,23 +59,23 @@ final class EventValidator
                         $constraint->length(null, 255),
                     ]
                 ),
-                'description' => $constraint->required(
+                'description' => $constraint->optional(
                     [
                         $constraint->notBlank(),
                         $constraint->length(null, 255),
                     ]
                 ),
-                'startDate' => $constraint->required(
+                'startDate' => $constraint->optional(
                     [
                         $constraint->notBlank()
                     ]
                 ),
-                'endDate' => $constraint->required(
+                'endDate' => $constraint->optional(
                     [
                         $constraint->notBlank()
                     ]
                 ),
-                'category' => $constraint->required(
+                'category' => $constraint->optional(
                     [
                         $constraint->notBlank(),
                         $constraint->length(null, 255),

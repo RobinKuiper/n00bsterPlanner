@@ -173,7 +173,7 @@ final class EventService
     {
         $event = new Event();
         $event->setTitle($data['title']);
-        $event->setDescription($data['description']);
+        $event->setDescription($data['description'] ?? "");
         $event->setStartDate(new DateTimeImmutable($data['startDate']));
         $event->setEndDate(new DateTimeImmutable($data['endDate']));
         $reference = $this->entityManager->getReference(User::class, $data['user']->getId());
