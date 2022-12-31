@@ -25,7 +25,7 @@ class CorsMiddleware extends Middleware
 
         $response = $handler->handle($request);
 
-        $response = $response->withHeader('Access-Control-Allow-Origin', 'http://localhost:8000');
+        $response = $response->withHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
         $response = $response->withHeader('Access-Control-Allow-Methods', implode(',', $methods));
         $response = $response->withHeader('Access-Control-Allow-Headers', $requestHeaders);
 
