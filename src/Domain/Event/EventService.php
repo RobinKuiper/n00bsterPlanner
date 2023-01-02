@@ -176,14 +176,6 @@ final class EventService
         $event->setDescription($data['description'] ?? "");
         $reference = $this->entityManager->getReference(User::class, $data['user']->getId());
         $event->setOwnedBy($reference);
-//        $reference->addOwnedEvent($event);
-
-//        $event->setCategory($data['category']);
-
-//        $invitee = new Invitee();
-//        $invitee->setName($data['name']);
-//
-//        $event->addInvitee($invitee);
 
         $this->entityManager->persist($event);
         $this->entityManager->flush();
