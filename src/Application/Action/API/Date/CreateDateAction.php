@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Application\Action\API\Necessity;
+namespace App\Application\Action\API\Date;
 
 use App\Domain\Event\Models\Event;
 use Exception;
 use Fig\Http\Message\StatusCodeInterface;
 use Psr\Http\Message\ResponseInterface;
 
-final class CreateNecessityAction extends NecessityAction
+final class CreateDateAction extends DateAction
 {
     /**
      * @return ResponseInterface
@@ -19,28 +19,28 @@ final class CreateNecessityAction extends NecessityAction
         $data = (array)$this->getFormData();
         $user = $this->getAttribute('user');
 
-        $event = $user->getAllEvents(false)->findFirst(function(int $key, Event $event) use ($data) {
+        $event = $user->getOwnedEvents()->findFirst(function(int $key, Event $event) use ($data) {
             return $event->getId() == $data['eventId'];
         });
 
-        if(!$event){
+        if (!$event) {
             return $this->respond([
                 'success' => false,
-                'errors' => ["You are not allowed to add a necessity to this event,"]
+                'errors' => ["You are not allowed to add a date to this event,"]
             ], StatusCodeInterface::STATUS_UNAUTHORIZED);
         }
 
         // Invoke the Domain with inputs and retain the result
-        $necessity = $this->necessityService->createNecessity($event, $user, $data);
+        $date = $this->dateService->createDate($event, $data);
 
         // Get the appropriate status code
-        $statusCode = $necessity['success']
+        $statusCode = $date['success']
             ? StatusCodeInterface::STATUS_CREATED
             : StatusCodeInterface::STATUS_INTERNAL_SERVER_ERROR;
 
 
         // Build the HTTP response
         // Send the HTTP response
-        return $this->respond($necessity['necessity'], $statusCode);
+        return $this->respond($date['date'], $statusCode);
     }
 }

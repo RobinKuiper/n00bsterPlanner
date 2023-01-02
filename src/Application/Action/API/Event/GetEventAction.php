@@ -13,7 +13,7 @@ final class GetEventAction extends EventAction
         $identifier = (string)$this->args['identifier'];
 
         $user = $this->getAttribute('user');
-        $event = $user->getAllEvents()->findFirst(function(int $key, Event $event) use ($identifier) {
+        $event = $user->getAllEvents(false)->findFirst(function(int $key, Event $event) use ($identifier) {
             return $event->getIdentifier() === $identifier;
         });
         return $this->respond($event);

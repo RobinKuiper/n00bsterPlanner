@@ -2,6 +2,7 @@
 
 namespace App\Domain\Auth\Models;
 
+use App\Domain\Event\Models\Date;
 use App\Domain\Event\Models\Event;
 use App\Domain\Necessity\Models\Necessity;
 use DateTimeImmutable;
@@ -47,9 +48,15 @@ class User implements JsonSerializable
 
     // Many Users have multiple Events
     /** @var Collection<int, Event> */
-    #[ManyToMany(targetEntity: Event::class, inversedBy: 'members')]
+    #[ManyToMany(targetEntity: Event::class, inversedBy: 'members', cascade: ['persist'])]
     #[JoinTable(name: 'users_events')]
     private Collection $events;
+
+    // Many Users have multiple Dates
+    /** @var Collection<int, Date> */
+    #[ManyToMany(targetEntity: Date::class, inversedBy: 'members', cascade: ['persist'])]
+    #[JoinTable(name: 'users_dates')]
+    private Collection $dates;
 
     // One User has multiple necessities
     /** @var Collection<int, Necessity> */
@@ -67,49 +74,142 @@ class User implements JsonSerializable
 
         $this->sessions = new ArrayCollection();
         $this->events = new ArrayCollection();
+        $this->dates = new ArrayCollection();
         $this->ownedEvents = new ArrayCollection();
         $this->necessities = new ArrayCollection();
         $this->createdNecessities = new ArrayCollection();
     }
 
-    public function getId(): int { return $this->id; }
+    public function getId(): int
+    {
+        return $this->id;
+    }
 
-    public function getVisitorId(): string { return $this->visitorId; }
-    public function setVisitorId(string $visitorId): void { $this->visitorId = $visitorId; }
+    public function getVisitorId(): string
+    {
+        return $this->visitorId;
+    }
+    public function setVisitorId(string $visitorId): void
+    {
+        $this->visitorId = $visitorId;
+    }
 
-    public function getUsername(): string { return $this->username; }
-    public function setUsername(string $username): void { $this->username = $username; }
+    public function getUsername(): string
+    {
+        return $this->username;
+    }
+    public function setUsername(string $username): void
+    {
+        $this->username = $username;
+    }
 
-    public function setPassword(string $password): void { $this->password = $password; }
-    public function getPassword(): string { return $this->password; }
+    public function setPassword(string $password): void
+    {
+        $this->password = $password;
+    }
+    public function getPassword(): string
+    {
+        return $this->password;
+    }
 
-    public function getFirstVisit(): DateTimeImmutable { return $this->firstVisit; }
-    public function setFirstVisit(DateTimeImmutable $date): void { $this->firstVisit = $date; }
+    public function getFirstVisit(): DateTimeImmutable
+    {
+        return $this->firstVisit;
+    }
+    public function setFirstVisit(DateTimeImmutable $date): void
+    {
+        $this->firstVisit = $date;
+    }
 
-    public function getOwnedEvents(): Collection { return $this->ownedEvents; }
-    public function setOwnedEvents(Collection $ownedEvents): void { $this->ownedEvents = $ownedEvents; }
+    /**
+     * @return Collection<int, Event>
+     */
+    public function getOwnedEvents(): Collection
+    {
+        return $this->ownedEvents;
+    }
 
-    public function getEvents(): Collection { return $this->events; }
-    public function setEvents(Collection $events): void { $this->events = $events; }
+    /**
+     * @param Collection<int, Event> $ownedEvents
+     * @return void
+     */
+    public function setOwnedEvents(Collection $ownedEvents): void
+    {
+        $this->ownedEvents = $ownedEvents;
+    }
 
-    public function getNecessities(): Collection { return $this->necessities; }
-    public function setNecessities(Collection $necessities): void { $this->necessities = $necessities; }
+    /**
+     * @return Collection<int, Event>
+     */
+    public function getEvents(): Collection
+    {
+        return $this->events;
+    }
+    /**
+     * @param Collection<int, Event> $events
+     * @return void
+     */
+    public function setEvents(Collection $events): void
+    {
+        $this->events = $events;
+    }
 
-    public function getCreatedNecessities(): Collection { return $this->createdNecessities; }
-    public function setCreatedNecessities(Collection $necessities): void { $this->createdNecessities = $necessities; }
+    /**
+     * @return Collection<int, Date>
+     */
+    public function getDates(): Collection
+    {
+        return $this->dates;
+    }
+    /**
+     * @param Collection<int, Date> $dates
+     * @return void
+     */
+    public function setDates(Collection $dates): void
+    {
+        $this->dates = $dates;
+    }
 
-    public function getSessions(): Collection { return  $this->sessions; }
+    public function getNecessities(): Collection
+    {
+        return $this->necessities;
+    }
+    public function setNecessities(Collection $necessities): void
+    {
+        $this->necessities = $necessities;
+    }
+
+    public function getCreatedNecessities(): Collection
+    {
+        return $this->createdNecessities;
+    }
+    public function setCreatedNecessities(Collection $necessities): void
+    {
+        $this->createdNecessities = $necessities;
+    }
+
+    public function getSessions(): Collection
+    {
+        return  $this->sessions;
+    }
 
     public function addSession(UserSession $session)
     {
-        if(!$this->sessions->contains($session)) {
+        if (!$this->sessions->contains($session)) {
             $this->sessions->add($session);
             $session->setUser($this);
         }
     }
 
-    public function getAllEvents(): Collection
+    public function getAllEvents(bool $split = true): array|Collection
     {
+        if ($split) {
+            return [
+                'events' => $this->events->toArray(),
+                'owned' => $this->ownedEvents->toArray()
+            ];
+        }
+
         $events = $this->events->toArray();
         $ownedEvents = $this->ownedEvents->toArray();
 
@@ -124,23 +224,23 @@ class User implements JsonSerializable
 //            $this->events = new ArrayCollection();
 //        }
 
-        if(!$this->events->contains($event)) {
+        if (!$this->events->contains($event)) {
             $this->events->add($event);
             $event->addMember($this);
         }
     }
 
-    public function removeEvent(Event $event)
+    public function removeEvent(Event $event): void
     {
-        if($this->events->contains($event)) {
+        if ($this->events->contains($event)) {
             $this->events->removeElement($event);
             $event->removeMember($this);
         }
     }
 
-    public function addOwnedEvent(Event $event)
+    public function addOwnedEvent(Event $event): void
     {
-        if(!$this->ownedEvents->contains($event)) {
+        if (!$this->ownedEvents->contains($event)) {
             $this->ownedEvents->add($event);
             $event->setOwnedBy($this);
         }
@@ -148,31 +248,51 @@ class User implements JsonSerializable
 
     public function removeOwnedEvent(Event $event)
     {
-        if($this->ownedEvents->contains($event)) {
+        if ($this->ownedEvents->contains($event)) {
             $this->ownedEvents->removeElement($event);
             // Todo: Remove event?
         }
     }
 
-    public function addNecessity(Necessity $necessity)
+    public function addDate(Date $date): void
     {
-        if(!$this->necessities->contains($necessity)) {
+//        if(!$this->dates instanceof ArrayCollection) {
+//            $this->dates = new ArrayCollection();
+//        }
+
+        if (!$this->dates->contains($date)) {
+            $this->dates->add($date);
+            $date->addMember($this);
+        }
+    }
+
+    public function removeDate(Date $date): void
+    {
+        if ($this->dates->contains($date)) {
+            $this->dates->removeElement($date);
+            $date->removeMember($this);
+        }
+    }
+
+    public function addNecessity(Necessity $necessity): void
+    {
+        if (!$this->necessities->contains($necessity)) {
             $this->necessities->add($necessity);
             $necessity->setMember($this);
         }
     }
 
-    public function removeNecessity(Necessity $necessity)
+    public function removeNecessity(Necessity $necessity): void
     {
-        if($this->necessities->contains($necessity)) {
+        if ($this->necessities->contains($necessity)) {
             $this->necessities->removeElement($necessity);
             $necessity->setMember(null);
         }
     }
 
-    public function addCreatedNecessity(Necessity $necessity)
+    public function addCreatedNecessity(Necessity $necessity): void
     {
-        if(!$this->createdNecessities->contains($necessity)) {
+        if (!$this->createdNecessities->contains($necessity)) {
             $this->createdNecessities->add($necessity);
             $necessity->setCreator($this);
         }
@@ -182,7 +302,7 @@ class User implements JsonSerializable
     {
         return array(
             'id' => $this->id,
-            'username' => $this->username,
+            'username' => $this->username ?? null,
 //            'firstVisit' => $this->firstVisit,
 //            'ownedEvents' => $this->getOwnedEvents()->toArray(),
 //            'events' => $this->getEvents()->toArray(),

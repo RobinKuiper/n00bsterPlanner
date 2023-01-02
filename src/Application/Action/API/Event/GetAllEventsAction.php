@@ -9,7 +9,7 @@ final class GetAllEventsAction extends EventAction
     public function action(): ResponseInterface
     {
         $user = $this->getAttribute('user');
-        $events = $user->getAllEvents()->toArray();
+        $events = $user->getAllEvents();
         return $this->respond($events);
     }
 }

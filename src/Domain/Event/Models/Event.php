@@ -36,11 +36,10 @@ class Event implements \JsonSerializable
     #[Column(type: 'string')]
     private string $description;
 
-    #[Column(name: 'start_date', type: 'datetimetz_immutable', nullable: false)]
-    private DateTimeImmutable $startDate;
-
-    #[Column(name: 'end_date', type: 'datetimetz_immutable', nullable: false)]
-    private DateTimeImmutable $endDate;
+    // One Meeting has multiple dates
+    /** @var Collection<int, Date> */
+    #[OneToMany(mappedBy: 'event', targetEntity: Date::class, cascade: ['persist'], fetch: "EAGER")]
+    private Collection $dates;
 
 //    #[ManyToOne(targetEntity: EventCategory::class, inversedBy: 'events')]
 //    private EventCategory $category;
@@ -51,7 +50,7 @@ class Event implements \JsonSerializable
 
     // One Meeting has multiple members
     /** @var Collection<int, User> */
-    #[ManyToMany(targetEntity: User::class, mappedBy: 'events', fetch: "EAGER")]
+    #[ManyToMany(targetEntity: User::class, mappedBy: 'events', cascade: ['persist'], fetch: "EAGER")]
     private Collection $members;
 
     // One Meeting has multiple necessities
@@ -59,34 +58,90 @@ class Event implements \JsonSerializable
     #[OneToMany(mappedBy: 'event', targetEntity: Necessity::class, cascade: ['persist'], fetch: "EAGER")]
     private Collection $necessities;
 
-    public function __construct(){
+    public function __construct()
+    {
         $this->identifier = uuid_create();
         $this->members = new ArrayCollection();
         $this->necessities = new ArrayCollection();
+        $this->dates = new ArrayCollection();
     }
 
-    public function getId(): int { return $this->id; }
+    public function getId(): int
+    {
+        return $this->id;
+    }
 
-    public function getIdentifier(): string { return $this->identifier; }
-    public function setIdentifier(string $identifier): void { $this->identifier = $identifier; }
+    public function getIdentifier(): string
+    {
+        return $this->identifier;
+    }
+    public function setIdentifier(string $identifier): void
+    {
+        $this->identifier = $identifier;
+    }
 
-    public function getTitle(): string { return $this->title; }
-    public function setTitle(string $title): void { $this->title = $title; }
+    public function getTitle(): string
+    {
+        return $this->title;
+    }
+    public function setTitle(string $title): void
+    {
+        $this->title = $title;
+    }
 
-    public function getDescription(): string { return $this->description; }
-    public function setDescription(string $description): void { $this->description = $description; }
+    public function getDescription(): string
+    {
+        return $this->description;
+    }
+    public function setDescription(string $description): void
+    {
+        $this->description = $description;
+    }
 
-    public function getStartDate(): DateTimeImmutable { return $this->startDate; }
-    public function setStartDate(DateTimeImmutable $date): void { $this->startDate = $date; }
+    /**
+     * @return Collection<int, Date>
+     */
+    public function getDates(): Collection
+    {
+        return $this->dates;
+    }
+    /**
+     * @param Collection<int, Date> $dates
+     * @return void
+     */
+    public function setDates(Collection $dates): void
+    {
+        $this->dates = $dates;
+    }
 
-    public function getEndDate(): DateTimeImmutable { return $this->endDate; }
-    public function setEndDate(DateTimeImmutable $date): void { $this->endDate = $date; }
+    public function addDate(Date $date): void
+    {
+//        if(!$this->members instanceof ArrayCollection) {
+//            $this->members = new ArrayCollection();
+//        }
+
+        if (!$this->dates->contains($date)) {
+            $this->dates->add($date);
+            $date->setEvent($this);
+        }
+    }
+
+    public function removeDate(Date $date): void
+    {
+        if ($this->dates->contains($date)) {
+            $this->dates->removeElement($date);
+        }
+    }
 
 //    public function getCategory(): EventCategory { return $this->category; }
 //    public function setCategory(EventCategory $category): void { $this->category = $category; }
 
-    public function getOwnedBy(): User { return $this->ownedBy; }
-    public function setOwnedBy(User $user): void {
+    public function getOwnedBy(): User
+    {
+        return $this->ownedBy;
+    }
+    public function setOwnedBy(User $user): void
+    {
         $this->ownedBy = $user;
         $user->addOwnedEvent($this);
     }
@@ -94,24 +149,36 @@ class Event implements \JsonSerializable
     /**
      * @return Collection<int, User>
      */
-    public function getMembers(): Collection { return $this->members; }
+    public function getMembers(): Collection
+    {
+        return $this->members;
+    }
 
     /**
      * @param Collection<int, User> $members
      * @return void
      */
-    public function setMembers(Collection $members): void { $this->members = $members; }
+    public function setMembers(Collection $members): void
+    {
+        $this->members = $members;
+    }
 
     /**
      * @return Collection<int, Necessity>
      */
-    public function getNecessities(): Collection { return $this->necessities; }
+    public function getNecessities(): Collection
+    {
+        return $this->necessities;
+    }
 
     /**
      * @param Collection<int, Necessity> $necessities
      * @return void
      */
-    public function setNecessities(Collection $necessities): void { $this->necessities = $necessities; }
+    public function setNecessities(Collection $necessities): void
+    {
+        $this->necessities = $necessities;
+    }
 
     public function addMember(User $user): void
     {
@@ -119,7 +186,7 @@ class Event implements \JsonSerializable
 //            $this->members = new ArrayCollection();
 //        }
 
-        if(!$this->members->contains($user)){
+        if (!$this->members->contains($user)) {
             $this->members->add($user);
             $user->addEvent($this);
         }
@@ -127,7 +194,7 @@ class Event implements \JsonSerializable
 
     public function removeMember(User $user): void
     {
-        if($this->members->contains($user)){
+        if ($this->members->contains($user)) {
             $this->members->removeElement($user);
             $user->removeEvent($this);
         }
@@ -135,7 +202,7 @@ class Event implements \JsonSerializable
 
     public function addNecessity(Necessity $necessity): void
     {
-        if(!$this->necessities->contains($necessity)){
+        if (!$this->necessities->contains($necessity)) {
             $this->necessities->add($necessity);
             $necessity->setEvent($this);
         }
@@ -143,7 +210,7 @@ class Event implements \JsonSerializable
 
     public function removeNecessity(Necessity $necessity): void
     {
-        if($this->necessities->contains($necessity)){
+        if ($this->necessities->contains($necessity)) {
             $this->necessities->removeElement($necessity);
         }
     }
@@ -160,10 +227,9 @@ class Event implements \JsonSerializable
             'identifier' => $this->identifier,
             'title'=> $this->title,
             'description'=> $this->description,
-            'startDate' => $this->startDate,
-            'endDate' => $this->endDate,
+            'dates' => $this->dates->toArray(),
 //            'category' => $this->category,
-//            'ownedBy' => $this->ownedBy,
+            'owner' => $this->ownedBy,
             'members' => $this->members->toArray(),
             'necessities' => $this->necessities->toArray()
         );

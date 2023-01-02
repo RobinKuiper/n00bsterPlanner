@@ -33,22 +33,55 @@ class Necessity extends BaseModel implements \JsonSerializable
     #[ManyToOne(cascade: ["persist"], fetch: "EAGER", inversedBy: "createdNecessities")]
     private User $creator;
 
-    public function getId(): int { return $this->id; }
+    public function getId(): int
+    {
+        return $this->id;
+    }
 
-    public function getName(): string { return $this->name; }
-    public function setName(string $name): void { $this->name = $name; }
+    public function getName(): string
+    {
+        return $this->name;
+    }
+    public function setName(string $name): void
+    {
+        $this->name = $name;
+    }
 
-    public function getAmount(): int { return $this->amount; }
-    public function setAmount(int $amount): void { $this->amount = $amount; }
+    public function getAmount(): int
+    {
+        return $this->amount;
+    }
+    public function setAmount(int $amount): void
+    {
+        $this->amount = $amount;
+    }
 
-    public function getEvent(): Event { return $this->event; }
-    public function setEvent(Event $event): void { $this->event = $event; }
+    public function getEvent(): Event
+    {
+        return $this->event;
+    }
+    public function setEvent(Event $event): void
+    {
+        $this->event = $event;
+    }
 
-    public function getMember(): User { return $this->member; }
-    public function setMember(User|null $member): void { $this->member = $member; }
+    public function getMember(): User
+    {
+        return $this->member;
+    }
+    public function setMember(User|null $member): void
+    {
+        $this->member = $member;
+    }
 
-    public function getCreator(): User { return $this->creator; }
-    public function setCreator(User $creator): void { $this->creator = $creator; }
+    public function getCreator(): User
+    {
+        return $this->creator;
+    }
+    public function setCreator(User $creator): void
+    {
+        $this->creator = $creator;
+    }
 
     public function canEditorRemove(User $user): bool
     {
@@ -63,7 +96,7 @@ class Necessity extends BaseModel implements \JsonSerializable
             'id' => $this->id,
             'name' => $this->name,
             'amount' => $this->amount,
-            'creator' => $this->creator,
+            'creator' => $this->creator ?? null,
 //            'event' => $this->getEvent(),
 //            'member' => $this->getMember()
         );

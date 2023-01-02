@@ -114,7 +114,7 @@ final class EventService
 
     public function joinEvent(string $identifier, User $user): array
     {
-        $event = $user->getAllEvents()->findFirst(function(int $key, Event $event) use ($identifier) {
+        $event = $user->getAllEvents(false)->findFirst(function(int $key, Event $event) use ($identifier) {
             return $event->getIdentifier() === $identifier;
         });
 
@@ -174,8 +174,6 @@ final class EventService
         $event = new Event();
         $event->setTitle($data['title']);
         $event->setDescription($data['description'] ?? "");
-        $event->setStartDate(new DateTimeImmutable($data['startDate']));
-        $event->setEndDate(new DateTimeImmutable($data['endDate']));
         $reference = $this->entityManager->getReference(User::class, $data['user']->getId());
         $event->setOwnedBy($reference);
 //        $reference->addOwnedEvent($event);
