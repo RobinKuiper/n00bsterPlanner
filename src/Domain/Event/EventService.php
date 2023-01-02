@@ -152,7 +152,7 @@ final class EventService
 
             return [
                 'success' => true,
-                'event' => $identifier
+                'event' => $event
             ];
         } catch (ORMException $e) {
             return [

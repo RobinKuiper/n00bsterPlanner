@@ -23,10 +23,12 @@ final class JoinEventAction extends EventAction
         $update = $this->eventService->joinEvent($identifier, $user);
 
         // Get the appropriate status code
-        $statusCode = $update['success'] ? StatusCodeInterface::STATUS_OK : StatusCodeInterface::STATUS_INTERNAL_SERVER_ERROR;
+        $statusCode = $update['success']
+            ? StatusCodeInterface::STATUS_OK
+            : StatusCodeInterface::STATUS_INTERNAL_SERVER_ERROR;
 
         // Build the HTTP response
         // Send the HTTP response
-        return $this->respond($update, $statusCode);
+        return $this->respond($update['event'], $statusCode);
     }
 }
