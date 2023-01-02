@@ -185,6 +185,7 @@ final class AuthenticationService
         $user = new User();
         $user->setUsername($data['username']);
         $user->setPassword(hash_password($data['password']));
+        $user->setDisplayName($this->randomDisplayName());
 
         $this->entityManager->persist($user);
         $this->entityManager->flush();
@@ -193,7 +194,6 @@ final class AuthenticationService
     }
 
     /**
-     * @param array $data
      * @return User
      * @throws ORMException
      * @throws OptimisticLockException
@@ -202,10 +202,17 @@ final class AuthenticationService
     {
         $user = new User();
         $user->setVisitorId(uuid_create());
+        $user->setDisplayName($this->randomDisplayName());
 
         $this->entityManager->persist($user);
         $this->entityManager->flush();
 
         return $user;
+    }
+
+    private function randomDisplayName(): string
+    {
+        $userCount = $this->entityManager->getRepository(User::class)->count([]);
+        return 'User_' . $userCount;
     }
 }

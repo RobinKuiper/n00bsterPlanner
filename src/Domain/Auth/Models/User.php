@@ -33,6 +33,9 @@ class User implements JsonSerializable
     #[Column(type: 'string', unique: false, nullable: true)]
     private string $password;
 
+    #[Column(name: 'display_name', type: 'string', unique: true, nullable: true)]
+    private string $displayName;
+
     #[Column(name: 'first_visit', type: 'datetimetz_immutable', nullable: false)]
     private DateTimeImmutable $firstVisit;
 
@@ -101,6 +104,15 @@ class User implements JsonSerializable
     public function setUsername(string $username): void
     {
         $this->username = $username;
+    }
+
+    public function getDisplayName(): string
+    {
+        return $this->displayName;
+    }
+    public function setDisplayName(string $displayName): void
+    {
+        $this->displayName = $displayName;
     }
 
     public function setPassword(string $password): void
@@ -303,6 +315,7 @@ class User implements JsonSerializable
         return array(
             'id' => $this->id,
             'username' => $this->username ?? null,
+            'displayName' => $this->displayName ?? null
 //            'firstVisit' => $this->firstVisit,
 //            'ownedEvents' => $this->getOwnedEvents()->toArray(),
 //            'events' => $this->getEvents()->toArray(),
