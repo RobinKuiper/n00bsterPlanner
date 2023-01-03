@@ -10,6 +10,9 @@ final class GetAllEventsAction extends EventAction
     {
         $user = $this->getAttribute('user');
         $events = $user->getAllEvents();
-        return $this->respond($events);
+        return $this->respond([
+            'success' => true,
+            'message' => $events
+        ]);
     }
 }

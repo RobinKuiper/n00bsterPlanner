@@ -4,7 +4,7 @@ namespace App\Application\Action\API\Necessity;
 
 use App\Application\Action\API\Action;
 use App\Application\Factory\LoggerFactory;
-use App\Domain\Necessity\NecessityService;
+use App\Domain\Event\NecessityService;
 
 abstract class NecessityAction extends Action
 {

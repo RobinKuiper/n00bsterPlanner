@@ -14,18 +14,11 @@ final class CreateEventAction extends EventAction
      */
     public function action(): ResponseInterface
     {
-        // Extract the form data from the request body
         $data = (array)$this->getFormData();
         $data['user'] = $this->getAttribute('user');
 
-        // Invoke the Domain with inputs and retain the result
-        $event = $this->eventService->createEvent($data);
+        $value = $this->eventService->createEvent($data);
 
-        // Get the appropriate status code
-        $statusCode = $event['success'] ? StatusCodeInterface::STATUS_OK : StatusCodeInterface::STATUS_INTERNAL_SERVER_ERROR;
-
-        // Build the HTTP response
-        // Send the HTTP response
-        return $this->respond($event, $statusCode);
+        return $this->respond($value);
     }
 }

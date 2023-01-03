@@ -15,32 +15,11 @@ final class CreateNecessityAction extends NecessityAction
      */
     public function action(): ResponseInterface
     {
-        // Extract the form data from the request body
         $data = (array)$this->getFormData();
-        $user = $this->getAttribute('user');
+        $data['userId'] = $this->getAttribute('userId');
 
-        $event = $user->getAllEvents(false)->findFirst(function(int $key, Event $event) use ($data) {
-            return $event->getId() == $data['eventId'];
-        });
+        $value = $this->necessityService->createNecessity($data);
 
-        if(!$event){
-            return $this->respond([
-                'success' => false,
-                'errors' => ["You are not allowed to add a necessity to this event,"]
-            ], StatusCodeInterface::STATUS_UNAUTHORIZED);
-        }
-
-        // Invoke the Domain with inputs and retain the result
-        $necessity = $this->necessityService->createNecessity($event, $user, $data);
-
-        // Get the appropriate status code
-        $statusCode = $necessity['success']
-            ? StatusCodeInterface::STATUS_CREATED
-            : StatusCodeInterface::STATUS_INTERNAL_SERVER_ERROR;
-
-
-        // Build the HTTP response
-        // Send the HTTP response
-        return $this->respond($necessity['necessity'], $statusCode);
+        return $this->respond($value);
     }
 }

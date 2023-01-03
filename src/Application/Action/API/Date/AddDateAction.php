@@ -6,7 +6,7 @@ use Exception;
 use Fig\Http\Message\StatusCodeInterface;
 use Psr\Http\Message\ResponseInterface;
 
-final class RemoveDateAction extends DateAction
+final class AddDateAction extends DateAction
 {
     /**
      * @return ResponseInterface
@@ -14,13 +14,11 @@ final class RemoveDateAction extends DateAction
      */
     public function action(): ResponseInterface
     {
-        // TODO: Can't remove if date is picked
+        $data = (array)$this->getFormData();
+        $data['userId'] = $this->getAttribute('userId');
 
-        $id = $this->args['id'];
-        $userId = $this->getAttribute('userId');
+        $date = $this->dateService->createDate($data);
 
-        $necessity = $this->dateService->removeDate($userId, $id);
-
-        return $this->respond($necessity);
+        return $this->respond($date);
     }
 }

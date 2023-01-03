@@ -9,10 +9,8 @@ final class LogoutAction extends AuthAction
 {
     public function action(): ResponseInterface
     {
-        $logout = $this->authService->logout();
+        $data = $this->authService->logout();
 
-        $statusCode = $logout['success'] ? StatusCodeInterface::STATUS_OK : StatusCodeInterface::STATUS_UNAUTHORIZED;
-
-        return $this->respond($logout, $statusCode);
+        return $this->respond($data);
     }
 }

@@ -6,11 +6,11 @@ use App\Application\Factory\LoggerFactory;
 use App\Domain\Auth\Models\User;
 use App\Domain\Event\Models\Date;
 use App\Domain\Event\Models\Event;
+use App\Domain\Event\Models\PickedDate;
 use DateTimeImmutable;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\Query\ResultSetMapping;
 use Exception;
 use Fig\Http\Message\StatusCodeInterface;
 use Psr\Log\LoggerInterface;
@@ -34,93 +34,177 @@ final class DateService
     }
 
     /**
-     * @param Event $event
      * @param array $data
      * @return array
      * @throws Exception
      */
-    public function createDate(Event $event, array $data): array
+    public function createDate(array $data): array
     {
         // Input validation
         $this->validator->validate($data);
 
         // Insert event
         try {
+            $user = $this->entityManager->find(User::class, $data['userId']);
+            $event = $this->entityManager->find(Event::class, $data['eventId']);
+
+            if (!$event || !$user || !$event->isOwner($user)) {
+                return [
+                    'success'    => false,
+                    'error'      => "You are not allowed to add a date to this event,",
+                    'statusCode' => StatusCodeInterface::STATUS_UNAUTHORIZED
+                ];
+            }
+
             $date = $this->makeModel($event, $data);
 
             $this->logger->info(sprintf('Date created successfully: %s', $date->getId()));
 
             return [
                 'success' => true,
-                'date' => $date
+                'message' => $date
             ];
         } catch (OptimisticLockException|ORMException $e) {
             return [
                 'success' => false,
-                'errors' => [$e->getMessage()]
+                'error'   => $e->getMessage()
             ];
         }
     }
 
-    public function getPickedDates(int $eventId, User $user): array
+    public function getPickedDates(int $eventId, int $userId): array
     {
-        $query = 'SELECT dates.date FROM events
-INNER JOIN dates ON events.id = dates.event_id
-INNER JOIN users_dates ON dates.id = users_dates.date_id
-WHERE users_dates.user_id = ' . $user->getId() .'
-AND events.id = ' . $eventId;
+        try {
+            $event = $this->entityManager->find(Event::class, $eventId);
+            $user = $this->entityManager->find(User::class, $userId);
+            $pickedDates = $this->entityManager->getRepository(PickedDate::class)->findBy([
+                'event' => $event,
+                'user' => $user
+            ]);
 
-        $stmt = $this->entityManager->getConnection()->query($query);
-        $dates = $stmt->fetchAll();
-
-        return [
-            'success' => true,
-            'dates' => $dates
-        ];
+            return [
+                'success' => true,
+                'message' => $pickedDates
+            ];
+        } catch (Exception $e) {
+            return [
+                'success'    => false,
+                'error'      => $e->getMessage()
+            ];
+        }
     }
 
-    public function pickDate(Event $event, User $user, array $data): array
+    /**
+     * @param array $data
+     * @return array
+     * @throws Exception
+     */
+    public function pickDate(array $data): array
     {
         // Validate TODO;
-        $user = $this->entityManager->find(User::class, $user->getId());
 
-        // Insert event
         try {
+            $user = $this->entityManager->find(User::class, $data['userId']);
+            $event = $this->entityManager->find(Event::class, $data['eventId']);
+
+            if (!$event || !$event->getId()) {
+                return [
+                    'success'    => false,
+                    'error'      => "You are not allowed to pick a date in this event,",
+                    'statusCode' => StatusCodeInterface::STATUS_UNAUTHORIZED
+                ];
+            }
+
             $date = $this->entityManager->getRepository(Date::class)->findOneBy([
                 'date' => new DateTimeImmutable($data['date']),
                 'event' => $event
             ]);
 
-            if ($date) {
-                $date->addMember($user);
-                $this->entityManager->persist($date);
+            if ($date && $user) {
+                $pickedDate = new PickedDate();
+                $pickedDate->setDate($date);
+                $pickedDate->setEvent($event);
+                $pickedDate->setUser($user);
+                $this->entityManager->persist($pickedDate);
                 $this->entityManager->flush();
+
+                $this->logger->info(sprintf('Date picked successfully: %s', $date->getId()));
+
+                return [
+                    'success' => true,
+                    'message' => $date
+                ];
+            } else {
+                return [
+                    'success' => false,
+                    'statusCode' => StatusCodeInterface::STATUS_INTERNAL_SERVER_ERROR
+                ];
             }
-
-            $this->logger->info(sprintf('Date picked successfully: %s', $date->getId()));
-
-            return [
-                'success' => true,
-                'date' => $date
-            ];
         } catch (OptimisticLockException|ORMException $e) {
             return [
                 'success' => false,
-                'errors' => [$e->getMessage()]
+                'error'   => $e->getMessage()
             ];
         }
     }
 
-    public function removeDate(User $user, int $dateId): array
+    /**
+     * @param array $data
+     * @return array
+     * @throws Exception
+     */
+    public function unpickDate(array $data): array
+    {
+        // Validate TODO;
+
+        // Insert event
+        try {
+            $user = $this->entityManager->find(User::class, $data['userId']);
+            $event = $this->entityManager->find(Event::class, $data['eventId']);
+
+            $date = $this->entityManager->getRepository(Date::class)->findOneBy([
+                'date' => new DateTimeImmutable($data['date']),
+                'event' => $event
+            ]);
+
+            $pickedDate = $this->entityManager->getRepository(PickedDate::class)->findOneBy([
+                'date' => $date,
+                'event' => $event,
+                'user' => $user
+            ]);
+
+            if ($pickedDate) {
+                $this->entityManager->remove($pickedDate);
+                $this->entityManager->flush();
+
+                $this->logger->info('Date unpicked successfully');
+
+                return [
+                    'success' => true
+                ];
+            } else {
+                return [
+                    'success' => false,
+                ];
+            }
+        } catch (OptimisticLockException|ORMException $e) {
+            return [
+                'success' => false,
+                'error'   => $e->getMessage()
+            ];
+        }
+    }
+
+    public function removeDate(int $userId, int $dateId): array
     {
         try {
             $date = $this->entityManager->find(Date::class, $dateId);
-            $user = $this->entityManager->find(User::class, $user->getId());
+            $user = $this->entityManager->find(User::class, $userId);
 
-            if (!$date || !$date->canEditorRemove($user)) {
+            if (!$date || !$user || !$date->canEditorRemove($user)) {
                 return [
-                    'success' => false,
-                    'errors' => ["You may not remove this entity"],
+                    'success'    => false,
+                    'error'      => "You may not remove this entity",
                     'statusCode' => StatusCodeInterface::STATUS_UNAUTHORIZED
                 ];
             }
@@ -134,7 +218,7 @@ AND events.id = ' . $eventId;
         } catch (OptimisticLockException|ORMException $e) {
             return [
                 'success' => false,
-                'errors' => [$e->getMessage()]
+                'error'   => $e->getMessage()
             ];
         }
     }

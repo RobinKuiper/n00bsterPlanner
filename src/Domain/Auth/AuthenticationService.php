@@ -11,6 +11,7 @@ use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\OptimisticLockException;
 use Exception;
+use Fig\Http\Message\StatusCodeInterface;
 use Firebase\JWT\JWT;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
@@ -62,14 +63,13 @@ final class AuthenticationService
         $repository = $this->entityManager->getRepository(User::class);
         $user = $repository->findOneBy([ 'username' => $username ]);
 
-        if(!$user || !password_verify($password, $user->getPassword())) {
+        if (!$user || !password_verify($password, $user->getPassword())) {
             $this->logger->error(sprintf('Sign in failed: %s', $username));
 
             return [
-                'success' => false,
-                'errors' => [
-                    'Invalid Credentials.'
-                ]
+                'success'       => false,
+                'error'         => 'Invalid Credentials.',
+                'statusCode'    => StatusCodeInterface::STATUS_UNAUTHORIZED
             ];
         }
 
@@ -79,13 +79,13 @@ final class AuthenticationService
 
         return [
             'success' => true,
-            'token' => $jwt
+            'message' => $jwt
         ];
     }
 
     public function register(array $data): array
     {
-        try{
+        try {
             // Input validation
             $this->validator->validate($data);
 
@@ -97,14 +97,14 @@ final class AuthenticationService
 
             return [
                 'success' => true,
-                'jwt' => $jwt
+                'message' => $jwt
             ];
         } catch (OptimisticLockException|ORMException|NotFoundExceptionInterface|ContainerExceptionInterface $e) {
             $this->logger->error(sprintf('Error creating user: %s', $e->getMessage()));
 
             return [
                 'success' => false,
-                'errors' => [$e->getMessage()]
+                'error' => $e->getMessage()
             ];
         }
     }
@@ -123,14 +123,14 @@ final class AuthenticationService
 
             return [
                 'success' => true,
-                'jwt' => $jwt
+                'message' => $jwt
             ];
         } catch (OptimisticLockException|ORMException $e) {
             $this->logger->error(sprintf('Error creating guest user: %s', $e->getMessage()));
 
             return [
                 'success' => false,
-                'errors' => [$e->getMessage()]
+                'error' => $e->getMessage()
             ];
         }
     }
@@ -150,10 +150,7 @@ final class AuthenticationService
      */
     private function createOrUpdateSession(User $user): string
     {
-        $payload = [
-            'userId' => $user->getId()
-        ];
-        $jwt = JWT::encode($payload, $this->settings['secret'], 'HS256');
+        $jwt = $this->generateJWT($user);
 
         $session = $user->getSessions()->findFirst(function (int $key, UserSession $session) use ($jwt): bool {
             return $session->getToken() == $jwt;
@@ -214,5 +211,13 @@ final class AuthenticationService
     {
         $userCount = $this->entityManager->getRepository(User::class)->count([]);
         return 'User_' . $userCount;
+    }
+
+    private function generateJWT(User $user): string
+    {
+        $payload = [
+            'userId' => $user->getId()
+        ];
+        return JWT::encode($payload, $this->settings['secret'], 'HS256');
     }
 }

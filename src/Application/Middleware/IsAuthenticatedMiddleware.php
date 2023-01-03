@@ -53,6 +53,7 @@ class IsAuthenticatedMiddleware extends Middleware
             $entityManager = $this->container->get(EntityManager::class);
             $user = $entityManager->find(User::class, $decoded->userId);
             $request = $request->withAttribute('user', $user);
+            $request = $request->withAttribute('userId', $user->getId());
 
             return $handler->handle($request);
         } catch (Exception $e) {

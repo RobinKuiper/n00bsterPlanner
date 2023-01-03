@@ -16,16 +16,10 @@ final class LoginAction extends AuthAction
      */
     public function action(): ResponseInterface
     {
-        // Extract the form data from the request body
         $data = (array)$this->getFormData();
 
-        // Invoke the Domain with inputs and retain the result
-        $login = $this->authService->login($data);
+        $value = $this->authService->login($data);
 
-        // Get the appropriate status code
-        $statusCode = $login['success'] ? StatusCodeInterface::STATUS_OK : StatusCodeInterface::STATUS_UNAUTHORIZED;
-
-        // Send the HTTP response
-        return $this->respond($login, $statusCode);
+        return $this->respond($value);
     }
 }

@@ -9,6 +9,7 @@ use App\Application\Action\API\Auth\RegisterGuestAction;
 use App\Application\Action\API\Date\GetPickedDatesAction;
 use App\Application\Action\API\Date\PickDateAction;
 use App\Application\Action\API\Date\RemoveDateAction;
+use App\Application\Action\API\Date\UnpickDateAction;
 use App\Application\Action\API\Event\CreateEventAction;
 use App\Application\Action\API\Event\GetAllEventsAction;
 use App\Application\Action\API\Event\GetEventAction;
@@ -16,7 +17,7 @@ use App\Application\Action\API\Event\GetOwnedEventsAction;
 use App\Application\Action\API\Event\JoinEventAction;
 use App\Application\Action\API\Event\RemoveEventAction;
 use App\Application\Action\API\Event\UpdateEventAction;
-use App\Application\Action\API\Date\CreateDateAction;
+use App\Application\Action\API\Date\AddDateAction;
 use App\Application\Action\API\Necessity\CreateNecessityAction;
 use App\Application\Action\API\Necessity\RemoveNecessityAction;
 use App\Application\Middleware\IsAuthenticatedMiddleware;
@@ -60,8 +61,9 @@ return function (App $app) {
             });
 
             $app->group('/date', function (RouteCollectorProxy $app) {
-                $app->post('/add', CreateDateAction::class)->add(IsAuthenticatedMiddleware::class);
+                $app->post('/add', AddDateAction::class)->add(IsAuthenticatedMiddleware::class);
                 $app->post('/pick', PickDateAction::class)->add(IsAuthenticatedMiddleware::class);
+                $app->post('/unpick', UnpickDateAction::class)->add(IsAuthenticatedMiddleware::class);
                 $app->get('/remove/{id}', RemoveDateAction::class)->add(IsAuthenticatedMiddleware::class);
                 $app->get('/get/{eventId}', GetPickedDatesAction::class)->add(IsAuthenticatedMiddleware::class);
             });

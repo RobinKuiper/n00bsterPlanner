@@ -2,20 +2,16 @@
 
 namespace App\Domain\Auth\Models;
 
+use App\Application\Base\BaseModel;
 use DateTimeImmutable;
 use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\Entity;
-use Doctrine\ORM\Mapping\GeneratedValue;
-use Doctrine\ORM\Mapping\Id;
 use Doctrine\ORM\Mapping\ManyToOne;
 use Doctrine\ORM\Mapping\Table;
 
 #[Entity, Table(name: 'user_sessions')]
-class UserSession implements \JsonSerializable
+class UserSession extends BaseModel
 {
-    #[Id, Column(type: 'integer'), GeneratedValue(strategy: 'AUTO')]
-    protected int $id;
-
     #[Column(type: 'string', unique: true, nullable: false)]
     private string $token;
 
@@ -25,7 +21,7 @@ class UserSession implements \JsonSerializable
     #[Column(name: 'last_visit', type: 'datetimetz_immutable', nullable: false)]
     private DateTimeImmutable $lastVisit;
 
-    #[ManyToOne(targetEntity: User::class, cascade: ['persist', 'remove'], inversedBy: 'sessions')]
+    #[ManyToOne(targetEntity: User::class, inversedBy: 'sessions')]
     private User $user;
 
     public function __construct(User $user = null, string $token = null)
@@ -34,9 +30,10 @@ class UserSession implements \JsonSerializable
         $this->lastVisit = new DateTimeImmutable();
     }
 
-    public function getId(): int { return $this->id; }
-
-    public function getToken(): string { return $this->token; }
+    public function getToken(): string
+    {
+        return $this->token;
+    }
 
     public function setToken(string $token): self
     {
@@ -45,7 +42,10 @@ class UserSession implements \JsonSerializable
         return $this;
     }
 
-    public function getIssuedAt(): DateTimeImmutable { return $this->issuedAt; }
+    public function getIssuedAt(): DateTimeImmutable
+    {
+        return $this->issuedAt;
+    }
 
     public function setIssuedAt(DateTimeImmutable $issuedAt): self
     {
@@ -54,7 +54,10 @@ class UserSession implements \JsonSerializable
         return $this;
     }
 
-    public function getLastVisit(): DateTimeImmutable { return $this->lastVisit; }
+    public function getLastVisit(): DateTimeImmutable
+    {
+        return $this->lastVisit;
+    }
 
     public function setLastVisit(DateTimeImmutable $lastVisit): self
     {
@@ -63,7 +66,10 @@ class UserSession implements \JsonSerializable
         return $this;
     }
 
-    public function getUser(): User { return $this->user; }
+    public function getUser(): User
+    {
+        return $this->user;
+    }
 
     public function setUser(User $user): self
     {

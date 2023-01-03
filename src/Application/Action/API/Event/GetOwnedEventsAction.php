@@ -10,6 +10,9 @@ final class GetOwnedEventsAction extends EventAction
     {
         $user = $this->getAttribute('user');
         $events = $user->getOwnedEvents()->toArray();
-        return $this->respond($events);
+        return $this->respond([
+            'success' => true,
+            'message' => $events
+        ]);
     }
 }

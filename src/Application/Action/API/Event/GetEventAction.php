@@ -3,6 +3,7 @@
 namespace App\Application\Action\API\Event;
 
 use App\Domain\Event\Models\Event;
+use Fig\Http\Message\StatusCodeInterface;
 use Psr\Http\Message\ResponseInterface;
 
 final class GetEventAction extends EventAction
@@ -13,9 +14,23 @@ final class GetEventAction extends EventAction
         $identifier = (string)$this->args['identifier'];
 
         $user = $this->getAttribute('user');
-        $event = $user->getAllEvents(false)->findFirst(function(int $key, Event $event) use ($identifier) {
+        $event = $user->getAllEvents(false)->findFirst(function (int $key, Event $event) use ($identifier) {
             return $event->getIdentifier() === $identifier;
         });
-        return $this->respond($event);
+
+        if ($event) {
+            $data = [
+                'success' => true,
+                'message' => $event
+            ];
+        } else {
+            $data = [
+                'success'    => false,
+                'error'      => 'Event not found',
+                'statusCode' => StatusCodeInterface::STATUS_NOT_FOUND
+            ];
+        }
+
+        return $this->respond($data);
     }
 }

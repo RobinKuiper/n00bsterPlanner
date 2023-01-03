@@ -15,23 +15,11 @@ final class UpdateEventAction extends EventAction
      */
     public function action(): ResponseInterface
     {
-        // Extract the form data from the request body
         $data = (array)$this->getFormData();
-        $data['user'] = $this->getAttribute('user');
+        $data['userId'] = $this->getAttribute('userId');
 
-        $user = $this->getAttribute('user');
-        $event = $user->getOwnedEvents()->findFirst(function(int $key, Event $event) use ($data) {
-            return $event->getId() == $data['id'];
-        });
+        $value = $this->eventService->updateEvent($data);
 
-        // Invoke the Domain with inputs and retain the result
-        $update = $this->eventService->updateEvent($event, $data);
-
-        // Get the appropriate status code
-        $statusCode = $update['success'] ? StatusCodeInterface::STATUS_OK : StatusCodeInterface::STATUS_INTERNAL_SERVER_ERROR;
-
-        // Build the HTTP response
-        // Send the HTTP response
-        return $this->respond($update, $statusCode);
+        return $this->respond($value);
     }
 }

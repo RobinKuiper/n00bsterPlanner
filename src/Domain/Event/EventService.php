@@ -10,6 +10,7 @@ use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\OptimisticLockException;
 use Exception;
+use Fig\Http\Message\StatusCodeInterface;
 use Psr\Log\LoggerInterface;
 
 final class EventService
@@ -50,12 +51,12 @@ final class EventService
 
             return [
                 'success' => true,
-                'event' => $event
+                'message' => $event
             ];
         } catch (OptimisticLockException|ORMException $e) {
             return [
                 'success' => false,
-                'errors' => [$e->getMessage()]
+                'error'   => $e->getMessage()
             ];
         }
     }
@@ -65,99 +66,98 @@ final class EventService
      * @param array $data
      * @return array
      */
-    public function updateEvent(Event $event, array $data): array
+    public function updateEvent(array $data): array
     {
         // Input validation
 //        $this->validator->validate($data); TODO: Validate data
 
-        try{
-            $event = $this->entityManager->getReference(Event::class, $event->getId());
+        try {
+            $event = $this->entityManager->find(Event::class, $data['eventId']);
+            $user = $this->entityManager->find(User::class, $data['userId']);
 
-            $event->setDescription($data['description'] ?? $event->getDescription());
-            $event->setTitle($data['title'] ?? $event->getTitle());
-            $event->setStartDate(new DateTimeImmutable($data['startDate']) ?? $event->getStartDate());
-            $event->setEndDate(new DateTimeImmutable($data['endDate']) ?? $event->getEndDate());
+            if (!$event || !$user || !$event->isOwner($user)) {
+                return [
+                    'success'       => false,
+                    'error'         => 'You are not allowed to update this event',
+                    'statusCode'    => StatusCodeInterface::STATUS_UNAUTHORIZED
+                ];
+            } else {
+                $event->setDescription($data['description'] ?? $event->getDescription());
+                $event->setTitle($data['title'] ?? $event->getTitle());
 
-            $this->entityManager->persist($event);
-            $this->entityManager->flush();
+                $this->entityManager->persist($event);
+                $this->entityManager->flush();
 
-            return [
-                'success' => true,
-                'event' => $event
-            ];
+                return [
+                    'success' => true,
+                    'message' => $event
+                ];
+            }
         } catch (ORMException|Exception $e) {
             return [
                 'success' => false,
-                'errors' => [$e->getMessage()]
+                'error'   => $e->getMessage()
             ];
         }
     }
 
-    public function removeEvent(Event $event): array
+    public function removeEvent(int $eventId, int $userId): array
     {
-        try{
-            $event = $this->entityManager->getReference(Event::class, $event->getId());
+        try {
+            $event = $this->entityManager->find(Event::class, $eventId);
+            $user = $this->entityManager->find(User::class, $userId);
 
-            $this->entityManager->remove($event);
-            $this->entityManager->flush();
+            if ($event && $event->isOwner($user)) {
+                $this->entityManager->remove($event);
+                $this->entityManager->flush();
 
-            return [
-                'success' => true
-            ];
-        } catch (OptimisticLockException|ORMException $e) {
-            return [
-                'success' => false,
-                'errors' => [$e->getMessage()]
-            ];
-        }
-    }
-
-    public function joinEvent(string $identifier, User $user): array
-    {
-        $event = $user->getAllEvents(false)->findFirst(function(int $key, Event $event) use ($identifier) {
-            return $event->getIdentifier() === $identifier;
-        });
-
-        if($event){
-            return [
-                'success' => false,
-                'errors' => ["You are already a member of this event."]
-            ];
-        }
-
-        try{
-            $repository = $this->entityManager->getRepository(Event::class);
-            $event = $repository->findOneBy([ 'identifier' => $identifier ]);
-            $user = $this->entityManager->getReference(User::class, $user->getId());
-
-            if(!$user) {
                 return [
-                    'success' => false,
-                    'errors' => ["User not found."]
+                    'success' => true
+                ];
+            } else {
+                return [
+                    'success'    => false,
+                    'statusCode' => StatusCodeInterface::STATUS_UNAUTHORIZED,
+                    'error'      => 'Not allowed'
                 ];
             }
+        } catch (OptimisticLockException|ORMException $e) {
+            return [
+                'success'   => false,
+                'error'     => $e->getMessage()
+            ];
+        }
+    }
 
-            if(!$event){
+    public function joinEvent(string $identifier, int $userId): array
+    {
+        try {
+            $repository = $this->entityManager->getRepository(Event::class);
+            $event = $repository->findOneBy([ 'identifier' => $identifier ]);
+            $user = $this->entityManager->find(User::class, $userId);
+
+            if (!$event || !$user || $event->hasMember($user)) {
                 return [
-                    'success' => false,
-                    'errors' => ["Event not found."]
+                    'success'       => false,
+                    'error'         => "You are not allowed to join this event.",
+                    'statusCode'    => StatusCodeInterface::STATUS_UNAUTHORIZED
                 ];
             }
 
             $event->addMember($user);
-//            $user->addEvent($event);
 
             $this->entityManager->persist($event);
             $this->entityManager->flush();
 
             return [
                 'success' => true,
-                'event' => $event
+                'message' => $event
             ];
         } catch (ORMException $e) {
             return [
-                'success' => false,
-                'errors' => [$e->getMessage()]
+                'success'       => false,
+                'error'         => $e->getMessage(),
+                'statusCode'    => StatusCodeInterface::STATUS_BAD_REQUEST
             ];
         }
     }
@@ -175,7 +175,7 @@ final class EventService
         $event->setTitle($data['title']);
         $event->setDescription($data['description'] ?? "");
         $reference = $this->entityManager->getReference(User::class, $data['user']->getId());
-        $event->setOwnedBy($reference);
+        $event->setCreator($reference);
 
         $this->entityManager->persist($event);
         $this->entityManager->flush();

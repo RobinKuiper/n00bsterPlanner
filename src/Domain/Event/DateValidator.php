@@ -43,6 +43,12 @@ final class DateValidator
                         $constraint->notBlank(),
                     ]
                 )
+                ,
+                'userId' => $constraint->required(
+                    [
+                        $constraint->notBlank(),
+                    ]
+                )
             ]
         );
     }

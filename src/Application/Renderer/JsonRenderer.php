@@ -2,6 +2,7 @@
 
 namespace App\Application\Renderer;
 
+use Fig\Http\Message\StatusCodeInterface;
 use Psr\Http\Message\ResponseInterface;
 
 /**
@@ -9,6 +10,14 @@ use Psr\Http\Message\ResponseInterface;
  */
 final class JsonRenderer
 {
+    private int $statusCode;
+    private array|string $message;
+
+    public function __construct(array|string $message, int $statusCode = null)
+    {
+
+    }
+
     /**
      * Write JSON to the response body.
      *

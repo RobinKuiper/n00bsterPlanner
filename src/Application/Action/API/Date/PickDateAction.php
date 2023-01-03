@@ -15,32 +15,11 @@ final class PickDateAction extends DateAction
      */
     public function action(): ResponseInterface
     {
-        // Extract the form data from the request body
         $data = (array)$this->getFormData();
-        $user = $this->getAttribute('user');
+        $data['userId'] = $this->getAttribute('userId');
 
-        $event = $user->getAllEvents(false)->findFirst(function(int $key, Event $event) use ($data) {
-            return $event->getId() == $data['eventId'];
-        });
+        $date = $this->dateService->pickDate($data);
 
-        if (!$event) {
-            return $this->respond([
-                'success' => false,
-                'errors' => ["You are not allowed to pick a date in this event,"]
-            ], StatusCodeInterface::STATUS_UNAUTHORIZED);
-        }
-
-        // Invoke the Domain with inputs and retain the result
-        $date = $this->dateService->pickDate($event, $user, $data);
-
-        // Get the appropriate status code
-        $statusCode = $date['success']
-            ? StatusCodeInterface::STATUS_CREATED
-            : StatusCodeInterface::STATUS_INTERNAL_SERVER_ERROR;
-
-
-        // Build the HTTP response
-        // Send the HTTP response
-        return $this->respond($date['date'], $statusCode);
+        return $this->respond($date);
     }
 }

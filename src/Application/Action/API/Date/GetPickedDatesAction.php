@@ -10,15 +10,10 @@ final class GetPickedDatesAction extends DateAction
     public function action(): ResponseInterface
     {
         $eventId = $this->args['eventId'];
-        $user = $this->getAttribute('user');
+        $userId = $this->getAttribute('userId');
 
-        $dates = $this->dateService->getPickedDates($eventId, $user);
+        $dates = $this->dateService->getPickedDates($eventId, $userId);
 
-        // Get the appropriate status code
-        $statusCode = $dates['statusCode'] ?? ($dates['success']
-            ? StatusCodeInterface::STATUS_OK
-            : StatusCodeInterface::STATUS_INTERNAL_SERVER_ERROR);
-
-        return $this->respond($dates['dates'], $statusCode);
+        return $this->respond($dates);
     }
 }

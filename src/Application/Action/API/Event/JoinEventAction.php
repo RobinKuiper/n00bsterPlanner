@@ -14,21 +14,11 @@ final class JoinEventAction extends EventAction
      */
     public function action(): ResponseInterface
     {
-        // Extract the form data from the request body
         $identifier = $this->args['identifier'];
+        $userId = $this->getAttribute('userId');
 
-        $user = $this->getAttribute('user');
+        $data = $this->eventService->joinEvent($identifier, $userId);
 
-        // Invoke the Domain with inputs and retain the result
-        $update = $this->eventService->joinEvent($identifier, $user);
-
-        // Get the appropriate status code
-        $statusCode = $update['success']
-            ? StatusCodeInterface::STATUS_OK
-            : StatusCodeInterface::STATUS_INTERNAL_SERVER_ERROR;
-
-        // Build the HTTP response
-        // Send the HTTP response
-        return $this->respond($update['event'], $statusCode);
+        return $this->respond($data);
     }
 }

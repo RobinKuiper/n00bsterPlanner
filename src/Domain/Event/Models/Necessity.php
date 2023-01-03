@@ -1,23 +1,17 @@
 <?php
 
-namespace App\Domain\Necessity\Models;
+namespace App\Domain\Event\Models;
 
 use App\Application\Base\BaseModel;
 use App\Domain\Auth\Models\User;
-use App\Domain\Event\Models\Event;
 use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\Entity;
-use Doctrine\ORM\Mapping\GeneratedValue;
-use Doctrine\ORM\Mapping\Id;
 use Doctrine\ORM\Mapping\ManyToOne;
 use Doctrine\ORM\Mapping\Table;
 
 #[Entity, Table(name: 'necessities')]
-class Necessity extends BaseModel implements \JsonSerializable
+class Necessity extends BaseModel
 {
-    #[Id, Column(type: 'integer'), GeneratedValue(strategy: 'AUTO')]
-    protected int $id;
-
     #[Column(type: 'string', unique: false, nullable: false)]
     private string $name;
 
@@ -32,11 +26,6 @@ class Necessity extends BaseModel implements \JsonSerializable
 
     #[ManyToOne(cascade: ["persist"], fetch: "EAGER", inversedBy: "createdNecessities")]
     private User $creator;
-
-    public function getId(): int
-    {
-        return $this->id;
-    }
 
     public function getName(): string
     {

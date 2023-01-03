@@ -1,12 +1,11 @@
 <?php
 
-namespace App\Domain\Necessity;
+namespace App\Domain\Event;
 
 use App\Application\Factory\LoggerFactory;
 use App\Domain\Auth\Models\User;
 use App\Domain\Event\Models\Event;
-use App\Domain\Necessity\Models\Necessity;
-use Cassandra\Exception\UnauthorizedException;
+use App\Domain\Event\Models\Necessity;
 use DateTimeImmutable;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Exception\ORMException;
@@ -14,7 +13,6 @@ use Doctrine\ORM\OptimisticLockException;
 use Exception;
 use Fig\Http\Message\StatusCodeInterface;
 use Psr\Log\LoggerInterface;
-use Slim\Exception\HttpUnauthorizedException;
 
 final class NecessityService
 {
@@ -37,30 +35,39 @@ final class NecessityService
     }
 
     /**
-     * @param Event $event
      * @param array $data
      * @return array
-     * @throws Exception
      */
-    public function createNecessity(Event $event, User $user, array $data): array
+    public function createNecessity(array $data): array
     {
         // Input validation
         $this->validator->validate($data);
 
         // Insert event
         try {
+            $event = $this->entityManager->find(Event::class, $data['eventId']);
+            $user = $this->entityManager->find(User::class, $data['userId']);
+
+            if (!$event || !$user || !$event->isOwner($user)) {
+                return [
+                    'success'    => false,
+                    'error'      => "You are not allowed to add a necessity to this event,",
+                    'statusCode' => StatusCodeInterface::STATUS_UNAUTHORIZED
+                ];
+            }
+
             $necessity = $this->makeModel($event, $user, $data);
 
             $this->logger->info(sprintf('Necessity created successfully: %s', $necessity->getId()));
 
             return [
                 'success' => true,
-                'necessity' => $necessity
+                'message' => $necessity
             ];
         } catch (OptimisticLockException|ORMException $e) {
             return [
                 'success' => false,
-                'errors' => [$e->getMessage()]
+                'error'   => $e->getMessage()
             ];
         }
     }
@@ -75,7 +82,7 @@ final class NecessityService
         // Input validation
 //        $this->validator->validate($data); TODO: Validate data
 
-        try{
+        try {
             $event = $this->entityManager->getReference(Event::class, $event->getId());
 
             $event->setDescription($data['description'] ?? $event->getDescription());
@@ -98,13 +105,13 @@ final class NecessityService
         }
     }
 
-    public function removeNecessity(User $user, int $necessityId): array
+    public function removeNecessity(int $userId, int $necessityId): array
     {
-        try{
+        try {
             $necessity = $this->entityManager->find(Necessity::class, $necessityId);
-            $user = $this->entityManager->find(User::class, $user->getId());
+            $user = $this->entityManager->find(User::class, $userId);
 
-            if(!$necessity || !$necessity->canEditorRemove($user)){
+            if (!$user || !$necessity || !$necessity->canEditorRemove($user)) {
                 return [
                     'success' => false,
                     'errors' => ["You may not remove this entity"],

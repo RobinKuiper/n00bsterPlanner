@@ -2,31 +2,22 @@
 
 namespace App\Domain\Event\Models;
 
-use App\Application\Support\Auth;
+use App\Application\Base\BaseModel;
 use App\Domain\Auth\Models\User;
-use App\Domain\Necessity\Models\Necessity;
-use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\Entity;
-use Doctrine\ORM\Mapping\GeneratedValue;
-use Doctrine\ORM\Mapping\Id;
 use Doctrine\ORM\Mapping\ManyToMany;
 use Doctrine\ORM\Mapping\ManyToOne;
 use Doctrine\ORM\Mapping\OneToMany;
 use Doctrine\ORM\Mapping\Table;
-use Psr\Container\ContainerExceptionInterface;
-use Psr\Container\NotFoundExceptionInterface;
 use Symfony\Component\Validator\Constraints\NotNull;
 use Symfony\Component\Validator\Constraints\Unique;
 
 #[Entity, Table(name: 'events')]
-class Event implements \JsonSerializable
+class Event extends BaseModel
 {
-    #[Id, Column(type: 'integer'), GeneratedValue(strategy: 'AUTO')]
-    protected int $id;
-
     #[Column(type: 'string'), NotNull, Unique]
     private string $identifier;
 
@@ -41,12 +32,16 @@ class Event implements \JsonSerializable
     #[OneToMany(mappedBy: 'event', targetEntity: Date::class, cascade: ['persist'], fetch: "EAGER")]
     private Collection $dates;
 
+    /** @var Collection<int, PickedDate> */
+    #[OneToMany(mappedBy: 'user', targetEntity: PickedDate::class, cascade: ['persist'])]
+    private Collection $pickedDates;
+
 //    #[ManyToOne(targetEntity: EventCategory::class, inversedBy: 'events')]
 //    private EventCategory $category;
 
     // Many Meetings have one owner
     #[ManyToOne(targetEntity: User::class, cascade: ['persist'], inversedBy: 'ownedEvents')]
-    private User $ownedBy;
+    private User $creator;
 
     // One Meeting has multiple members
     /** @var Collection<int, User> */
@@ -64,11 +59,7 @@ class Event implements \JsonSerializable
         $this->members = new ArrayCollection();
         $this->necessities = new ArrayCollection();
         $this->dates = new ArrayCollection();
-    }
-
-    public function getId(): int
-    {
-        return $this->id;
+        $this->pickedDates = new ArrayCollection();
     }
 
     public function getIdentifier(): string
@@ -133,16 +124,44 @@ class Event implements \JsonSerializable
         }
     }
 
+    /**
+     * @return Collection<int, PickedDate>
+     */
+    public function getPickedDates(): Collection
+    {
+        return $this->pickedDates;
+    }
+    /**
+     * @param Collection<int, PickedDate> $pickedDates
+     * @return void
+     */
+    public function setPickedDates(Collection $pickedDates): void
+    {
+        $this->pickedDates = $pickedDates;
+    }
+
+    /**
+     * @param PickedDate $pickedDate
+     * @return void
+     */
+    public function addPickedDate(PickedDate $pickedDate): void
+    {
+        if (!$this->pickedDates->contains($pickedDate)) {
+            $this->pickedDates->add($pickedDate);
+            $pickedDate->setEvent($this);
+        }
+    }
+
 //    public function getCategory(): EventCategory { return $this->category; }
 //    public function setCategory(EventCategory $category): void { $this->category = $category; }
 
-    public function getOwnedBy(): User
+    public function getCreator(): User
     {
-        return $this->ownedBy;
+        return $this->creator;
     }
-    public function setOwnedBy(User $user): void
+    public function setCreator(User $user): void
     {
-        $this->ownedBy = $user;
+        $this->creator = $user;
         $user->addOwnedEvent($this);
     }
 
@@ -161,6 +180,15 @@ class Event implements \JsonSerializable
     public function setMembers(Collection $members): void
     {
         $this->members = $members;
+    }
+
+    /**
+     * @param User $user
+     * @return bool
+     */
+    public function hasMember(User $user): bool
+    {
+        return $this->isOwner($user) || $this->members->contains($user);
     }
 
     /**
@@ -217,7 +245,7 @@ class Event implements \JsonSerializable
 
     public function isOwner(User $user = null): bool
     {
-        return $this->ownedBy === $user;
+        return $this->creator === $user;
     }
 
     public function jsonSerialize(): array
@@ -229,7 +257,7 @@ class Event implements \JsonSerializable
             'description'=> $this->description,
             'dates' => $this->dates->toArray(),
 //            'category' => $this->category,
-            'owner' => $this->ownedBy,
+            'owner' => $this->creator,
             'members' => $this->members->toArray(),
             'necessities' => $this->necessities->toArray()
         );

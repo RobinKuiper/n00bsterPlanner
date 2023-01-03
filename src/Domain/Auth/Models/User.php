@@ -2,28 +2,24 @@
 
 namespace App\Domain\Auth\Models;
 
+use App\Application\Base\BaseModel;
 use App\Domain\Event\Models\Date;
 use App\Domain\Event\Models\Event;
-use App\Domain\Necessity\Models\Necessity;
+use App\Domain\Event\Models\Necessity;
+use App\Domain\Event\Models\PickedDate;
 use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\Entity;
-use Doctrine\ORM\Mapping\GeneratedValue;
-use Doctrine\ORM\Mapping\Id;
 use Doctrine\ORM\Mapping\JoinTable;
 use Doctrine\ORM\Mapping\ManyToMany;
 use Doctrine\ORM\Mapping\OneToMany;
 use Doctrine\ORM\Mapping\Table;
-use JsonSerializable;
 
 #[Entity, Table(name: 'users')]
-class User implements JsonSerializable
+class User extends BaseModel
 {
-    #[Id, Column(type: 'integer'), GeneratedValue(strategy: 'AUTO')]
-    protected int $id;
-
     #[Column(type: 'string', unique: true, nullable: true)]
     private string $visitorId;
 
@@ -46,7 +42,7 @@ class User implements JsonSerializable
 
     // One User has multiple OwnedEvents
     /** @var Collection<int, Event> */
-    #[OneToMany(mappedBy: 'ownedBy', targetEntity: Event::class, cascade: ['persist'])]
+    #[OneToMany(mappedBy: 'creator', targetEntity: Event::class, cascade: ['persist'])]
     private Collection $ownedEvents;
 
     // Many Users have multiple Events
@@ -55,11 +51,9 @@ class User implements JsonSerializable
     #[JoinTable(name: 'users_events')]
     private Collection $events;
 
-    // Many Users have multiple Dates
-    /** @var Collection<int, Date> */
-    #[ManyToMany(targetEntity: Date::class, inversedBy: 'members', cascade: ['persist'])]
-    #[JoinTable(name: 'users_dates')]
-    private Collection $dates;
+    /** @var Collection<int, PickedDate> */
+    #[OneToMany(mappedBy: 'user', targetEntity: PickedDate::class, cascade: ['persist'])]
+    private Collection $pickedDates;
 
     // One User has multiple necessities
     /** @var Collection<int, Necessity> */
@@ -77,15 +71,10 @@ class User implements JsonSerializable
 
         $this->sessions = new ArrayCollection();
         $this->events = new ArrayCollection();
-        $this->dates = new ArrayCollection();
+        $this->pickedDates = new ArrayCollection();
         $this->ownedEvents = new ArrayCollection();
         $this->necessities = new ArrayCollection();
         $this->createdNecessities = new ArrayCollection();
-    }
-
-    public function getId(): int
-    {
-        return $this->id;
     }
 
     public function getVisitorId(): string
@@ -167,25 +156,38 @@ class User implements JsonSerializable
     }
 
     /**
-     * @return Collection<int, Date>
+     * @return Collection<int, PickedDate>
      */
-    public function getDates(): Collection
+    public function getPickedDates(): Collection
     {
-        return $this->dates;
+        return $this->pickedDates;
     }
     /**
-     * @param Collection<int, Date> $dates
+     * @param Collection<int, PickedDate> $pickedDates
      * @return void
      */
-    public function setDates(Collection $dates): void
+    public function setPickedDates(Collection $pickedDates): void
     {
-        $this->dates = $dates;
+        $this->pickedDates = $pickedDates;
+    }
+
+    /**
+     * @param PickedDate $pickedDate
+     * @return void
+     */
+    public function addPickedDate(PickedDate $pickedDate): void
+    {
+        if (!$this->pickedDates->contains($pickedDate)) {
+            $this->pickedDates->add($pickedDate);
+            $pickedDate->setUser($this);
+        }
     }
 
     public function getNecessities(): Collection
     {
         return $this->necessities;
     }
+
     public function setNecessities(Collection $necessities): void
     {
         $this->necessities = $necessities;
@@ -254,7 +256,7 @@ class User implements JsonSerializable
     {
         if (!$this->ownedEvents->contains($event)) {
             $this->ownedEvents->add($event);
-            $event->setOwnedBy($this);
+            $event->setCreator($this);
         }
     }
 

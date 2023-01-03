@@ -51,7 +51,8 @@ abstract class Action
         return $this->request->getParsedBody();
     }
 
-    protected function getAttribute(string $name) {
+    protected function getAttribute(string $name)
+    {
         return $this->request->getAttribute($name);
     }
 
@@ -69,13 +70,27 @@ abstract class Action
     }
 
     /**
-     * @param mixed|null $data
-     * @param int $statusCode
+     * @param array $data
      * @return Response
      */
-    protected function respond(mixed $data = null, int $statusCode = StatusCodeInterface::STATUS_OK): Response
+    protected function respond(array $data): Response
     {
-        $json = json_encode($data, JSON_PRETTY_PRINT);
+        $success = $data['success'] ?? false;
+        $statusCode = $data['statusCode'] ?? null;
+        $message = $data['message']
+            ?? $data['errors']
+            ?? $data['error']
+            ?? (($success || $statusCode === 200 || $statusCode === 201)
+                ? 'Ok' : 'Error');
+
+        $statusCode = $statusCode ?? ($success
+            ? StatusCodeInterface::STATUS_OK
+            : StatusCodeInterface::STATUS_BAD_REQUEST);
+
+        $json = json_encode($message, JSON_PRETTY_PRINT);
+        if (!$json) {
+            $json = json_last_error_msg();
+        }
         $this->response->getBody()->write($json);
 
         return $this->response

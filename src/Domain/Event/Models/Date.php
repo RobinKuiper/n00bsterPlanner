@@ -2,25 +2,20 @@
 
 namespace App\Domain\Event\Models;
 
+use App\Application\Base\BaseModel;
 use App\Domain\Auth\Models\User;
 use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\Entity;
-use Doctrine\ORM\Mapping\GeneratedValue;
-use Doctrine\ORM\Mapping\Id;
-use Doctrine\ORM\Mapping\ManyToMany;
 use Doctrine\ORM\Mapping\ManyToOne;
+use Doctrine\ORM\Mapping\OneToMany;
 use Doctrine\ORM\Mapping\Table;
-use JsonSerializable;
 
 #[Entity, Table(name: 'dates')]
-class Date implements JsonSerializable
+class Date extends BaseModel
 {
-    #[Id, Column(type: 'integer'), GeneratedValue(strategy: 'AUTO')]
-    protected int $id;
-
     #[Column(nullable: true)]
     private DateTimeImmutable $date;
 
@@ -28,19 +23,13 @@ class Date implements JsonSerializable
     #[ManyToOne(targetEntity: Event::class, cascade: ['persist'], inversedBy: 'dates')]
     private Event $event;
 
-    // One Meeting has multiple members
-    /** @var Collection<int, User> */
-    #[ManyToMany(targetEntity: User::class, mappedBy: 'dates', cascade: ['persist'], fetch: "EAGER")]
-    private Collection $members;
+    /** @var Collection<int, PickedDate> */
+    #[OneToMany(mappedBy: 'user', targetEntity: PickedDate::class, cascade: ['persist'])]
+    private Collection $pickedDates;
 
     public function __construct()
     {
-        $this->members = new ArrayCollection();
-    }
-
-    public function getId(): int
-    {
-        return $this->id;
+        $this->pickedDates = new ArrayCollection();
     }
 
     public function getDate(): DateTimeImmutable
@@ -64,35 +53,30 @@ class Date implements JsonSerializable
     }
 
     /**
-     * @return Collection<int, User>
+     * @return Collection<int, PickedDate>
      */
-    public function getMembers(): Collection
+    public function getPickedDates(): Collection
     {
-        return $this->members;
+        return $this->pickedDates;
+    }
+    /**
+     * @param Collection<int, PickedDate> $pickedDates
+     * @return void
+     */
+    public function setPickedDates(Collection $pickedDates): void
+    {
+        $this->pickedDates = $pickedDates;
     }
 
     /**
-     * @param Collection<int, User> $members
+     * @param PickedDate $pickedDate
      * @return void
      */
-    public function setMembers(Collection $members): void
+    public function addPickedDate(PickedDate $pickedDate): void
     {
-        $this->members = $members;
-    }
-
-    public function addMember(User $user): void
-    {
-        if (!$this->members->contains($user)) {
-            $this->members->add($user);
-            $user->addDate($this);
-        }
-    }
-
-    public function removeMember(User $user): void
-    {
-        if ($this->members->contains($user)) {
-            $this->members->removeElement($user);
-            $user->removeDate($this);
+        if (!$this->pickedDates->contains($pickedDate)) {
+            $this->pickedDates->add($pickedDate);
+            $pickedDate->setDate($this);
         }
     }
 
@@ -107,7 +91,7 @@ class Date implements JsonSerializable
             'id' => $this->id,
             'date' => $this->date,
 //            'event' => $this->event,
-            'members' => $this->members->toArray(),
+//            'members' => $this->members->toArray(),
         );
     }
 }
