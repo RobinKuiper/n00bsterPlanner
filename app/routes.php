@@ -30,9 +30,6 @@ return function (App $app) {
     $app->group(
         '/api',
         function (RouteCollectorProxy $app) {
-
-            $app->get('/test', LoginAction::class)->add(IsAuthenticatedMiddleware::class);
-
             /** AUTHENTICATION */
             $app->group('/authentication', function (RouteCollectorProxy $app) {
                 $app->get('/logout', LogoutAction::class)->add(IsAuthenticatedMiddleware::class);
@@ -44,28 +41,34 @@ return function (App $app) {
 
             /** EVENTS */
             $app->group('/events', function (RouteCollectorProxy $app) {
-                $app->get('/all', GetAllEventsAction::class)->add(IsAuthenticatedMiddleware::class);
+                $app->get('', GetAllEventsAction::class)->add(IsAuthenticatedMiddleware::class);
                 $app->get('/owned', GetOwnedEventsAction::class)->add(IsAuthenticatedMiddleware::class);
                 $app->get('/{identifier}', GetEventAction::class)->add(IsAuthenticatedMiddleware::class);
                 $app->get('/join/{identifier}', JoinEventAction::class)->add(IsAuthenticatedMiddleware::class);
-                $app->get('/remove/{event_id}', RemoveEventAction::class)->add(IsAuthenticatedMiddleware::class);
 
-                $app->post('/update', UpdateEventAction::class)->add(IsAuthenticatedMiddleware::class);
-                $app->post('/create', CreateEventAction::class)->add(IsAuthenticatedMiddleware::class);
+                $app->put('', UpdateEventAction::class)->add(IsAuthenticatedMiddleware::class);
+                $app->post('', CreateEventAction::class)->add(IsAuthenticatedMiddleware::class);
+
+                $app->delete('/{event_id}', RemoveEventAction::class)->add(IsAuthenticatedMiddleware::class);
                 // TODO: Check root route path
             });
 
+            /** NECESSITIES */
             $app->group('/necessity', function (RouteCollectorProxy $app) {
-                $app->post('/add', CreateNecessityAction::class)->add(IsAuthenticatedMiddleware::class);
-                $app->get('/remove/{id}', RemoveNecessityAction::class)->add(IsAuthenticatedMiddleware::class);
+                $app->post('', CreateNecessityAction::class)->add(IsAuthenticatedMiddleware::class);
+
+                $app->delete('/{id}', RemoveNecessityAction::class)->add(IsAuthenticatedMiddleware::class);
             });
 
+            /** DATES */
             $app->group('/date', function (RouteCollectorProxy $app) {
-                $app->post('/add', AddDateAction::class)->add(IsAuthenticatedMiddleware::class);
+                $app->get('/get/{eventId}', GetPickedDatesAction::class)->add(IsAuthenticatedMiddleware::class);
+
+                $app->post('', AddDateAction::class)->add(IsAuthenticatedMiddleware::class);
                 $app->post('/pick', PickDateAction::class)->add(IsAuthenticatedMiddleware::class);
                 $app->post('/unpick', UnpickDateAction::class)->add(IsAuthenticatedMiddleware::class);
-                $app->get('/remove/{id}', RemoveDateAction::class)->add(IsAuthenticatedMiddleware::class);
-                $app->get('/get/{eventId}', GetPickedDatesAction::class)->add(IsAuthenticatedMiddleware::class);
+
+                $app->delete('/{id}', RemoveDateAction::class)->add(IsAuthenticatedMiddleware::class);
             });
         }
     );
