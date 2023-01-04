@@ -48,7 +48,7 @@ final class NecessityService
             $event = $this->entityManager->find(Event::class, $data['eventId']);
             $user = $this->entityManager->find(User::class, $data['userId']);
 
-            if (!$event || !$user || !$event->isOwner($user)) {
+            if (!$event || !$user && (!$event->isOwner($user) || !$event->hasMember($user))) {
                 return [
                     'success'    => false,
                     'error'      => "You are not allowed to add a necessity to this event,",

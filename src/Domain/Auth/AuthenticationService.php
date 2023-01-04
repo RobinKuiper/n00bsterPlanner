@@ -216,7 +216,8 @@ final class AuthenticationService
     private function generateJWT(User $user): string
     {
         $payload = [
-            'userId' => $user->getId()
+            'userId' => $user->getId(),
+            'displayName' => $user->getDisplayName() ?? $user->getUsername()
         ];
         return JWT::encode($payload, $this->settings['secret'], 'HS256');
     }

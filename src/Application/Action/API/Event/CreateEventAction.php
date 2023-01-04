@@ -3,7 +3,6 @@
 namespace App\Application\Action\API\Event;
 
 use Exception;
-use Fig\Http\Message\StatusCodeInterface;
 use Psr\Http\Message\ResponseInterface;
 
 final class CreateEventAction extends EventAction
@@ -18,6 +17,7 @@ final class CreateEventAction extends EventAction
         $data['user'] = $this->getAttribute('user');
 
         $value = $this->eventService->createEvent($data);
+        $value['jwt'] = $this->getAttribute('jwt');
 
         return $this->respond($value);
     }

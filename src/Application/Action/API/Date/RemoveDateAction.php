@@ -16,10 +16,11 @@ final class RemoveDateAction extends DateAction
     {
         // TODO: Can't remove if date is picked
 
-        $id = $this->args['id'];
+        $eventId = $this->args['eventId'];
+        $date = $this->args['date'];
         $userId = $this->getAttribute('userId');
 
-        $necessity = $this->dateService->removeDate($userId, $id);
+        $necessity = $this->dateService->removeDate($userId, $eventId, $date);
 
         return $this->respond($necessity);
     }

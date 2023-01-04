@@ -82,9 +82,14 @@ final class DateService
                 'user' => $user
             ]);
 
+            $dates = [];
+            foreach ($pickedDates as $pickedDate) {
+                $dates[] = $pickedDate->getDate();
+            }
+
             return [
                 'success' => true,
-                'message' => $pickedDates
+                'message' => $dates
             ];
         } catch (Exception $e) {
             return [
@@ -195,22 +200,38 @@ final class DateService
         }
     }
 
-    public function removeDate(int $userId, int $dateId): array
+    public function removeDate(int $userId, int $eventId, string $date): array
     {
         try {
-            $date = $this->entityManager->find(Date::class, $dateId);
             $user = $this->entityManager->find(User::class, $userId);
+            $event = $this->entityManager->find(Event::class, $eventId);
 
-            if (!$date || !$user || !$date->canEditorRemove($user)) {
+            if (!$event || !$user || !$event->isOwner($user)) {
                 return [
                     'success'    => false,
-                    'error'      => "You may not remove this entity",
+                    'error'      => "You are not allowed to remove a date form this event,",
                     'statusCode' => StatusCodeInterface::STATUS_UNAUTHORIZED
+                ];
+            }
+
+            $date = str_replace('-', '/', $date);
+
+            $date = $this->entityManager->getRepository(Date::class)->findOneBy([
+                'event' => $event,
+                'date'  => new DateTimeImmutable($date)
+            ]);
+
+            if (!$date) {
+                return [
+                    'success' => false,
+                    'error'   => 'Date not found.'
                 ];
             }
 
             $this->entityManager->remove($date);
             $this->entityManager->flush();
+
+            $this->logger->info('Date remove successfully');
 
             return [
                 'success' => true

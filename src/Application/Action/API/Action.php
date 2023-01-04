@@ -75,26 +75,48 @@ abstract class Action
      */
     protected function respond(array $data): Response
     {
+        $jwt = $data['jwt'];
         $success = $data['success'] ?? false;
         $statusCode = $data['statusCode'] ?? null;
-        $message = $data['message']
-            ?? $data['errors']
-            ?? $data['error']
-            ?? (($success || $statusCode === 200 || $statusCode === 201)
-                ? 'Ok' : 'Error');
+        $message = $this->generateMessage($data, $success, $statusCode);
 
-        $statusCode = $statusCode ?? ($success
-            ? StatusCodeInterface::STATUS_OK
-            : StatusCodeInterface::STATUS_BAD_REQUEST);
+        $message = !$jwt ? $message : [
+            'event' => $message,
+            'jwt' => $jwt
+        ];
 
-        $json = json_encode($message, JSON_PRETTY_PRINT);
-        if (!$json) {
-            $json = json_last_error_msg();
-        }
+        $statusCode = $this->generateStatusCode($statusCode, $success);
+
+        $json = $this->encodeJson($message);
         $this->response->getBody()->write($json);
 
         return $this->response
             ->withHeader('Content-Type', 'application/json')
             ->withStatus($statusCode);
+    }
+
+    private function generateMessage(array $data, bool $success, int $statusCode): string|array
+    {
+        return $data['message']
+            ?? $data['errors']
+            ?? $data['error']
+            ?? (($success || $statusCode === 200 || $statusCode === 201)
+                ? 'Ok' : 'Error');
+    }
+
+    private function generateStatusCode(bool $success, int $statusCode): int
+    {
+        return $statusCode ?? ($success
+            ? StatusCodeInterface::STATUS_OK
+            : StatusCodeInterface::STATUS_BAD_REQUEST);
+    }
+
+    private function encodeJson(mixed $message): string
+    {
+        $json = json_encode($message, JSON_PRETTY_PRINT);
+        if (!$json) {
+            $json = json_last_error_msg();
+        }
+        return $json;
     }
 }

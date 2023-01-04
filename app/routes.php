@@ -22,6 +22,7 @@ use App\Application\Action\API\Necessity\CreateNecessityAction;
 use App\Application\Action\API\Necessity\RemoveNecessityAction;
 use App\Application\Middleware\IsAuthenticatedMiddleware;
 use App\Application\Middleware\IsGuestMiddleware;
+use App\Application\Middleware\RegisterGuestMiddleware;
 use Slim\App;
 use Slim\Routing\RouteCollectorProxy;
 
@@ -47,7 +48,8 @@ return function (App $app) {
                 $app->get('/join/{identifier}', JoinEventAction::class)->add(IsAuthenticatedMiddleware::class);
 
                 $app->put('', UpdateEventAction::class)->add(IsAuthenticatedMiddleware::class);
-                $app->post('', CreateEventAction::class)->add(IsAuthenticatedMiddleware::class);
+                $app->post('', CreateEventAction::class)
+                    ->add(IsAuthenticatedMiddleware::class)->add(RegisterGuestMiddleware::class);
 
                 $app->delete('/{event_id}', RemoveEventAction::class)->add(IsAuthenticatedMiddleware::class);
                 // TODO: Check root route path
@@ -68,7 +70,7 @@ return function (App $app) {
                 $app->post('/pick', PickDateAction::class)->add(IsAuthenticatedMiddleware::class);
                 $app->post('/unpick', UnpickDateAction::class)->add(IsAuthenticatedMiddleware::class);
 
-                $app->delete('/{id}', RemoveDateAction::class)->add(IsAuthenticatedMiddleware::class);
+                $app->delete('/{eventId}/{date}', RemoveDateAction::class)->add(IsAuthenticatedMiddleware::class);
             });
         }
     );
