@@ -58,7 +58,7 @@ final class DateService
 
             $date = $this->makeModel($event, $data);
 
-            $this->logger->info(sprintf('Date created successfully: %s', $date->getId()));
+            $this->logger->info(sprintf('DateResponse created successfully: %s', $date->getId()));
 
             return [
                 'success' => true,
@@ -72,7 +72,7 @@ final class DateService
         }
     }
 
-    public function getPickedDates(int $eventId, int $userId): array
+    public function getUsersPickedDates(int $eventId, int $userId): array
     {
         try {
             $event = $this->entityManager->find(Event::class, $eventId);
@@ -85,6 +85,47 @@ final class DateService
             $dates = [];
             foreach ($pickedDates as $pickedDate) {
                 $dates[] = $pickedDate->getDate();
+            }
+
+            return [
+                'success' => true,
+                'message' => $dates
+            ];
+        } catch (Exception $e) {
+            return [
+                'success'    => false,
+                'error'      => $e->getMessage()
+            ];
+        }
+    }
+
+    public function getAllPickedDates(int $eventId, int $userId): array
+    {
+        try {
+            $event = $this->entityManager->find(Event::class, $eventId);
+            $user = $this->entityManager->find(User::class, $userId);
+
+            if (!$user || !$event && (!$event->isOwner($user) || !$event->hasMember($user))) {
+                return [
+                    'success' => false,
+                    'message' => 'Not allowed to get the dates from this event.',
+                    'statusCode' => StatusCodeInterface::STATUS_UNAUTHORIZED
+                ];
+            }
+
+
+            /** @var PickedDate $pickedDates */
+            $pickedDates = $this->entityManager->getRepository(PickedDate::class)->findBy([
+                'event' => $event,
+            ]);
+
+            $dates = [];
+            /** @var PickedDate $pickedDate */
+            foreach ($pickedDates as $pickedDate) {
+                $dates[] = [
+                    'user' => $pickedDate->getUser(),
+                    'date' => $pickedDate->getDate()->getDate()->format("Y-m-d")
+                ];
             }
 
             return [
@@ -133,7 +174,7 @@ final class DateService
                 $this->entityManager->persist($pickedDate);
                 $this->entityManager->flush();
 
-                $this->logger->info(sprintf('Date picked successfully: %s', $date->getId()));
+                $this->logger->info(sprintf('DateResponse picked successfully: %s', $date->getId()));
 
                 return [
                     'success' => true,
@@ -182,7 +223,7 @@ final class DateService
                 $this->entityManager->remove($pickedDate);
                 $this->entityManager->flush();
 
-                $this->logger->info('Date unpicked successfully');
+                $this->logger->info('DateResponse unpicked successfully');
 
                 return [
                     'success' => true
@@ -224,14 +265,14 @@ final class DateService
             if (!$date) {
                 return [
                     'success' => false,
-                    'error'   => 'Date not found.'
+                    'error'   => 'DateResponse not found.'
                 ];
             }
 
             $this->entityManager->remove($date);
             $this->entityManager->flush();
 
-            $this->logger->info('Date remove successfully');
+            $this->logger->info('DateResponse remove successfully');
 
             return [
                 'success' => true

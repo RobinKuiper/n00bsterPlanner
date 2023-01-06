@@ -58,6 +58,7 @@ class PickedDate extends BaseModel
         return array(
             'id' => $this->id,
             'date' => $this->date,
+            'user' => $this->user
         );
     }
 }

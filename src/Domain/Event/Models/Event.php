@@ -256,7 +256,7 @@ class Event extends BaseModel
             'title'=> $this->title,
             'description'=> $this->description,
             'dates' => $this->dates->toArray(),
-//            'category' => $this->category,
+//            'pickedDates' => $this->pickedDates->toArray(),
             'owner' => $this->creator,
             'members' => $this->members->toArray(),
             'necessities' => $this->necessities->toArray()
