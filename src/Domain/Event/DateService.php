@@ -61,8 +61,9 @@ final class DateService
             $this->logger->info(sprintf('DateResponse created successfully: %s', $date->getId()));
 
             return [
-                'success' => true,
-                'message' => $date
+                'success'    => true,
+                'message'    => $date,
+                'identifier' => $event->getIdentifier()
             ];
         } catch (OptimisticLockException|ORMException $e) {
             return [
@@ -77,6 +78,7 @@ final class DateService
         try {
             $event = $this->entityManager->find(Event::class, $eventId);
             $user = $this->entityManager->find(User::class, $userId);
+            /** @var PickedDate[] $pickedDates */
             $pickedDates = $this->entityManager->getRepository(PickedDate::class)->findBy([
                 'event' => $event,
                 'user' => $user
@@ -84,7 +86,7 @@ final class DateService
 
             $dates = [];
             foreach ($pickedDates as $pickedDate) {
-                $dates[] = $pickedDate->getDate();
+                $dates[] = $pickedDate->getDate()->getDate()->format('Y-m-d');
             }
 
             return [
@@ -113,14 +115,12 @@ final class DateService
                 ];
             }
 
-
-            /** @var PickedDate $pickedDates */
+            /** @var PickedDate[] $pickedDates */
             $pickedDates = $this->entityManager->getRepository(PickedDate::class)->findBy([
                 'event' => $event,
             ]);
 
             $dates = [];
-            /** @var PickedDate $pickedDate */
             foreach ($pickedDates as $pickedDate) {
                 $dates[] = [
                     'user' => $pickedDate->getUser(),
@@ -177,8 +177,10 @@ final class DateService
                 $this->logger->info(sprintf('DateResponse picked successfully: %s', $date->getId()));
 
                 return [
-                    'success' => true,
-                    'message' => $date
+                    'success'    => true,
+                    'message'    => $date,
+                    'user'       => $user,
+                    'identifier' => $event->getIdentifier()
                 ];
             } else {
                 return [
@@ -226,7 +228,10 @@ final class DateService
                 $this->logger->info('DateResponse unpicked successfully');
 
                 return [
-                    'success' => true
+                    'success'    => true,
+                    'message'    => $date,
+                    'user'       => $user,
+                    'identifier' => $event?->getIdentifier()
                 ];
             } else {
                 return [
@@ -275,7 +280,9 @@ final class DateService
             $this->logger->info('DateResponse remove successfully');
 
             return [
-                'success' => true
+                'success'    => true,
+                'date'       => $date,
+                'identifier' => $event->getIdentifier()
             ];
         } catch (OptimisticLockException|ORMException $e) {
             return [

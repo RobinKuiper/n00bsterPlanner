@@ -2,8 +2,13 @@
 
 namespace App\Application\Action\API;
 
+use App\Application\Factory\ContainerFactory;
 use App\Application\Factory\LoggerFactory;
+use ElephantIO\Client;
+use Exception;
 use Fig\Http\Message\StatusCodeInterface;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Psr\Log\LoggerInterface;
@@ -102,5 +107,23 @@ abstract class Action
         return $this->response
             ->withHeader('Content-Type', 'application/json')
             ->withStatus($statusCode);
+    }
+
+    /**
+     * @param string $event
+     * @param array $message
+     * @return void
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     * @throws Exception
+     */
+    protected function emit(string $event, array $message): void
+    {
+        $container = ContainerFactory::createInstance();
+        $client = $container->get(Client::class);
+
+        $client->initialize();
+        $client->emit($event, $message);
+        $client->close();
     }
 }

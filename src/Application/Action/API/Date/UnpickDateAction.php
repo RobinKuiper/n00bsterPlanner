@@ -20,6 +20,14 @@ final class UnpickDateAction extends DateAction
 
         $date = $this->dateService->unpickDate($data);
 
+        if ($date['success']) {
+            $obj = [
+                'date' => $date['message']->getDate()->format("Y-m-d"),
+                'user' => $date['user']
+            ];
+            $this->emit('date_unpicked', [ 'object' => $obj, 'room' => $date['identifier'] ]);
+        }
+
         return $this->respond($date);
     }
 }

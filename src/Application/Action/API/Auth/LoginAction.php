@@ -2,9 +2,10 @@
 
 namespace App\Application\Action\API\Auth;
 
+use App\Application\Factory\ContainerFactory;
 use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\OptimisticLockException;
-use Fig\Http\Message\StatusCodeInterface;
+use ElephantIO\Client;
 use Psr\Http\Message\ResponseInterface;
 
 final class LoginAction extends AuthAction

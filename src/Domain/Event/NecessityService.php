@@ -61,8 +61,9 @@ final class NecessityService
             $this->logger->info(sprintf('Necessity created successfully: %s', $necessity->getId()));
 
             return [
-                'success' => true,
-                'message' => $necessity
+                'success'    => true,
+                'message'    => $necessity,
+                'identifier' => $event->getIdentifier()
             ];
         } catch (OptimisticLockException|ORMException $e) {
             return [
@@ -123,7 +124,9 @@ final class NecessityService
             $this->entityManager->flush();
 
             return [
-                'success' => true
+                'success'    => true,
+                'necessity'  => $necessityId,
+                'identifier' => $necessity->getEvent()->getIdentifier()
             ];
         } catch (OptimisticLockException|ORMException $e) {
             return [

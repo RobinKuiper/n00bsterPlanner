@@ -39,6 +39,12 @@ $settings['logger'] = [
     'level' => \Monolog\Level::Info,
 ];
 
+// Websocket settings
+$settings['websocket'] = [
+    'host' => 'localhost',
+    'port' => 8081
+];
+
 // Database settings
 $settings['doctrine'] = [
     'dev_mode' => $settings['general']['dev_mode'],

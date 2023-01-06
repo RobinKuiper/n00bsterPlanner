@@ -13,6 +13,8 @@ use Doctrine\ORM\ORMSetup;
 //use League\Flysystem\Local\LocalFilesystemAdapter;
 //use League\Flysystem\UnixVisibility\PortableVisibilityConverter;
 //use League\Flysystem\Visibility;
+use ElephantIO\Client;
+use ElephantIO\Engine\SocketIO\Version1X;
 use Monolog\Level;
 use Nyholm\Psr7\Factory\Psr17Factory;
 use Psr\Container\ContainerInterface;
@@ -145,6 +147,17 @@ return [
         }
 
         return $application;
+    },
+
+    Client::class => function (ContainerInterface $container) { // integration of ElephantIO\Client
+        $settings = $container->get('settings')['websocket'];
+        $url = $settings['host'].':'.$settings['port'];
+        return new Client(Client::engine(Client::CLIENT_4X, $url, [
+            'headers' => [
+                'Authorization: Bearer ' . 'ServerTOKEN',
+                'User: Server',
+            ]
+        ]));
     },
 
 //    DictionaryApiClientFactory::class => function (ContainerInterface $container) {

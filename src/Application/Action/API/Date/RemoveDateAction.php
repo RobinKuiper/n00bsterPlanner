@@ -22,6 +22,13 @@ final class RemoveDateAction extends DateAction
 
         $necessity = $this->dateService->removeDate($userId, $eventId, $date);
 
+        if ($necessity['success']) {
+            $this->emit('date_removed', [
+                'date' => $necessity['date']->getDate()->format('Y-m-d'),
+                'room' => $necessity['identifier']
+            ]);
+        }
+
         return $this->respond($necessity);
     }
 }

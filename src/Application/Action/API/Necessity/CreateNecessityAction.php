@@ -20,6 +20,13 @@ final class CreateNecessityAction extends NecessityAction
 
         $value = $this->necessityService->createNecessity($data);
 
+        if ($value['success']) {
+            $this->emit('necessity_added', [
+                'necessity' => $value['message'],
+                'room'      => $value['identifier']
+            ]);
+        }
+
         return $this->respond($value);
     }
 }

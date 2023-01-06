@@ -18,6 +18,13 @@ final class RemoveNecessityAction extends NecessityAction
 
         $data = $this->necessityService->removeNecessity($userId, $id);
 
+        if ($data['success']) {
+            $this->emit('necessity_removed', [
+                'necessity' => $data['necessity'],
+                'room'      => $data['identifier']
+            ]);
+        }
+
         return $this->respond($data);
     }
 }
