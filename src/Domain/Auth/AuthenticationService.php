@@ -182,7 +182,7 @@ final class AuthenticationService
         $user = new User();
         $user->setUsername($data['username']);
         $user->setPassword(hash_password($data['password']));
-        $user->setDisplayName($this->randomDisplayName());
+        $user->setDisplayName($data['username']);
 
         $this->entityManager->persist($user);
         $this->entityManager->flush();
