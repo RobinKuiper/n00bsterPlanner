@@ -20,7 +20,9 @@ use App\Application\Action\API\Event\RemoveEventAction;
 use App\Application\Action\API\Event\UpdateEventAction;
 use App\Application\Action\API\Date\AddDateAction;
 use App\Application\Action\API\Necessity\CreateNecessityAction;
+use App\Application\Action\API\Necessity\PickNecessityAction;
 use App\Application\Action\API\Necessity\RemoveNecessityAction;
+use App\Application\Action\API\Necessity\UnpickNecessityAction;
 use App\Application\Middleware\IsAuthenticatedMiddleware;
 use App\Application\Middleware\IsGuestMiddleware;
 use App\Application\Middleware\RegisterGuestMiddleware;
@@ -59,6 +61,8 @@ return function (App $app) {
             /** NECESSITIES */
             $app->group('/necessity', function (RouteCollectorProxy $app) {
                 $app->post('', CreateNecessityAction::class)->add(IsAuthenticatedMiddleware::class);
+                $app->post('/pick', PickNecessityAction::class)->add(IsAuthenticatedMiddleware::class);
+                $app->post('/unpick', UnpickNecessityAction::class)->add(IsAuthenticatedMiddleware::class);
 
                 $app->delete('/{id}', RemoveNecessityAction::class)->add(IsAuthenticatedMiddleware::class);
             });

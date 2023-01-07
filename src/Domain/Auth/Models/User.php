@@ -55,9 +55,10 @@ class User extends BaseModel
     #[OneToMany(mappedBy: 'user', targetEntity: PickedDate::class, cascade: ['persist'])]
     private Collection $pickedDates;
 
-    // One User has multiple necessities
+    // Many Users have multiple necessities
     /** @var Collection<int, Necessity> */
-    #[OneToMany(mappedBy: 'member', targetEntity: Necessity::class)]
+    #[ManyToMany(targetEntity: Necessity::class, inversedBy: 'members', cascade: ['persist'])]
+    #[JoinTable(name: 'users_necessities')]
     private Collection $necessities;
 
     // One User created multiple necessities
@@ -268,31 +269,31 @@ class User extends BaseModel
         }
     }
 
-    public function addDate(Date $date): void
-    {
-//        if(!$this->dates instanceof ArrayCollection) {
-//            $this->dates = new ArrayCollection();
+//    public function addDate(Date $date): void
+//    {
+////        if(!$this->dates instanceof ArrayCollection) {
+////            $this->dates = new ArrayCollection();
+////        }
+//
+//        if (!$this->dates->contains($date)) {
+//            $this->dates->add($date);
+//            $date->addMember($this);
 //        }
-
-        if (!$this->dates->contains($date)) {
-            $this->dates->add($date);
-            $date->addMember($this);
-        }
-    }
-
-    public function removeDate(Date $date): void
-    {
-        if ($this->dates->contains($date)) {
-            $this->dates->removeElement($date);
-            $date->removeMember($this);
-        }
-    }
+//    }
+//
+//    public function removeDate(Date $date): void
+//    {
+//        if ($this->dates->contains($date)) {
+//            $this->dates->removeElement($date);
+//            $date->removeMember($this);
+//        }
+//    }
 
     public function addNecessity(Necessity $necessity): void
     {
         if (!$this->necessities->contains($necessity)) {
             $this->necessities->add($necessity);
-            $necessity->setMember($this);
+            $necessity->addMember($this);
         }
     }
 
@@ -300,7 +301,7 @@ class User extends BaseModel
     {
         if ($this->necessities->contains($necessity)) {
             $this->necessities->removeElement($necessity);
-            $necessity->setMember(null);
+            $necessity->removeMember($this);
         }
     }
 

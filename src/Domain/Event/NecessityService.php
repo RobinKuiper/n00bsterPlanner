@@ -17,7 +17,6 @@ use Psr\Log\LoggerInterface;
 final class NecessityService
 {
     private EntityManager $entityManager;
-//    private ObjectRepository $repository;
     private NecessityValidator $validator;
     private LoggerInterface $logger;
 
@@ -27,7 +26,6 @@ final class NecessityService
         LoggerFactory $loggerFactory,
     ) {
         $this->entityManager = $entityManager;
-//        $this->repository = $entityManager->getRepository(Event::class);
         $this->validator = $validator;
         $this->logger = $loggerFactory
             ->addFileHandler('necessities.log')
@@ -73,39 +71,6 @@ final class NecessityService
         }
     }
 
-    /**
-     * @param Event $event
-     * @param array $data
-     * @return array
-     */
-    public function updateEvent(Event $event, array $data): array
-    {
-        // Input validation
-//        $this->validator->validate($data); TODO: Validate data
-
-        try {
-            $event = $this->entityManager->getReference(Event::class, $event->getId());
-
-            $event->setDescription($data['description'] ?? $event->getDescription());
-            $event->setTitle($data['title'] ?? $event->getTitle());
-            $event->setStartDate(new DateTimeImmutable($data['startDate']) ?? $event->getStartDate());
-            $event->setEndDate(new DateTimeImmutable($data['endDate']) ?? $event->getEndDate());
-
-            $this->entityManager->persist($event);
-            $this->entityManager->flush();
-
-            return [
-                'success' => true,
-                'event' => $event
-            ];
-        } catch (ORMException|Exception $e) {
-            return [
-                'success' => false,
-                'errors' => [$e->getMessage()]
-            ];
-        }
-    }
-
     public function removeNecessity(int $userId, int $necessityId): array
     {
         try {
@@ -132,6 +97,86 @@ final class NecessityService
             return [
                 'success' => false,
                 'errors' => [$e->getMessage()]
+            ];
+        }
+    }
+
+    public function pickNecessity(array $data): array
+    {
+        // Validate TODO;
+
+        try {
+            $user = $this->entityManager->find(User::class, $data['userId']);
+
+//            if (!$event || !$event->getId()) { TODO:
+//                return [
+//                    'success'    => false,
+//                    'error'      => "You are not allowed to pick a necessity in this event,",
+//                    'statusCode' => StatusCodeInterface::STATUS_UNAUTHORIZED
+//                ];
+//            }
+
+            $necessity = $this->entityManager->find(Necessity::class, $data['necessityId']);
+
+            if ($necessity && $user) {
+                $necessity->addMember($user);
+                $this->entityManager->persist($necessity);
+                $this->entityManager->flush();
+
+                $this->logger->info(sprintf('Necessity picked successfully: %s', $necessity->getId()));
+
+                return [
+                    'success'    => true,
+                    'message'    => $necessity,
+                    'user'       => $user,
+                    'identifier' => $necessity->getEvent()->getIdentifier()
+                ];
+            } else {
+                return [
+                    'success' => false,
+                    'statusCode' => StatusCodeInterface::STATUS_INTERNAL_SERVER_ERROR
+                ];
+            }
+        } catch (OptimisticLockException|ORMException $e) {
+            return [
+                'success' => false,
+                'error'   => $e->getMessage()
+            ];
+        }
+    }
+
+    public function unpickNecessity(array $data): array
+    {
+        // Validate TODO;
+
+        // Insert event
+        try {
+            $user = $this->entityManager->find(User::class, $data['userId']);
+
+            $necessity = $this->entityManager->find(Necessity::class, $data['necessityId']);
+
+            if ($necessity && $user) {
+                $necessity->removeMember($user);
+                $this->entityManager->persist($necessity);
+                $this->entityManager->flush();
+
+                $this->logger->info('Necessity unpicked successfully');
+
+                return [
+                    'success'    => true,
+                    'message'    => $necessity,
+                    'user'       => $user,
+                    'identifier' => $necessity->getEvent()->getIdentifier()
+                ];
+            } else {
+                return [
+                    'success' => false,
+                ];
+            }
+        } catch (OptimisticLockException|ORMException $e) {
+            return [
+                'success' => false,
+                'error'   => $e->getMessage()
             ];
         }
     }

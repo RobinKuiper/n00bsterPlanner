@@ -4,8 +4,11 @@ namespace App\Domain\Event\Models;
 
 use App\Application\Base\BaseModel;
 use App\Domain\Auth\Models\User;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\Entity;
+use Doctrine\ORM\Mapping\ManyToMany;
 use Doctrine\ORM\Mapping\ManyToOne;
 use Doctrine\ORM\Mapping\Table;
 
@@ -21,11 +24,17 @@ class Necessity extends BaseModel
     #[ManyToOne(targetEntity: Event::class, cascade: ["persist"], inversedBy: 'necessities')]
     private Event $event;
 
-    #[ManyToOne(cascade: ["persist"], inversedBy: "necessities")]
-    private User|null $member;
+    /** @var Collection<int, User> */
+    #[ManyToMany(targetEntity: User::class, mappedBy: 'necessities', cascade: ['persist'], fetch: "EAGER")]
+    private Collection $members;
 
     #[ManyToOne(cascade: ["persist"], fetch: "EAGER", inversedBy: "createdNecessities")]
     private User $creator;
+
+    public function __construct()
+    {
+        $this->members = new ArrayCollection();
+    }
 
     public function getName(): string
     {
@@ -54,13 +63,31 @@ class Necessity extends BaseModel
         $this->event = $event;
     }
 
-    public function getMember(): User
+    public function getMembers(): Collection
     {
-        return $this->member;
+        return $this->members;
     }
-    public function setMember(User|null $member): void
+    /**
+     * @param Collection<int, User> $members
+     * @return void
+     */
+    public function setMembers(Collection $members): void
     {
-        $this->member = $member;
+        $this->members = $members;
+    }
+    public function addMember(User $user): void
+    {
+        if (!$this->members->contains($user)) {
+            $this->members->add($user);
+            $user->addNecessity($this);
+        }
+    }
+    public function removeMember(User $user): void
+    {
+        if ($this->members->contains($user)) {
+            $this->members->removeElement($user);
+            $user->removeNecessity($this);
+        }
     }
 
     public function getCreator(): User
@@ -87,7 +114,7 @@ class Necessity extends BaseModel
             'amount' => $this->amount,
             'creator' => $this->creator ?? null,
 //            'event' => $this->getEvent(),
-//            'member' => $this->getMember()
+            'members' => $this->getMembers()->toArray()
         );
     }
 }
