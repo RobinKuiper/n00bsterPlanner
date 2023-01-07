@@ -33,7 +33,7 @@ class Event extends BaseModel
     private Collection $dates;
 
     /** @var Collection<int, PickedDate> */
-    #[OneToMany(mappedBy: 'user', targetEntity: PickedDate::class, cascade: ['persist'])]
+    #[OneToMany(mappedBy: 'event', targetEntity: PickedDate::class, cascade: ['persist'])]
     private Collection $pickedDates;
 
 //    #[ManyToOne(targetEntity: EventCategory::class, inversedBy: 'events')]
