@@ -10,6 +10,7 @@ use DateTimeImmutable;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\OptimisticLockException;
+use Doctrine\ORM\TransactionRequiredException;
 use Exception;
 use Fig\Http\Message\StatusCodeInterface;
 use Firebase\JWT\JWT;
@@ -57,14 +58,14 @@ final class AuthenticationService
     {
         // TODO: Input validation
 
-        $username = $data['username'];
+        $email = $data['email'];
         $password = $data['password'];
 
         $repository = $this->entityManager->getRepository(User::class);
-        $user = $repository->findOneBy([ 'username' => $username ]);
+        $user = $repository->findOneBy([ 'email' => $email ]);
 
         if (!$user || !password_verify($password, $user->getPassword())) {
-            $this->logger->error(sprintf('Sign in failed: %s', $username));
+            $this->logger->error(sprintf('Sign in failed: %s', $email));
 
             return [
                 'success'       => false,
@@ -73,7 +74,7 @@ final class AuthenticationService
             ];
         }
 
-        $this->logger->info(sprintf('User logged in successfully: %s', $user->getUsername()));
+        $this->logger->info(sprintf('User logged in successfully: %s', $user->getEmail()));
 
         $jwt = $this->createOrUpdateSession($user);
 
@@ -91,7 +92,7 @@ final class AuthenticationService
 
             $user = $this->createNewUser($data);
 
-            $this->logger->info(sprintf('User created successfully: %s', $user->getUsername()));
+            $this->logger->info(sprintf('User created successfully: %s', $user->getEmail()));
 
             $jwt = $this->createOrUpdateSession($user);
 
@@ -143,6 +144,98 @@ final class AuthenticationService
     }
 
     /**
+     * @param int $userId
+     * @return User
+     * @throws ORMException
+     * @throws OptimisticLockException
+     * @throws TransactionRequiredException
+     */
+    public function getUser(int $userId): array
+    {
+        return [
+            'success' => true,
+            'message' => $this->entityManager->find(User::class, $userId)
+        ];
+    }
+
+    /**
+     * @param int $userId
+     * @param array $data
+     * @return array
+     * @throws ORMException
+     * @throws OptimisticLockException
+     * @throws TransactionRequiredException
+     */
+    public function updateProfile(int $userId, array $data): array
+    {
+        $user = $this->entityManager->find(User::class, $userId);
+
+        // TODO: Check unique
+
+        $user->setDisplayName($data['displayName']);
+        $this->entityManager->persist($user);
+        $this->entityManager->flush();
+
+        return [
+            'success' => true,
+            'message' => $user
+        ];
+    }
+
+    /**
+     * @param int $userId
+     * @param array $data
+     * @return array
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     * @throws ORMException
+     * @throws OptimisticLockException
+     * @throws TransactionRequiredException
+     */
+    public function updatePassword(int $userId, array $data): array
+    {
+        $user = $this->entityManager->find(User::class, $userId);
+
+        // TODO: Check unique
+
+        $user->setPassword(hash_password($data['password']));
+        $this->entityManager->persist($user);
+        $this->entityManager->flush();
+
+        return [
+            'success' => true,
+            'message' => $user
+        ];
+    }
+
+    /**
+     * @param int $userId
+     * @param array $data
+     * @return array
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     * @throws ORMException
+     * @throws OptimisticLockException
+     * @throws TransactionRequiredException
+     */
+    public function addCredentials(int $userId, array $data): array
+    {
+        $user = $this->entityManager->find(User::class, $userId);
+
+        // TODO: Check unique
+
+        $user->setEmail($data['email']);
+        $user->setPassword(hash_password($data['password']));
+        $this->entityManager->persist($user);
+        $this->entityManager->flush();
+
+        return [
+            'success' => true,
+            'message' => $user
+        ];
+    }
+
+    /**
      * @param User $user
      * @return string
      * @throws ORMException
@@ -180,9 +273,9 @@ final class AuthenticationService
     private function createNewUser(array $data): User
     {
         $user = new User();
-        $user->setUsername($data['username']);
+        $user->setEmail($data['email']);
+        $user->setDisplayName($data['displayName']);
         $user->setPassword(hash_password($data['password']));
-        $user->setDisplayName($data['username']);
 
         $this->entityManager->persist($user);
         $this->entityManager->flush();
@@ -217,7 +310,7 @@ final class AuthenticationService
     {
         $payload = [
             'userId' => $user->getId(),
-            'displayName' => $user->getDisplayName() ?? $user->getUsername()
+            'displayName' => $user->getDisplayName() ?? $user->getEmail()
         ];
         return JWT::encode($payload, $this->settings['secret'], 'HS256');
     }

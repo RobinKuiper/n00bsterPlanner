@@ -24,7 +24,7 @@ class User extends BaseModel
     private string $visitorId;
 
     #[Column(type: 'string', unique: true, nullable: true)]
-    private string $username;
+    private string $email;
 
     #[Column(type: 'string', unique: false, nullable: true)]
     private string $password;
@@ -87,13 +87,13 @@ class User extends BaseModel
         $this->visitorId = $visitorId;
     }
 
-    public function getUsername(): string
+    public function getEmail(): string
     {
-        return $this->username;
+        return $this->email;
     }
-    public function setUsername(string $username): void
+    public function setEmail(string $email): void
     {
-        $this->username = $username;
+        $this->email = $email;
     }
 
     public function getDisplayName(): string
@@ -317,8 +317,8 @@ class User extends BaseModel
     {
         return array(
             'id' => $this->id,
-            'username' => $this->username ?? null,
-            'displayName' => $this->displayName ?? null
+            'email' => $this->email ?? null,
+            'displayName' => $this->displayName ?? null,
 //            'firstVisit' => $this->firstVisit,
 //            'ownedEvents' => $this->getOwnedEvents()->toArray(),
 //            'events' => $this->getEvents()->toArray(),

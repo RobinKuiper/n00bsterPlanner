@@ -2,10 +2,14 @@
 
 // Define app routes
 
+use App\Application\Action\API\Auth\AddCredentialsAction;
+use App\Application\Action\API\Auth\GetUserAction;
 use App\Application\Action\API\Auth\LoginAction;
 use App\Application\Action\API\Auth\LogoutAction;
 use App\Application\Action\API\Auth\RegisterAction;
 use App\Application\Action\API\Auth\RegisterGuestAction;
+use App\Application\Action\API\Auth\UpdatePasswordAction;
+use App\Application\Action\API\Auth\UpdateProfileAction;
 use App\Application\Action\API\Date\GetAllPickedDatesAction;
 use App\Application\Action\API\Date\GetUsersPickedDatesAction;
 use App\Application\Action\API\Date\PickDateAction;
@@ -36,11 +40,16 @@ return function (App $app) {
         function (RouteCollectorProxy $app) {
             /** AUTHENTICATION */
             $app->group('/authentication', function (RouteCollectorProxy $app) {
+                $app->get('', GetUserAction::class)->add(IsAuthenticatedMiddleware::class);
                 $app->get('/logout', LogoutAction::class)->add(IsAuthenticatedMiddleware::class);
 
                 $app->post('/login', LoginAction::class)->add(IsGuestMiddleware::class);
                 $app->post('/register', RegisterAction::class)->add(IsGuestMiddleware::class);
                 $app->post('/register/guest', RegisterGuestAction::class)->add(IsGuestMiddleware::class);
+
+                $app->put('', UpdateProfileAction::class)->add(IsAuthenticatedMiddleware::class);
+                $app->put('/password', UpdatePasswordAction::class)->add(IsAuthenticatedMiddleware::class);
+                $app->put('/add_credentials', AddCredentialsAction::class)->add(IsAuthenticatedMiddleware::class);
             });
 
             /** EVENTS */

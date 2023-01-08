@@ -35,10 +35,17 @@ final class UserValidator
         $violations = $validator->validate($data, $this->createConstraints());
 
         $repository = $this->entityManager->getRepository(User::class);
-        if ($repository->findOneBy([ 'username' => $data['username'] ])) {
-            $violation = new ConstraintViolation('Username already exists.', null, [], $data['username'], null, $data['username']);
+        if ($repository->findOneBy([ 'email' => $data['email'] ])) {
+            $violation = new ConstraintViolation(
+                'Email already exists.',
+                null,
+                [],
+                $data['email'],
+                null,
+                $data['email']
+            );
             $violations->add($violation);
-            // throw new DomainException(sprintf('Username exists: %s', $data['username']));
+            // throw new DomainException(sprintf('Email exists: %s', $data['email']));
         }
 
         if ($violations->count()) {
@@ -55,7 +62,12 @@ final class UserValidator
 
         return $constraint->collection(
             [
-                'username' => $constraint->required(
+                'email' => $constraint->required(
+                    [
+                        $constraint->email(),
+                    ]
+                ),
+                'displayName' => $constraint->required(
                     [
                         $constraint->notBlank(),
                         $constraint->length(3, 25),
