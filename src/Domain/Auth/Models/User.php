@@ -32,6 +32,9 @@ class User extends BaseModel
     #[Column(name: 'display_name', type: 'string', unique: true, nullable: true)]
     private string $displayName;
 
+    #[Column(type: 'string')]
+    private string $color;
+
     #[Column(name: 'first_visit', type: 'datetimetz_immutable', nullable: false)]
     private DateTimeImmutable $firstVisit;
 
@@ -103,6 +106,15 @@ class User extends BaseModel
     public function setDisplayName(string $displayName): void
     {
         $this->displayName = $displayName;
+    }
+
+    public function getColor(): string
+    {
+        return $this->color;
+    }
+    public function setColor(string $color): void
+    {
+        $this->color = $color;
     }
 
     public function setPassword(string $password): void
@@ -319,6 +331,7 @@ class User extends BaseModel
             'id' => $this->id,
             'email' => $this->email ?? null,
             'displayName' => $this->displayName ?? null,
+            'color' => $this->color !== "" ? $this->color :  'white',
 //            'firstVisit' => $this->firstVisit,
 //            'ownedEvents' => $this->getOwnedEvents()->toArray(),
 //            'events' => $this->getEvents()->toArray(),

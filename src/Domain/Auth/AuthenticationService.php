@@ -173,6 +173,7 @@ final class AuthenticationService
         // TODO: Check unique
 
         $user->setDisplayName($data['displayName']);
+        $user->setColor($data['color']);
         $this->entityManager->persist($user);
         $this->entityManager->flush();
 
