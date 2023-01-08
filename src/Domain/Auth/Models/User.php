@@ -33,7 +33,7 @@ class User extends BaseModel
     private string $displayName;
 
     #[Column(type: 'string')]
-    private string $color;
+    private string $color = 'white';
 
     #[Column(name: 'first_visit', type: 'datetimetz_immutable', nullable: false)]
     private DateTimeImmutable $firstVisit;

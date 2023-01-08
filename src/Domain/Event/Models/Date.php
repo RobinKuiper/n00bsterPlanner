@@ -24,7 +24,7 @@ class Date extends BaseModel
     private Event $event;
 
     /** @var Collection<int, PickedDate> */
-    #[OneToMany(mappedBy: 'user', targetEntity: PickedDate::class, cascade: ['persist'])]
+    #[OneToMany(mappedBy: 'date', targetEntity: PickedDate::class, cascade: ['persist'])]
     private Collection $pickedDates;
 
     public function __construct()
