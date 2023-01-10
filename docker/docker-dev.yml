@@ -1,0 +1,31 @@
+version: "3.7"
+services:
+
+  server:
+    environment:
+      - APP_ENV=production
+      - MYSQL_DATABASE=noobster
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=root
+      - MYSQL_HOST=db
+      - CORS=http://localhost:3000
+      - AUTH_SECRET=AuthSecret2023
+      - WS_HOST=localhost
+      - WS_PORT=8081
+    ports:
+      - "8080:80"
+    volumes:
+      - ../:/var/www/html
+    depends_on:
+      - db
+
+  db:
+    container_name: noobster_db
+    image: mysql:latest
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: noobster
+    volumes:
+      - "../resources/schema/schema.sql:/docker-entrypoint-initdb.d/1-schema.sql"

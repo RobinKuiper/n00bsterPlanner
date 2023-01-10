@@ -3,7 +3,6 @@
 namespace App\Application\Middleware;
 
 use App\Application\Factory\ContainerFactory;
-use App\Domain\Auth\Repository\UserRepository;
 use Exception;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseFactoryInterface;

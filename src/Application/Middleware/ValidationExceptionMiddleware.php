@@ -8,7 +8,7 @@ use Psr\Http\Server\RequestHandlerInterface;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\Exception\ValidationFailedException;
 
-final class ValidationExceptionMiddleware extends MiddleWare
+final class ValidationExceptionMiddleware extends Middleware
 {
     public function process(
         ServerRequestInterface $request,

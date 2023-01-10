@@ -1,6 +1,5 @@
 /logs
 /cache
-/app/local.*.php
 
 # Created by https://www.toptal.com/developers/gitignore/api/composer,windows,phpstorm,dotenv
 # Edit at https://www.toptal.com/developers/gitignore?templates=composer,windows,phpstorm,dotenv

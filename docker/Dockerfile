@@ -55,20 +55,28 @@ RUN docker-php-ext-install \
  zip
 
 # Xdebug
-RUN pecl install xdebug \
- && docker-php-ext-enable xdebug \
- && echo 'xdebug.remote_autostart=0' >> /usr/local/etc/php/conf.d/xdebug.ini \
- && echo 'xdebug.remote_enable=1' >> /usr/local/etc/php/conf.d/xdebug.ini \
- && echo 'xdebug.remote_host=host.docker.internal' >> /usr/local/etc/php/conf.d/xdebug.ini \
- && echo 'xdebug.remote_port=9000' >>  /usr/local/etc/php/conf.d/xdebug.ini \
- && echo 'xdebug.remote_cookie_expire_time=36000' >>  /usr/local/etc/php/conf.d/xdebug.ini
+#RUN pecl install xdebug \
+# && docker-php-ext-enable xdebug \
+# && echo 'xdebug.remote_autostart=0' >> /usr/local/etc/php/conf.d/xdebug.ini \
+# && echo 'xdebug.remote_enable=1' >> /usr/local/etc/php/conf.d/xdebug.ini \
+# && echo 'xdebug.remote_host=host.docker.internal' >> /usr/local/etc/php/conf.d/xdebug.ini \
+# && echo 'xdebug.remote_port=9000' >>  /usr/local/etc/php/conf.d/xdebug.ini \
+# && echo 'xdebug.remote_cookie_expire_time=36000' >>  /usr/local/etc/php/conf.d/xdebug.ini
 
 # Apache
 RUN a2enmod rewrite \
- && echo "ServerName docker" >> /etc/apache2/apache2.conf
+ && echo "ServerName n00bster_backend" >> /etc/apache2/apache2.conf \
+ && a2enmod actions
 
 # Composer
 RUN curl -sS https://getcomposer.org/installer | php && \
  mv composer.phar /usr/local/bin/composer
 
-WORKDIR /var/www/public
+WORKDIR /var/www/html
+COPY ../ ./
+COPY ../apache/apache2.conf /etc/apache2/apache2.conf
+RUN mkdir /var/www/.composer && chmod 777 /var/www/.composer -R && chown www-data:www-data /var/www/.composer -R
+RUN chown www-data:www-data . -R
+USER www-data
+RUN composer install && composer update && composer dump-autoload --optimize
+
